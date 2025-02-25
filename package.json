@@ -1,4 +1,5 @@
 {
+  "name": "viva-job-calculator",
   "private": true,
   "scripts": {
     "dev": "next dev",

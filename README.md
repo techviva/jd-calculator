@@ -1,52 +1,74 @@
-# Firebase Example
-
-This is a simple set up for Firebase for client side applications.
-
-The firebase app is initialized in `firebase/clientApp.js`, to use you just have to import it anywhere in the app
-
-The React Context API is used to provide user state.
-
-## Deploy your own
-
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) or preview live with [StackBlitz](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/with-firebase)
+# Job Cost Calculator for Viva Landscape and Design
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-firebase&project-name=with-firebase&repository-name=with-firebase)
 
-## How to use
+## Overview
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+This repository contains the proposal and implementation details for a **Job Cost Calculator** developed for **Viva Landscape and Design**. The tool aims to streamline cost estimation, enhance accuracy, and improve efficiency in pricing jobs.
 
-```bash
-npx create-next-app --example with-firebase with-firebase-app
-```
+---
 
-```bash
-yarn create next-app --example with-firebase with-firebase-app
-```
+## 🌿 Project Links
 
-```bash
-pnpm create next-app --example with-firebase with-firebase-app
-```
+- [Viva Landscape and Design Services Overview](https://vivalandscapeanddesign.com/services-overview/)
+- [Current Calculator (Google Sheets)](https://docs.google.com/spreadsheets/d/1R2dSBDa5QKKVmiU2boQWhiFvxjHc0IRh0eCHAcr3njY/edit?usp=sharing)
+- [Initial Wireframe (Miro)](https://miro.com/app/board/uXjVIdBefGQ=/?share_link_id=3440531755)
+- [Figma Design File](https://www.figma.com/design/aK3JSDuXhmJXn2b5RFsxDM/Viva-Landscape-Design?m=auto&t=ACNlkxQdOdzxtJPU-1)
+- [Project Management Board (Trello)](https://trello.com/invite/b/67bdae129fc69b5fec00aa7f/ATTI3d0fd9a9dca2c6cee7ee728eb24e8fa23551E52E/viva-job-calculator)
 
-## Configuration
+---
 
-1. [Create a Firebase project](https://console.firebase.google.com/u/0/) and add a new app to it.
-2. Create a `.env.local` file and copy the contents of `.env.local.example` into it:
+## 🎯 Project Objectives
 
-```bash
-cp .env.local.example .env.local
-```
+The goal of this project is to develop a **Job Cost Calculator** that enables **Viva Landscape and Design** to:
 
-3. Set each variable on `.env.local` with your Firebase Configuration (found in "Project settings").
+- Accurately estimate costs for projects based on labor, materials, and overhead.
+- Reduce manual calculations and errors.
+- Provide quick and consistent pricing for clients.
+- Improve overall business efficiency and profitability.
 
-4. If you want to check the SSR page, get your account credentials from the Firebase console at _Project settings > Service accounts_, where you can click on _Generate new private key_ and download the credentials as a json file. Then set `FIREBASE_CLIENT_EMAIL` and `FIREBASE_PRIVATE_KEY` in `.env.local`
+---
 
-## Deploy on Vercel
+## 📌 Scope of Work
 
-You can deploy this app to the cloud with [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+### ✅ Features and Functionality
 
-### Deploy Your Local Project
+- **User-friendly Interface** – Intuitive design for easy data entry.
+- **Cost Management Module** – Structured input for materials, labor, transport, and overhead.
+- **Project Estimator Module** –
+  - **Job/Project Creation** – Ability to create jobs with deadlines.
+  - **Automated Calculations** – Real-time cost breakdowns and total pricing.
+  - **Markup & Profit Margin Calculations** – Adjustable settings for pricing strategies.
+- **Job Summary Module** – Breakdown of job details, cost summaries, and categorized bill structures.
+- **PDF Export** – Generate and export job summaries as PDFs.
 
-To deploy your local project to Vercel, push it to GitHub/GitLab/Bitbucket and [import to Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example).
+### ❌ Features NOT Included
 
-**Important**: When you import your project on Vercel, make sure to click on **Environment Variables** and set them to match your `.env.local` file.
+- **No User Management** – Users will be created/edited from the backend.
+- **No Fine-Grained Access Control** – All users will have full visibility and access.
+
+---
+
+## 🛠 Technology Stack
+
+| Component | Technology |
+| --- | --- |
+| **Frontend** | Next.js (with Chakra UI for styling) |
+| **Backend** | Firebase |
+| **Database** | PostgreSQL |
+| **Hosting** | AWS or Vercel/Firebase |
+
+---
+
+## 📅 Project Timeline
+
+The project will take **10 business days** from start to finish.
+
+| Milestone | Task |
+| --- | --- |
+| **Project Kickoff** | Requirement gathering & planning |
+| **UI/UX Design** | Mockups & wireframes approval |
+| **Development Phase 1** | Core functionality implementation |
+| **Development Phase 2** | Testing & refinements |
+| **Deployment** | Final testing & go-live |
+| **Support & Maintenance** | Post-launch adjustments |

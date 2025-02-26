@@ -55,8 +55,8 @@ The goal of this project is to develop a **Job Cost Calculator** that enables **
 | --- | --- |
 | **Frontend** | Next.js (with Chakra UI for styling) |
 | **Backend** | Firebase |
-| **Database** | PostgreSQL |
-| **Hosting** | AWS or Vercel/Firebase |
+| **Database** | Cloud Firestore |
+| **Hosting** | Vercel + Firebase |
 
 ---
 

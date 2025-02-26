@@ -1,6 +1,6 @@
 # Job Cost Calculator for Viva Landscape and Design
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-firebase&project-name=with-firebase&repository-name=with-firebase)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/codefoundry-dev/viva-job-calculator&project-name=viva-job-calculator&repository-name=viva-job-calculator)
 
 ## Overview
 

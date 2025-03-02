@@ -15,7 +15,7 @@ export default function NavItem({ icon, title, active, linkTo, isExtended }: Nav
     return (
         <Link href={linkTo} style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "flex-start", padding: "10px", gap: "10px", minHeight: "44px", width: "100%" }} >
             {icon}
-            <Presence present={isExtended} animationName={{ _open: "slide-from-right, fade-in" }}
+            <Presence present={isExtended} animationName={{ _open: "slide-from-right, fade-in", _closed: "slide-to-right, fade-out" }}
                 animationDuration="0.6s" unmountOnExit >
                 <Text textWrap="nowrap">{title}</Text>
             </Presence>

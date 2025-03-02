@@ -1,5 +1,5 @@
 import { Header, Provider, Sidenav } from "@/components/ui";
-import { Container, Grid, HStack } from "@chakra-ui/react";
+import { Container, HStack } from "@chakra-ui/react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 

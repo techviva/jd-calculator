@@ -1,4 +1,4 @@
-import { HStack, Presence, Text } from "@chakra-ui/react";
+import { Presence, Text } from "@chakra-ui/react";
 import Link from "next/link";
 
 
@@ -10,7 +10,7 @@ interface NavItemProps {
     isExtended?: boolean
 }
 
-export default function NavItem({ icon, title, active, linkTo, isExtended }: NavItemProps) {
+export default function NavItem({ icon, title, linkTo, isExtended }: NavItemProps) {
 
     return (
         <Link href={linkTo} style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "flex-start", padding: "10px", gap: "10px", minHeight: "44px", width: "100%" }} >

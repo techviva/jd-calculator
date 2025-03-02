@@ -1,5 +1,5 @@
 import { JobCard, JobStatsCard } from "@/components/ui";
-import { VStack, Heading, Text, Grid, GridItem, HStack, Flex, Span } from "@chakra-ui/react";
+import { VStack, Heading, Text, Grid, GridItem, HStack, Flex } from "@chakra-ui/react";
 import { BsArrowRight } from "react-icons/bs";
 
 

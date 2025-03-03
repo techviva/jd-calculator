@@ -1,5 +1,5 @@
 import { JobCard, JobStatsCard } from "@/components/ui";
-import { VStack, Heading, Text, Grid, GridItem, HStack, Flex } from "@chakra-ui/react";
+import { VStack, Heading, Text, Flex, Stack } from "@chakra-ui/react";
 import { BsArrowRight } from "react-icons/bs";
 
 
@@ -26,29 +26,29 @@ const dummyStats = [
 
 export default function Home() {
   return (
-    <HStack height="100%" width="100%" alignItems="flex-start" gap={8} pt={4}>
-      <VStack gap={4} width="100%" align="flex-start">
-        <Heading as="h1" fontSize="3xl" fontWeight="bold" >Welcome David ☁️</Heading>
-        <Text color="fg.muted" fontSize="2xl" fontWeight="semibold">Some Stats</Text>
-        <Grid gap={4} templateColumns={{ base: "1fr", md: "repeat(auto-fit, minmax(200px, 1fr))" }} width="100%">
+    <Stack direction={{ base: "column", lg: "row" }} height="max-content" width="100%" alignItems="flex-start" gap={8} pt={4}>
+      <VStack align="flex-start">
+        <Heading as="h1" fontWeight="bold" >Welcome David ☁️</Heading>
+        <Text color="fg.muted" fontWeight="semibold">Some Stats</Text>
+        <Flex gap={4} width="100%" wrap="wrap">
           {dummyStats.map(({ title, stats, iconColor, iconBg }) => (
-            <GridItem key={title} >
-              <JobStatsCard title={title} stats={stats} iconColor={iconColor} iconBg={iconBg} />
-            </GridItem>
+            <JobStatsCard key={title} title={title} stats={stats} iconColor={iconColor} iconBg={iconBg} />
           ))}
-        </Grid>
-
+        </Flex>
       </VStack>
-      <VStack gap={4} width="fit-content" align="flex-start" p={4} borderRadius="3xl" bg="spot">
+      <VStack gap={4} maxWidth={{ base: "100%", lg: "400px" }} minWidth="250px" width={{ base: "100%", lg: "fit-content" }} alignItems="center" p={4} borderRadius="3xl" bg="spot" maxHeight={{ lg: "80%" }} height={{ base: "100%", lg: "70dvh" }} overflowY={{ lg: "scroll" }} marginLeft={{ lg: "auto" }}>
         <Flex justifyContent="space-between" width="100%" alignItems="center" color="fg.muted">
-          <Heading as="h2">Recent Projects</Heading>
-          <Flex gap={1} align="center"><Text fontSize="md">See all</Text> <BsArrowRight fontWeight="bold" /></Flex>
+          <Heading fontSize="medium">Recent Projects</Heading>
+          <Flex gap={1} align="center">
+            <Text fontVariant="contextual" fontSize="small">See all</Text>
+            <BsArrowRight fontWeight="bold" />
+          </Flex>
         </Flex>
         {Array.from({ length: 3 }).map((_, index) => (
           <JobCard key={index} title="Mr. Krasinski's House" description="He wants..." />
         ))}
       </VStack>
-    </HStack>
+    </Stack>
   );
 }
 

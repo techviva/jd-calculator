@@ -1,5 +1,5 @@
 import { JobCard, JobStatsCard } from "@/components/ui";
-import { VStack, Heading, Text, Flex, Stack } from "@chakra-ui/react";
+import { VStack, Heading, Text, Flex, HStack } from "@chakra-ui/react";
 import { BsArrowRight } from "react-icons/bs";
 
 
@@ -26,7 +26,7 @@ const dummyStats = [
 
 export default function Home() {
   return (
-    <Stack direction={{ base: "column", lg: "row" }} height="max-content" width="100%" alignItems="flex-start" gap={8} pt={4}>
+    <HStack height="max-content" width="100%" alignItems="flex-start" gap={8} pt={4}>
       <VStack align="flex-start">
         <Heading as="h1" fontWeight="bold" >Welcome David ☁️</Heading>
         <Text color="fg.muted" fontWeight="semibold">Some Stats</Text>
@@ -36,7 +36,7 @@ export default function Home() {
           ))}
         </Flex>
       </VStack>
-      <VStack gap={4} maxWidth={{ base: "100%", lg: "400px" }} minWidth="250px" width={{ base: "100%", lg: "fit-content" }} alignItems="center" p={4} borderRadius="3xl" bg="spot" maxHeight={{ lg: "80%" }} height={{ base: "100%", lg: "70dvh" }} overflowY={{ lg: "scroll" }} marginLeft={{ lg: "auto" }}>
+      <VStack gap={4} maxWidth={{ lg: "400px" }} minWidth="200px" width={{ base: "350px", lg: "fit-content" }} alignItems="center" p={4} borderRadius="3xl" bg="spot" maxHeight={{ lg: "80%" }} height={{ base: "100%", lg: "70dvh" }} overflowY="auto" marginLeft={{ lg: "auto" }}>
         <Flex justifyContent="space-between" width="100%" alignItems="center" color="fg.muted">
           <Heading fontSize="medium">Recent Projects</Heading>
           <Flex gap={1} align="center">
@@ -48,7 +48,7 @@ export default function Home() {
           <JobCard key={index} title="Mr. Krasinski's House" description="He wants..." />
         ))}
       </VStack>
-    </Stack>
+    </HStack>
   );
 }
 

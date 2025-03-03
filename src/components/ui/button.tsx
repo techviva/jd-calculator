@@ -27,6 +27,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 disabled={loading || disabled}
                 ref={ref}
                 cursor="pointer"
+                _hover={{ bg: 'teal.fg', opacity: 0.8 }}
                 {...rest}
             >
                 {loading && !loadingText ? (

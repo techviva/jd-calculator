@@ -53,7 +53,7 @@ export const Sidenav = () => {
     }, []);
 
     return (
-        <VStack as="nav" gap={0.5} justifyContent="flex-start" bg="bg" p={4} pt="30px" w={isExtended ? "100%" : "70px"} height="70dvh" borderRadius="3xl" transition="width 0.4s ease-in-out" position="sticky" top="15%" maxWidth="250px" alignItems={isExtended ? "flex-start" : "center"} mr={6} >
+        <VStack as="nav" gap={0.5} justifyContent="flex-start" bg="bg" p={4} pt="30px" w={isExtended ? "100%" : "70px"} height={{ base: "85dvh", lg: "70vh" }} borderRadius="3xl" transition="width 0.4s ease-in-out" position="sticky" top="12%" maxWidth="250px" alignItems={isExtended ? "flex-start" : "center"} mr={6} >
             {navItems.map((item) => (
                 <NavItem
                     key={item.title}
@@ -63,7 +63,7 @@ export const Sidenav = () => {
                     isExtended={isExtended}
                 />
             ))}
-            <Button mt={5} mx="auto" p={1} onClick={() => setIsExtended(!isExtended)} minWidth="24px" height="32px" borderRadius="md">
+            <Button mt="auto" mr="auto" mb="50px" p={1} ml={1} onClick={() => setIsExtended(!isExtended)} minWidth="24px" height="32px" borderRadius="md">
                 <Box width="fit-content" transform={isExtended ? "rotate(0deg)" : " rotate(180deg)"} transition="transform 0.3s ease-in-out" p={0}>
                     <MdKeyboardDoubleArrowLeft style={{ padding: "0px" }} />
                 </Box>

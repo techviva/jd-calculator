@@ -20,9 +20,9 @@ export default function RootLayout(props: { children: React.ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable}`} style={{ position: "relative" }}>
         <Provider>
-          <Container maxW="100%" p={10} height="100%" >
+          <Container maxW="100%" p={6} height="100%" >
             <Header />
-            <HStack alignItems="stretch" paddingTop="30px"  >
+            <HStack alignItems="stretch" paddingTop="14px"  >
               <Sidenav />
               {children}
             </HStack>

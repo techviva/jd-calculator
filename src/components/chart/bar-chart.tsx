@@ -74,7 +74,7 @@ const config = {
                 grid: {
                     display: true,
                     drawBorder: false,
-                    color: "#E5E5E5"
+                    color: "#c0bcbc"
                 },
             },
         }

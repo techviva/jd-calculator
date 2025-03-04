@@ -1,3 +1,4 @@
+"use client"
 import { Input, InputElementProps } from '@chakra-ui/react'
 import { InputGroup } from './input-group'
 import { ChangeEvent } from 'react'

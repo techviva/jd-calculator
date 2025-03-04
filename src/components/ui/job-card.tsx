@@ -1,9 +1,10 @@
+"use client"
 import { Card, Flex } from "@chakra-ui/react"
 import { JobsIcon } from "../icons"
 
 export const JobCard = ({ title, description }: { title: string, description: string, }) => {
     return (
-        <Card.Root borderRadius="3xl" minWidth="200px" width="100%" maxWidth="300px">
+        <Card.Root borderRadius="3xl" minWidth="200px" width="100%" maxWidth="300px" transition="all 0.2s ease-in-out" _hover={{ cursor: "pointer", bg: "gray.subtle", scale: 1.05, transition: "all 0.3s ease-in-out" }} onClick={() => { window.alert("Job Card clicked") }}>
             <Card.Body gap="1" pb={1}>
                 <Card.Header p={0}>
                     <Flex p={2} borderRadius="full" bg="total" align="center" justify="center" width="fit-content" >

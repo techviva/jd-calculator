@@ -29,7 +29,7 @@ const dummyTemplates = [
 export default function CreateProject() {
 
     return (
-        <VStack alignItems="center" width="100%" borderRadius="4xl" bg="spot" p={4}>
+        <VStack alignItems="center" width="100%" borderRadius="4xl" bg="spot" p={4} alignSelf="stretch">
             <Heading as="h1" fontWeight="bold" width="fit-content">Create project</Heading>
             <Text color="fg.muted" fontWeight="semibold" mt={-2} width="fit-content" fontSize="small">Pick a template</Text>
             <Text color="fg.muted" fontWeight="light" mt={2} width="fit-content" fontSize="small">You can pick a template from one of these</Text>

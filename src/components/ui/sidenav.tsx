@@ -53,7 +53,7 @@ export const Sidenav = () => {
     }, []);
 
     return (
-        <VStack as="nav" gap={0.5} justifyContent="flex-start" bg="bg" p={4} pt="30px" w={isExtended ? "100%" : "70px"} height={{ base: "85dvh", lg: "70vh" }} borderRadius="3xl" transition="width 0.4s ease-in-out" position="sticky" top="12%" maxWidth="250px" alignItems={isExtended ? "flex-start" : "center"} mr={6} >
+        <VStack as="nav" gap={0.5} justifyContent="flex-start" bg="bg" p={4} pt="30px" w={isExtended ? "100%" : "70px"} height={{ base: "85dvh", lg: "80vh" }} borderRadius="3xl" transition="width 0.4s ease-in-out" position="sticky" top="100px" maxWidth="250px" alignItems={isExtended ? "flex-start" : "center"} mr={6} >
             {navItems.map((item) => (
                 <NavItem
                     key={item.title}

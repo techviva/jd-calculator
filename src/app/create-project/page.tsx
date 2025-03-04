@@ -39,7 +39,7 @@ export default function CreateProject() {
                 ))}
             </HStack>
 
-            <Button fontSize="small" p={2} py={0} mt={2}>Create Blank Project</Button>
+            <Button fontSize="small" p={2} py={0} mt={3}>Create Blank Project</Button>
         </VStack>
     )
 }

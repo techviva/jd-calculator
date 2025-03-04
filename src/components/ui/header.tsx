@@ -4,8 +4,12 @@ import SearchBar from "./searchbar";
 import { Avatar } from "./avatar";
 import { SearchIcon } from "../icons";
 import { Button } from "./button";
+import { useRouter } from "next/navigation";
 
 export function Header() {
+
+    const router = useRouter();
+
     return (
         <HStack as="header" justifyContent="space-between" p={{ base: 2, lg: 4 }} alignItems="center" bg="bg" borderRadius="3xl">
             <Heading as="h1" fontWeight="bold">Viva Landscape Design</Heading>
@@ -14,7 +18,7 @@ export function Header() {
                 <Flex borderRadius="full" bg="gray.emphasized" p={2} width="fit-content" justify="center" align="center" mr={2} display={{ base: "flex", lg: "none" }}>
                     <SearchIcon />
                 </Flex>
-                <Button fontSize="small" p={{ base: 2, lg: 3 }}>Create Project</Button>
+                <Button fontSize="small" p={{ base: 2, lg: 3 }} onClick={() => router.push("/create-project")}>Create Project</Button>
                 <Avatar name="John Doe" src={undefined} />
             </HStack>
         </HStack>

@@ -101,6 +101,6 @@ ChartJS.register(
     Legend
 );
 
-export default function BarChart() {
+export function BarChart() {
     return <Bar options={config.options} data={config.data} />;
 }

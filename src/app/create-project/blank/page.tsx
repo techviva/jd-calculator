@@ -29,7 +29,7 @@ export default function BlankProject() {
             }} height="100%" pr={4} borderRight="1.5px solid" borderColor={{ base: "transparent", lg: "border.muted" }}>
                 <form onSubmit={handleSubmit((data) => console.log(data))} style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
                     <Heading as="h1" fontWeight="bold" fontSize="larger">Create project</Heading>
-                    <Text color="fg.muted" fontWeight="semibold" mt={1} fontSize="xs">Enter the details of the materials</Text>
+                    <Text color="fg.muted" fontWeight="semibold" mt={1} fontSize="small">Enter the details of the materials</Text>
                     <VStack alignItems="flex-start" border="1.5px solid" borderColor="border.muted" mb={4} mt={2}>
                         <Table.Root size="sm" >
                             <Table.ColumnGroup>
@@ -38,7 +38,7 @@ export default function BlankProject() {
                                 <Table.Column />
                             </Table.ColumnGroup>
                             <Table.Header bg="bg">
-                                <Table.Row fontSize="xs" fontWeight="light" >
+                                <Table.Row fontSize="small" fontWeight="light" >
                                     <Table.ColumnHeader color="fg.muted">Material</Table.ColumnHeader>
                                     <Table.ColumnHeader color="fg.muted">Quantity</Table.ColumnHeader>
                                     <Table.ColumnHeader color="fg.muted" >price</Table.ColumnHeader>
@@ -53,7 +53,7 @@ export default function BlankProject() {
                                                 control={control}
                                                 render={({ field }) => (
                                                     <NativeSelectRoot {...field} variant="outline">
-                                                        <NativeSelectField items={materials.items} fontSize="xs" />
+                                                        <NativeSelectField items={materials.items} fontSize="small" />
                                                     </NativeSelectRoot>
                                                 )}
                                             />
@@ -63,7 +63,7 @@ export default function BlankProject() {
                                                 name={`materials.${index}.quantity`}
                                                 control={control}
                                                 render={({ field }) => (
-                                                    <Input {...field} placeholder="quantity" variant="outline" type="number" fontSize="xs" />
+                                                    <Input {...field} placeholder="quantity" variant="outline" type="number" fontSize="small" />
                                                 )}
                                             />
                                         </Table.Cell>
@@ -73,7 +73,7 @@ export default function BlankProject() {
                                                 control={control}
                                                 render={({ field }) => (
                                                     <Group attached>
-                                                        <InputAddon bg="bg" borderRight={0}>$</InputAddon><Input  {...field} placeholder="price" variant="outline" borderLeft={0} type="number" fontSize="xs" /></Group>
+                                                        <InputAddon bg="bg" borderRight={0}>$</InputAddon><Input  {...field} placeholder="price" variant="outline" borderLeft={0} type="number" fontSize="small" /></Group>
 
                                                 )}
                                             />
@@ -83,12 +83,12 @@ export default function BlankProject() {
                                 ))}
                             </Table.Body>
                         </Table.Root>
-                        <Button fontSize="xs" minHeight="fit-content" p={2} py={0} mt={3} ml={2} mb={2} onClick={() => append({ material: '', quantity: '', price: '' })}>Add a material</Button>
+                        <Button fontSize="small" minHeight="fit-content" mt={3} ml={2} mb={2} onClick={() => append({ material: '', quantity: '', price: '' })}>Add a material</Button>
                     </VStack>
-                    <ChakraButton fontSize="small" p={2} py={0} mt="auto" ml={2} mb={2} borderRadius="lg" type="submit" width="fit-content">Next</ChakraButton>
+                    <ChakraButton fontSize="small" mt="auto" ml="auto" mb={2} borderRadius="lg" type="submit" minWidth="150px">Next</ChakraButton>
                 </form>
             </VStack>
-            <VStack width="15%" alignItems="flex-start" justifyContent="flex-start" height="100%" ml={{ base: 2, lg: 4 }} pt={{ base: 10, lg: 0 }}>
+            <VStack width="15%" alignItems="flex-start" justifyContent="flex-start" height="100%" ml={{ base: 2, lg: 4 }} pt={{ base: 10, lg: 5 }}>
                 <Box>
                     <Text fontWeight="light" fontSize="xx-small">
                         Total Cost

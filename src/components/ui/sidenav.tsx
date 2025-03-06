@@ -7,6 +7,7 @@ import { ColorModeButton } from './color-mode'
 import { Button } from './button'
 import { MdKeyboardDoubleArrowLeft } from 'react-icons/md'
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 const navItems = [
   {
@@ -35,6 +36,8 @@ const navItems = [
 export const Sidenav = () => {
   const [isExtended, setIsExtended] = useState(true)
 
+  const currentPath = usePathname()
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1200) {
@@ -50,6 +53,8 @@ export const Sidenav = () => {
       window.removeEventListener('resize', handleResize)
     }
   }, [])
+
+  console.log('currentPath', currentPath)
 
   return (
     <VStack
@@ -76,6 +81,7 @@ export const Sidenav = () => {
           linkTo={item.linkTo}
           icon={item.icon}
           isExtended={isExtended}
+          active={currentPath === item.linkTo}
         />
       ))}
       <Button

@@ -1,12 +1,12 @@
 'use client'
 
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react'
+import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react'
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  User as FirebaseUser,
+  // User as FirebaseUser,
   updateProfile,
 } from 'firebase/auth'
 import { auth, db } from '../lib/firebase'
@@ -39,6 +39,8 @@ type AuthContextType = {
   isAuthenticated: boolean
   isLoading: boolean
 }
+
+const LOCAL_STORAGE_KEY = 'vivaJobCalculator_auth'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
@@ -82,6 +84,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
+  // Load initial user state from localStorage
+  useEffect(() => {
+    try {
+      const savedUser = localStorage.getItem(LOCAL_STORAGE_KEY)
+      console.log('🚀 ~ AuthContext.tsx:91 ~ savedUser:', savedUser)
+      if (savedUser) {
+        setUser(JSON.parse(savedUser))
+      }
+    } catch (error) {
+      console.error('Error loading auth from localStorage:', error)
+    }
+  }, [])
+
+  // Update user in state and localStorage
+  const updateUserState = (newUser: User | null) => {
+    setUser(newUser)
+
+    try {
+      if (newUser) {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newUser))
+      } else {
+        localStorage.removeItem(LOCAL_STORAGE_KEY)
+      }
+    } catch (error) {
+      console.error('Error saving auth to localStorage:', error)
+    }
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async firebaseUser => {
       if (firebaseUser) {
@@ -94,18 +124,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             profile = await createUserProfile(firebaseUser.uid, username, firebaseUser.email)
           }
 
-          setUser({
+          const updatedUser = {
             uid: firebaseUser.uid,
             email: firebaseUser.email,
             displayName: firebaseUser.displayName,
             photoURL: firebaseUser.photoURL,
-            profile,
-          })
+            profile: profile ?? undefined,
+          }
+
+          updateUserState(updatedUser)
         } catch (error) {
           console.error('Error in auth state change:', error)
         }
       } else {
-        setUser(null)
+        // Only clear user if we're sure they're logged out
+        // This prevents flickering on page reload
+        updateUserState(null)
       }
       setIsLoading(false)
     })
@@ -134,7 +168,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         profile,
       }
 
-      setUser(user)
+      updateUserState(user)
       return user
     } catch (error) {
       console.error('Login error:', error)
@@ -165,7 +199,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         profile,
       }
 
-      setUser(user)
+      updateUserState(user)
       return user
     } catch (error) {
       console.error('Registration error:', error)
@@ -176,7 +210,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = async () => {
     try {
       await signOut(auth)
-      setUser(null)
+      updateUserState(null)
     } catch (error) {
       console.error('Logout error:', error)
     }
@@ -194,14 +228,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // Update local state
       if (user.profile) {
-        setUser({
+        const updatedUser = {
           ...user,
           profile: {
             ...user.profile,
             ...data,
             updatedAt: Date.now(),
           },
-        })
+        }
+        updateUserState(updatedUser)
       }
     } catch (error) {
       console.error('Error updating profile:', error)
@@ -216,7 +251,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         register,
         logout,
         updateUserProfile,
-        isAuthenticated: !!user,
+        isAuthenticated: !!(localStorage.getItem(LOCAL_STORAGE_KEY) || user),
         isLoading,
       }}
     >

@@ -1,6 +1,8 @@
+'use client'
 import { Button } from '@/components/ui/button'
 import TemplateCard from '@/components/ui/template-card'
 import { Heading, HStack, Text, VStack } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
 
 const dummyTemplates = [
   {
@@ -25,8 +27,18 @@ const dummyTemplates = [
   },
 ]
 export default function CreateProject() {
+  const router = useRouter()
+
   return (
-    <VStack alignItems="center" width="100%" borderRadius="4xl" bg="spot" p={4} alignSelf="stretch">
+    <VStack
+      alignItems="center"
+      justifyContent="center"
+      width="100%"
+      borderRadius="4xl"
+      bg="spot"
+      p={4}
+      alignSelf="stretch"
+    >
       <Heading as="h1" fontWeight="bold" width="fit-content">
         Create project
       </Heading>
@@ -42,7 +54,13 @@ export default function CreateProject() {
         ))}
       </HStack>
 
-      <Button fontSize="small" p={2} py={0} mt={3}>
+      <Button
+        fontSize="small"
+        p={2}
+        py={0}
+        mt={3}
+        onClick={() => router.push('/create-project/blank')}
+      >
         Create Blank Project
       </Button>
     </VStack>

@@ -89,7 +89,13 @@ export const Sidenav = () => {
           active={currentPath === item.linkTo}
         />
       ))}
-      <Flex direction={isExtended ? 'row' : 'column'} alignItems="flex-start" justifyContent={isExtended ? 'space-between' : 'center'} width="100%" mt="auto" gap={3}
+      <Flex
+        direction={isExtended ? 'row' : 'column'}
+        alignItems={isExtended ? 'center' : 'flex-start'}
+        justifyContent={isExtended ? 'space-between' : 'center'}
+        width="100%"
+        mt="auto"
+        gap={3}
         mr="auto"
         mb="50px">
         <Button

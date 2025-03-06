@@ -56,7 +56,7 @@ export default function BlankProject() {
           style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}
         >
           <Heading as="h1" fontWeight="bold" fontSize="larger">
-            Create project
+            Update project
           </Heading>
           <Text color="fg.muted" fontWeight="semibold" mt={1} fontSize="small">
             Enter the details of the materials

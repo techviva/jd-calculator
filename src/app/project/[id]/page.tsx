@@ -67,26 +67,27 @@ export default function ProjectDetails() {
 
   return (
     <VStack
-      alignItems="flex-start"
+      alignItems="center"
       width="100%"
       borderRadius="4xl"
       bg="bg"
       p={5}
-      alignSelf="stretch" gap={6}>
+      alignSelf="stretch"
+      gap={6}
+    >
 
-      <HStack justifyContent="space-between" width="100%">
+      <VStack alignItems="center">
         <Heading as="h1" fontWeight="bold" fontSize="larger">
           Project Details
         </Heading>
 
         <Flex width="fit-content" gap={2} alignItems="center">
-          <Button fontSize="small">Export to PDF</Button>
-          <Button fontSize="small" borderRadius="lg" colorPalette="default">Make this a Template</Button>
+          <Button fontSize="small" colorPalette="green" onClick={() => window.alert('Feature coming soon!')}>Export to PDF</Button>
+          <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={() => window.alert('Feature coming soon!')}>Make this a Template</Button>
+          <Button fontSize="small" onClick={() => router.push(`/project/${id}/update`)}>Update Materials</Button>
         </Flex>
 
-      </HStack>
-
-      <Text fontWeight="bold" fontSize="small">Client Details</Text>
+      </VStack>
       <HStack width="100%" justifyContent="space-between" wrap="wrap" alignItems="flex-start" rowGap={2} pr={10}>
         <DataListRoot>
           <DataListItem label="Name" value={project?.clientName} />
@@ -106,7 +107,7 @@ export default function ProjectDetails() {
         <Table.Root size="sm" variant="line">
           <Table.Header>
             <Table.Row >
-              <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="70%">Product</Table.ColumnHeader>
+              <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="70%">Material</Table.ColumnHeader>
               <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="10%">Qty</Table.ColumnHeader>
               <Table.ColumnHeader color="fg.subtle" fontSize="small">Rate</Table.ColumnHeader>
               <Table.ColumnHeader color="fg.subtle" fontSize="small" textAlign="end" pr={4}>Total Price</Table.ColumnHeader>
@@ -128,11 +129,6 @@ export default function ProjectDetails() {
           <Text fontWeight="bold" textTransform="uppercase" fontSize="small">$316.00</Text>
         </HStack>
       </VStack>
-      <HStack mt="auto">
-        <Button onClick={() => router.push('/create-project')} fontSize="small">Back to Projects</Button>
-        <Button onClick={() => router.push(`/project/${id}/update`)} fontSize="small">Update Materials</Button>
-      </HStack>
-
     </VStack>
   )
 }

@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '../../../../lib/firebase-admin'
 
-export async function GET(request: NextRequest, { params }: { params: { userId: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ userId: string }> }
+) {
   try {
-    const userId = params.userId
+    const { userId } = await params
 
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
@@ -22,9 +25,12 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { userId: string } }) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ userId: string }> }
+) {
   try {
-    const userId = params.userId
+    const { userId } = await params
     const data = await request.json()
 
     if (!userId) {

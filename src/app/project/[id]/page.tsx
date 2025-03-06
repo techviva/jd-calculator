@@ -2,14 +2,15 @@
 import { Button } from '@/components/ui/button'
 import { Heading, Text, VStack, HStack, Spinner, Box } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { Project } from '@/types'
 
-export default function ProjectDetails({ params }: { params: { id: string } }) {
+export default function ProjectDetails() {
   const router = useRouter()
-  const { id } = params
+  const params = useParams()
+  const id = params.id as string
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

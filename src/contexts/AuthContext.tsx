@@ -44,6 +44,26 @@ const LOCAL_STORAGE_KEY = 'vivaJobCalculator_auth'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+// Helper function to safely use localStorage
+const safeLocalStorage = {
+  getItem: (key: string) => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(key)
+    }
+    return null
+  },
+  setItem: (key: string, value: string) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(key, value)
+    }
+  },
+  removeItem: (key: string) => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(key)
+    }
+  },
+}
+
 // Helper function to get user profile from Firestore
 async function getUserProfile(uid: string): Promise<UserProfile | null> {
   try {
@@ -86,8 +106,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Load initial user state from localStorage
   useEffect(() => {
+    const savedUser = safeLocalStorage.getItem(LOCAL_STORAGE_KEY)
     try {
-      const savedUser = localStorage.getItem(LOCAL_STORAGE_KEY)
       if (savedUser) {
         setUser(JSON.parse(savedUser))
       }
@@ -102,9 +122,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     try {
       if (newUser) {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newUser))
+        safeLocalStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newUser))
       } else {
-        localStorage.removeItem(LOCAL_STORAGE_KEY)
+        safeLocalStorage.removeItem(LOCAL_STORAGE_KEY)
       }
     } catch (error) {
       console.error('Error saving auth to localStorage:', error)
@@ -242,6 +262,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }
 
+  // Get saved user for isAuthenticated check
+  const savedUser = safeLocalStorage.getItem(LOCAL_STORAGE_KEY)
+
   return (
     <AuthContext.Provider
       value={{
@@ -250,7 +273,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         register,
         logout,
         updateUserProfile,
-        isAuthenticated: !!(localStorage.getItem(LOCAL_STORAGE_KEY) || user),
+        isAuthenticated: !!(savedUser || user),
         isLoading,
       }}
     >

@@ -61,7 +61,7 @@ export function Header() {
         <Button
           fontSize="small"
           p={{ base: 2, lg: 3 }}
-          onClick={() => router.push('/create-project')}
+          onClick={() => router.push('/project/create')}
         >
           Create Project
         </Button>

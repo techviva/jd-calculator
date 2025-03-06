@@ -13,6 +13,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { useState } from 'react'
+import { db } from '@/lib/firebase'
+import { toaster } from '@/components/ui/toaster'
+import { parseError } from '@/utils/errorParser'
 
 const dummyTemplates = [
   {
@@ -40,6 +45,8 @@ const dummyTemplates = [
 export default function CreateProject() {
   const router = useRouter()
 
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const {
     register,
     handleSubmit,
@@ -53,9 +60,38 @@ export default function CreateProject() {
     },
   })
 
-  const onSubmit = data => {
-    console.log('Form submitted:', data)
-    router.push('/create-project/blank')
+  const onSubmit = async data => {
+    try {
+      setIsSubmitting(true)
+
+      // Add timestamp and format data for Firestore
+      const projectData = {
+        ...data,
+        createdAt: serverTimestamp(),
+        status: 'active',
+      }
+
+      // Add document to Firestore
+      const docRef = await addDoc(collection(db, 'projects'), projectData)
+
+      toaster.create({
+        title: 'Project created',
+        description: `Project ${data.jobTitle} has been created successfully`,
+        type: 'success',
+      })
+
+      // Navigate to the project details page with the new ID
+      router.push(`/project/${docRef.id}`)
+    } catch (error) {
+      console.error('Error adding project: ', error)
+      toaster.create({
+        title: 'Error creating project',
+        description: parseError(error),
+        type: 'error',
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -131,7 +167,12 @@ export default function CreateProject() {
                     Job Description
                     <Field.RequiredIndicator />
                   </Field.Label>
-                  <Textarea {...register('jobDescription')} placeholder="Enter job description" />
+                  <Textarea
+                    {...register('jobDescription', {
+                      required: 'Job description is required',
+                    })}
+                    placeholder="Enter job description"
+                  />
                   {errors.jobDescription && (
                     <Field.ErrorText>{errors.jobDescription.message}</Field.ErrorText>
                   )}
@@ -142,13 +183,23 @@ export default function CreateProject() {
                     Due Date
                     <Field.RequiredIndicator />
                   </Field.Label>
-                  <Input type="date" {...register('dueDate')} />
+                  <Input
+                    type="date"
+                    {...register('dueDate', {
+                      required: 'Due date is required',
+                    })}
+                  />
                   {errors.dueDate && <Field.ErrorText>{errors.dueDate.message}</Field.ErrorText>}
                 </Field.Root>
 
                 <HStack justify="space-between" pt={4}>
                   <DialogCloseTrigger asChild></DialogCloseTrigger>
-                  <Button type="submit" form="project-form">
+                  <Button
+                    type="submit"
+                    form="project-form"
+                    loading={isSubmitting}
+                    loadingText="Creating..."
+                  >
                     Create Project
                   </Button>
                 </HStack>

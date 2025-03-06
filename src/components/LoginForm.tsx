@@ -7,6 +7,7 @@ import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { LuUser, LuLock } from 'react-icons/lu'
 import { toaster } from '@/components/ui/toaster'
 import { InputGroup } from '@/components/ui/input-group'
+import { parseError } from '@/utils/errorParser'
 
 export const LoginForm: React.FC = () => {
   const [username, setUsername] = useState('')
@@ -53,7 +54,7 @@ export const LoginForm: React.FC = () => {
     } catch (error) {
       toaster.create({
         title: 'An error occurred',
-        description: 'Unable to log in at this time.',
+        description: parseError(error),
         type: 'error',
       })
     } finally {

@@ -1,80 +1,128 @@
-'use client';
-import { BarChart } from "@/components/chart";
-import { JobCard, JobStatsCard } from "@/components/ui";
-import { VStack, Heading, Text, Flex, HStack, Box, Button } from "@chakra-ui/react";
-import { BsArrowRight } from "react-icons/bs";
-import { useAuth } from "@/contexts/AuthContext";
-import { FiLogOut } from "react-icons/fi";
+'use client'
+import { BarChart } from '@/components/chart'
+import { JobCard, JobStatsCard } from '@/components/ui'
+import { VStack, Heading, Text, Flex, HStack, Box, Button } from '@chakra-ui/react'
+import { BsArrowRight } from 'react-icons/bs'
+import { useAuth } from '@/contexts/AuthContext'
+import { FiLogOut } from 'react-icons/fi'
 
 const dummyStats = [
   {
-    title: "Total Jobs",
+    title: 'Total Jobs',
     stats: 431,
-    iconColor: "blue.focusRing",
-    iconBg: "total",
+    iconColor: 'blue.focusRing',
+    iconBg: 'total',
   },
   {
-    title: "In progress",
+    title: 'In progress',
     stats: 431,
-    iconColor: "yellow.focusRing",
-    iconBg: "progress",
+    iconColor: 'yellow.focusRing',
+    iconBg: 'progress',
   },
   {
-    title: "Completed",
+    title: 'Completed',
     stats: 431,
-    iconColor: "green.focusRing",
-    iconBg: "completed",
-  }
-];
+    iconColor: 'green.focusRing',
+    iconBg: 'completed',
+  },
+]
 
 export default function Home() {
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuth()
 
   return (
-    <HStack height="max-content" width="100%" alignItems="flex-start" gap={4} py={2} wrap={{ base: "wrap", lg: "nowrap" }}>
-      <VStack align="flex-start" width={{ base: "80%", lg: "60%" }} gap={2} pb={2} mt={{ base: 4, lg: 0 }} mr={{ base: 4, lg: "auto" }}>
+    <HStack
+      height="max-content"
+      width="100%"
+      alignItems="flex-start"
+      gap={4}
+      py={2}
+      wrap={{ base: 'wrap', lg: 'nowrap' }}
+    >
+      <VStack
+        align="flex-start"
+        width={{ base: '80%', lg: '60%' }}
+        gap={2}
+        pb={2}
+        mt={{ base: 4, lg: 0 }}
+        mr={{ base: 4, lg: 'auto' }}
+      >
         <Flex width="100%" justifyContent="space-between" alignItems="center">
-          <Heading as="h1" fontWeight="bold">Welcome {user?.username} ☁️</Heading>
-          <Button 
-            leftIcon={<FiLogOut />} 
-            variant="outline" 
-            size="sm" 
-            onClick={logout}
-          >
-            Logout
+          <Heading as="h1" fontWeight="bold">
+            Welcome {user?.profile?.username} ☁️
+          </Heading>
+          <Button variant="outline" size="sm" onClick={logout}>
+            <FiLogOut /> Logout
           </Button>
         </Flex>
-        <Text color="fg.muted" fontWeight="semibold" mt={-1}>Some Stats</Text>
+        <Text color="fg.muted" fontWeight="semibold" mt={-1}>
+          Some Stats
+        </Text>
         <Flex gap={4} width="100%" wrap="wrap">
           {dummyStats.map(({ title, stats, iconColor, iconBg }) => (
-            <JobStatsCard key={title} title={title} stats={stats} iconColor={iconColor} iconBg={iconBg} />
+            <JobStatsCard
+              key={title}
+              title={title}
+              stats={stats}
+              iconColor={iconColor}
+              iconBg={iconBg}
+            />
           ))}
         </Flex>
         <Box width="100%" p={6} borderRadius="3xl" bg="bg">
-          <HStack pb={4} borderBottom="2px solid" borderColor="gray.subtle" mb={2} justifyContent="space-between">
+          <HStack
+            pb={4}
+            borderBottom="2px solid"
+            borderColor="gray.subtle"
+            mb={2}
+            justifyContent="space-between"
+          >
             <Box width="fit-content">
-              <Text color="fg.muted" fontWeight="semibold">Statistics</Text>
-              <Heading as="h2" fontWeight="bold">Profit vs Revenue</Heading>
+              <Text color="fg.muted" fontWeight="semibold">
+                Statistics
+              </Text>
+              <Heading as="h2" fontWeight="bold">
+                Profit vs Revenue
+              </Heading>
             </Box>
             <Box>
               <Flex alignItems="center">
                 <Box width="10px" height="10px" borderRadius="full" bg="revenue" mr={2} />
-                <Text color="fg.muted" fontSize="small">Revenue</Text>
+                <Text color="fg.muted" fontSize="small">
+                  Revenue
+                </Text>
               </Flex>
               <Flex alignItems="center">
                 <Box width="10px" height="10px" borderRadius="full" bg="profit" mr={2} />
-                <Text color="fg.muted" fontSize="small">Profit</Text>
+                <Text color="fg.muted" fontSize="small">
+                  Profit
+                </Text>
               </Flex>
             </Box>
           </HStack>
           <BarChart />
         </Box>
       </VStack>
-      <VStack gap={4} maxWidth={{ lg: "400px" }} minWidth="200px" width={{ base: "80%", lg: "fit-content" }} alignItems="center" p={4} borderRadius="3xl" bg="spot" maxHeight={{ lg: "80dvh" }} height="100%" overflowY="auto" alignSelf={{ lg: "flex-start" }}>
+      <VStack
+        gap={4}
+        maxWidth={{ lg: '400px' }}
+        minWidth="200px"
+        width={{ base: '80%', lg: 'fit-content' }}
+        alignItems="center"
+        p={4}
+        borderRadius="3xl"
+        bg="spot"
+        maxHeight={{ lg: '80dvh' }}
+        height="100%"
+        overflowY="auto"
+        alignSelf={{ lg: 'flex-start' }}
+      >
         <Flex justifyContent="space-between" width="100%" alignItems="center" color="fg.muted">
           <Heading fontSize="medium">Recent Projects</Heading>
           <Flex gap={1} align="center">
-            <Text fontVariant="contextual" fontSize="small">See all</Text>
+            <Text fontVariant="contextual" fontSize="small">
+              See all
+            </Text>
             <BsArrowRight fontWeight="bold" />
           </Flex>
         </Flex>
@@ -83,6 +131,5 @@ export default function Home() {
         ))}
       </VStack>
     </HStack>
-  );
+  )
 }
-

@@ -1,35 +1,35 @@
-import { createSystem, defaultConfig } from "@chakra-ui/react";
+import { createSystem, defaultConfig } from '@chakra-ui/react'
 
 const customTheme = createSystem(defaultConfig, {
   globalCss: {
     body: {
-      fontFamily: "Inter, sans-serif",
-      height: "100%",
+      fontFamily: 'Inter, sans-serif',
+      height: '100%',
     },
     html: {
-      bg: "bg.muted",
-      scrollBehavior: "smooth",
-      height: "100%",
+      bg: 'bg.muted',
+      scrollBehavior: 'smooth',
+      height: '100%',
     },
   },
   theme: {
     semanticTokens: {
       colors: {
-        total: { value: { base: "{colors.blue.50}", _dark: "{colors.blue.900}" } },
-        progress: { value: { base: "{colors.yellow.50}", _dark: "{colors.yellow.900}" } },
-        completed: { value: { base: "{colors.green.50}", _dark: "{colors.green.900}" } },
+        total: { value: { base: '{colors.blue.50}', _dark: '{colors.blue.900}' } },
+        progress: { value: { base: '{colors.yellow.50}', _dark: '{colors.yellow.900}' } },
+        completed: { value: { base: '{colors.green.50}', _dark: '{colors.green.900}' } },
         spot: {
-          value: { base: "{colors.green.50}", _dark: "{colors.green.900}" },
+          value: { base: '{colors.green.50}', _dark: '{colors.green.900}' },
         },
         revenue: {
-          value: { base: "#598C61", _dark: "#1DA768" },
+          value: { base: '#598C61', _dark: '#1DA768' },
         },
         profit: {
-          value: { base: "#9AA0F8", _dark: "#B0B6FF" },
+          value: { base: '#9AA0F8', _dark: '#B0B6FF' },
         },
       },
     },
   },
-});
+})
 
-export default customTheme;
+export default customTheme

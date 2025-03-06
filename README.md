@@ -51,12 +51,12 @@ The goal of this project is to develop a **Job Cost Calculator** that enables **
 
 ## 🛠 Technology Stack
 
-| Component | Technology |
-| --- | --- |
+| Component    | Technology                           |
+| ------------ | ------------------------------------ |
 | **Frontend** | Next.js (with Chakra UI for styling) |
-| **Backend** | Firebase |
-| **Database** | Cloud Firestore |
-| **Hosting** | Vercel + Firebase |
+| **Backend**  | Firebase                             |
+| **Database** | Cloud Firestore                      |
+| **Hosting**  | Vercel + Firebase                    |
 
 ---
 
@@ -64,11 +64,11 @@ The goal of this project is to develop a **Job Cost Calculator** that enables **
 
 The project will take **10 business days** from start to finish.
 
-| Milestone | Task |
-| --- | --- |
-| **Project Kickoff** | Requirement gathering & planning |
-| **UI/UX Design** | Mockups & wireframes approval |
-| **Development Phase 1** | Core functionality implementation |
-| **Development Phase 2** | Testing & refinements |
-| **Deployment** | Final testing & go-live |
-| **Support & Maintenance** | Post-launch adjustments |
+| Milestone                 | Task                              |
+| ------------------------- | --------------------------------- |
+| **Project Kickoff**       | Requirement gathering & planning  |
+| **UI/UX Design**          | Mockups & wireframes approval     |
+| **Development Phase 1**   | Core functionality implementation |
+| **Development Phase 2**   | Testing & refinements             |
+| **Deployment**            | Final testing & go-live           |
+| **Support & Maintenance** | Post-launch adjustments           |

@@ -13,16 +13,16 @@ export interface ButtonProps extends ChakraButtonProps, ButtonLoadingProps {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(props, ref) {
-  const { loading, disabled, loadingText, children, ...rest } = props
+  const { loading, disabled, loadingText, children, colorPalette = "teal", ...rest } = props
   return (
     <ChakraButton
-      bg="teal.fg"
+      bg={`${colorPalette}.fg`}
       borderRadius={10}
       size="lg"
       disabled={loading || disabled}
       ref={ref}
       cursor="pointer"
-      _hover={{ bg: 'teal.fg', opacity: 0.8 }}
+      _hover={{ bg: `${colorPalette}.fg`, opacity: 0.8 }}
       {...rest}
     >
       {loading && !loadingText ? (

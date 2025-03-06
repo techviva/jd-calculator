@@ -9,7 +9,7 @@ import {
   Input,
   Group,
   InputAddon,
-  Button as ChakraButton,
+  Button as DefaultButton,
   Box,
   Flex,
 } from '@chakra-ui/react'
@@ -130,10 +130,10 @@ export default function BlankProject() {
                           </Group>
                         )}
                       />
-                      <ChakraButton
+                      <DefaultButton
                         size="xs"
-                        colorPalette="red"
                         variant="subtle"
+                        colorPalette="red"
                         borderRadius="full"
                         minWidth="fit-content"
                         width="20px"
@@ -144,7 +144,7 @@ export default function BlankProject() {
                         onClick={() => remove(index)}
                       >
                         <IoIosClose />
-                      </ChakraButton>
+                      </DefaultButton>
                     </Table.Cell>
                   </Table.Row>
                 ))}
@@ -161,8 +161,9 @@ export default function BlankProject() {
               Add a material
             </Button>
           </VStack>
-          <ChakraButton
+          <Button
             fontSize="small"
+            colorPalette="default"
             mt="auto"
             ml="auto"
             mb={2}
@@ -171,7 +172,7 @@ export default function BlankProject() {
             minWidth="150px"
           >
             Next
-          </ChakraButton>
+          </Button>
         </form>
       </VStack>
       <VStack

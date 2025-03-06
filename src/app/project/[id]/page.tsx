@@ -1,11 +1,12 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { Heading, Text, VStack, HStack, Spinner, Box } from '@chakra-ui/react'
+import { Heading, Text, VStack, HStack, Spinner, Flex, Table } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { Project } from '@/types'
+import { DataListItem, DataListRoot } from '@/components/ui'
 
 export default function ProjectDetails() {
   const router = useRouter()
@@ -39,7 +40,7 @@ export default function ProjectDetails() {
 
   if (loading) {
     return (
-      <VStack justifyContent="center" alignItems="center" h="100vh" gap={4}>
+      <VStack justifyContent="center" alignItems="center" h="100vh" gap={4} width="100%">
         <Spinner size="xl" />
         <Text>Loading project details...</Text>
       </VStack>
@@ -65,36 +66,73 @@ export default function ProjectDetails() {
   }
 
   return (
-    <VStack alignItems="flex-start" width="100%" p={5} gap={6}>
-      <Button onClick={() => router.push('/create-project')}>Back to Projects</Button>
-      <Button onClick={() => router.push(`/project/${id}/update`)}>Update Materials</Button>
+    <VStack
+      alignItems="flex-start"
+      width="100%"
+      borderRadius="4xl"
+      bg="bg"
+      p={5}
+      alignSelf="stretch" gap={6}>
 
-      <Heading as="h1" size="xl">
-        {project?.title}
-      </Heading>
+      <HStack justifyContent="space-between" width="100%">
+        <Heading as="h1" fontWeight="bold" fontSize="larger">
+          Project Details
+        </Heading>
 
-      <Box w="100%" p={5} borderWidth="1px" borderRadius="lg">
-        <VStack align="stretch" gap={4}>
-          <HStack justify="space-between">
-            <Text fontWeight="bold">Client:</Text>
-            <Text>{project?.clientName}</Text>
-          </HStack>
+        <Flex width="fit-content" gap={2} alignItems="center">
+          <Button fontSize="small">Export to PDF</Button>
+          <Button fontSize="small" borderRadius="lg" colorPalette="default">Make this a Template</Button>
+        </Flex>
 
-          <HStack justify="space-between">
-            <Text fontWeight="bold">Due Date:</Text>
-            <Text>{formatDate(project?.dueDate)}</Text>
-          </HStack>
+      </HStack>
 
-          <VStack align="stretch">
-            <Text fontWeight="bold">Description:</Text>
-            <Box p={3} bg="gray.50" borderRadius="md">
-              <Text>{project?.description}</Text>
-            </Box>
-          </VStack>
-        </VStack>
-      </Box>
+      <Text fontWeight="bold" fontSize="small">Client Details</Text>
+      <HStack width="100%" justifyContent="space-between" wrap="wrap" alignItems="flex-start" rowGap={2} pr={10}>
+        <DataListRoot>
+          <DataListItem label="Name" value={project?.clientName} />
+        </DataListRoot>
+        <DataListRoot>
+          <DataListItem label="Job Title" value={project?.title} />
+        </DataListRoot>
+        <DataListRoot>
+          <DataListItem label="Due Date" value={formatDate(project?.dueDate)} />
+        </DataListRoot>
+        <DataListRoot>
+          <DataListItem label="Job Description" value={project?.description} />
+        </DataListRoot>
+      </HStack>
 
-      {/* Add more project details and functionality here */}
+      <VStack width="100%" border="1.5px solid" borderColor="border.muted" borderRadius="md">
+        <Table.Root size="sm" variant="line">
+          <Table.Header>
+            <Table.Row >
+              <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="70%">Product</Table.ColumnHeader>
+              <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="10%">Qty</Table.ColumnHeader>
+              <Table.ColumnHeader color="fg.subtle" fontSize="small">Rate</Table.ColumnHeader>
+              <Table.ColumnHeader color="fg.subtle" fontSize="small" textAlign="end" pr={4}>Total Price</Table.ColumnHeader>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {Array.from({ length: 10 }).map((_, index) => (
+              <Table.Row key={index} p={4}>
+                <Table.Cell>Cost for trees including delivery</Table.Cell>
+                <Table.Cell>1</Table.Cell>
+                <Table.Cell >$316.00</Table.Cell>
+                <Table.Cell textAlign="end" pr={4}>$316.00</Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table.Root>
+        <HStack p={4} justifyContent="space-between" width="100%">
+          <Text fontWeight="bold" textTransform="uppercase" fontSize="small">Subtotal</Text>
+          <Text fontWeight="bold" textTransform="uppercase" fontSize="small">$316.00</Text>
+        </HStack>
+      </VStack>
+      <HStack mt="auto">
+        <Button onClick={() => router.push('/create-project')} fontSize="small">Back to Projects</Button>
+        <Button onClick={() => router.push(`/project/${id}/update`)} fontSize="small">Update Materials</Button>
+      </HStack>
+
     </VStack>
   )
 }

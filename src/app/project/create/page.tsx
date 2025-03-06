@@ -126,7 +126,7 @@ export default function CreateProject() {
         ))}
       </HStack>
 
-      <DialogRoot>
+      <DialogRoot placement="center" >
         <DialogTrigger asChild>
           <Button fontSize="small" p={2} py={0} mt={3}>
             Create Blank Project
@@ -189,13 +189,14 @@ export default function CreateProject() {
                   {errors.dueDate && <Field.ErrorText>{errors.dueDate.message}</Field.ErrorText>}
                 </Field.Root>
 
-                <HStack justify="space-between" pt={4}>
+                <HStack justify="space-between" pt={4} >
                   <DialogCloseTrigger asChild></DialogCloseTrigger>
                   <Button
                     type="submit"
                     form="project-form"
                     loading={isSubmitting}
                     loadingText="Creating..."
+                    fontSize="small"
                   >
                     Create Project
                   </Button>

@@ -1,13 +1,16 @@
 'use client'
 
-import { Box, VStack } from '@chakra-ui/react'
-import { HomeIcon, JobsIcon, ManagementIcon, TrendsIcon } from '../icons'
+import { Box, Flex, Text, VStack, Button as DefaultButton } from '@chakra-ui/react'
+import { HomeIcon, JobsIcon, ManagementIcon, TrendsIcon, } from '../icons'
 import NavItem from './nav-item'
 import { ColorModeButton } from './color-mode'
 import { Button } from './button'
 import { MdKeyboardDoubleArrowLeft } from 'react-icons/md'
+import { FiLogOut } from 'react-icons/fi'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
+
 
 const navItems = [
   {
@@ -37,6 +40,8 @@ export const Sidenav = () => {
   const [isExtended, setIsExtended] = useState(true)
 
   const currentPath = usePathname()
+
+  const { logout } = useAuth()
 
   useEffect(() => {
     const handleResize = () => {
@@ -84,26 +89,30 @@ export const Sidenav = () => {
           active={currentPath === item.linkTo}
         />
       ))}
-      <Button
-        mt="auto"
+      <Flex direction={isExtended ? 'row' : 'column'} alignItems="flex-start" justifyContent={isExtended ? 'space-between' : 'center'} width="100%" mt="auto" gap={3}
         mr="auto"
-        mb="50px"
-        p={1}
-        ml={1}
-        onClick={() => setIsExtended(!isExtended)}
-        minWidth="24px"
-        height="32px"
-        borderRadius="md"
-      >
-        <Box
-          width="fit-content"
-          transform={isExtended ? 'rotate(0deg)' : ' rotate(180deg)'}
-          transition="transform 0.3s ease-in-out"
-          p={0}
+        mb="50px">
+        <Button
+          p={1}
+          ml={1}
+          onClick={() => setIsExtended(!isExtended)}
+          minWidth="24px"
+          height="32px"
+          borderRadius="md"
         >
-          <MdKeyboardDoubleArrowLeft style={{ padding: '0px' }} />
-        </Box>
-      </Button>
+          <Box
+            width="fit-content"
+            transform={isExtended ? 'rotate(0deg)' : ' rotate(180deg)'}
+            transition="transform 0.3s ease-in-out"
+            p={0}
+          >
+            <MdKeyboardDoubleArrowLeft style={{ padding: '0px' }} />
+          </Box>
+        </Button>
+        <DefaultButton variant="outline" size="sm" onClick={logout} justifyContent="center" p={2}>
+          <FiLogOut /> <Text display={isExtended ? 'block' : 'none'}>Logout</Text>
+        </DefaultButton>
+      </Flex>
       <ColorModeButton mt="auto" position="absolute" bottom="20px" left={4} />
     </VStack>
   )

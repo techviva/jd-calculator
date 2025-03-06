@@ -4,7 +4,6 @@ import { JobCard, JobStatsCard } from '@/components/ui'
 import { VStack, Heading, Text, Flex, HStack, Box, Button } from '@chakra-ui/react'
 import { BsArrowRight } from 'react-icons/bs'
 import { useAuth } from '@/contexts/AuthContext'
-import { FiLogOut } from 'react-icons/fi'
 
 const dummyStats = [
   {
@@ -28,7 +27,7 @@ const dummyStats = [
 ]
 
 export default function Home() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
 
   return (
     <HStack
@@ -47,14 +46,9 @@ export default function Home() {
         mt={{ base: 4, lg: 0 }}
         mr={{ base: 4, lg: 'auto' }}
       >
-        <Flex width="100%" justifyContent="space-between" alignItems="center">
-          <Heading as="h1" fontWeight="bold">
-            Welcome {user?.profile?.username} ☁️
-          </Heading>
-          <Button variant="outline" size="sm" onClick={logout}>
-            <FiLogOut /> Logout
-          </Button>
-        </Flex>
+        <Heading as="h1" fontWeight="bold">
+          Welcome {user?.profile?.username} ☁️
+        </Heading>
         <Text color="fg.muted" fontWeight="semibold" mt={-1}>
           Some Stats
         </Text>

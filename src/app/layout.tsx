@@ -2,6 +2,8 @@ import { Header, Provider, Sidenav } from "@/components/ui";
 import { Container, HStack } from "@chakra-ui/react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { AuthProvider } from '@/contexts/AuthContext';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -20,13 +22,19 @@ export default function RootLayout(props: { children: React.ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable}`} style={{ position: "relative" }}>
         <Provider>
-          <Container maxW="100%" p={6} >
-            <Header />
-            <HStack paddingTop="14px" height="90%" alignItems="flex-start">
-              <Sidenav />
-              {children}
-            </HStack>
-          </Container>
+          <AuthProvider>
+            <ProtectedRoute>
+              <Provider>
+                <Container maxW="100%" p={6} >
+                  <Header />
+                  <HStack paddingTop="14px" height="90%" alignItems="flex-start">
+                    <Sidenav />
+                    {children}
+                  </HStack>
+                </Container>
+              </Provider>
+            </ProtectedRoute>
+          </AuthProvider>
         </Provider>
       </body>
     </html>

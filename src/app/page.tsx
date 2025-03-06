@@ -1,8 +1,10 @@
+'use client';
 import { BarChart } from "@/components/chart";
 import { JobCard, JobStatsCard } from "@/components/ui";
-import { VStack, Heading, Text, Flex, HStack, Box } from "@chakra-ui/react";
+import { VStack, Heading, Text, Flex, HStack, Box, Button } from "@chakra-ui/react";
 import { BsArrowRight } from "react-icons/bs";
-
+import { useAuth } from "@/contexts/AuthContext";
+import { FiLogOut } from "react-icons/fi";
 
 const dummyStats = [
   {
@@ -26,10 +28,22 @@ const dummyStats = [
 ];
 
 export default function Home() {
+  const { user, logout } = useAuth();
+
   return (
     <HStack height="max-content" width="100%" alignItems="flex-start" gap={4} py={2} wrap={{ base: "wrap", lg: "nowrap" }}>
       <VStack align="flex-start" width={{ base: "80%", lg: "60%" }} gap={2} pb={2} mt={{ base: 4, lg: 0 }} mr={{ base: 4, lg: "auto" }}>
-        <Heading as="h1" fontWeight="bold" >Welcome David ☁️</Heading>
+        <Flex width="100%" justifyContent="space-between" alignItems="center">
+          <Heading as="h1" fontWeight="bold">Welcome {user?.username} ☁️</Heading>
+          <Button 
+            leftIcon={<FiLogOut />} 
+            variant="outline" 
+            size="sm" 
+            onClick={logout}
+          >
+            Logout
+          </Button>
+        </Flex>
         <Text color="fg.muted" fontWeight="semibold" mt={-1}>Some Stats</Text>
         <Flex gap={4} width="100%" wrap="wrap">
           {dummyStats.map(({ title, stats, iconColor, iconBg }) => (

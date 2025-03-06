@@ -12,6 +12,7 @@ import {
   Button as DefaultButton,
   Box,
   Flex,
+  HStack,
 } from '@chakra-ui/react'
 import { createListCollection } from '@chakra-ui/react'
 import { IoIosClose } from 'react-icons/io'
@@ -153,6 +154,7 @@ export default function BlankProject() {
             <Button
               fontSize="small"
               minHeight="fit-content"
+              colorPalette="green"
               mt={3}
               ml={2}
               mb={2}
@@ -161,18 +163,30 @@ export default function BlankProject() {
               Add a material
             </Button>
           </VStack>
-          <Button
-            fontSize="small"
-            colorPalette="default"
+          <HStack
             mt="auto"
-            ml="auto"
             mb={2}
             borderRadius="lg"
-            type="submit"
-            minWidth="150px"
+            justifyContent="space-between"
+            widows="100%"
+            alignItems="center"
           >
-            Next
-          </Button>
+            <Button
+              fontSize="small"
+              colorPalette="default"
+            >
+              Save as draft
+            </Button>
+            <Button
+              fontSize="small"
+              colorPalette="default"
+              borderRadius="lg"
+              type="submit"
+              minWidth="150px"
+            >
+              Next
+            </Button>
+          </HStack>
         </form>
       </VStack>
       <VStack

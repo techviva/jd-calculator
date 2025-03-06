@@ -12,7 +12,7 @@ import {
   DialogRoot,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@/components/ui'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { useState } from 'react'
 import { db } from '@/lib/firebase'

@@ -88,7 +88,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem(LOCAL_STORAGE_KEY)
-      console.log('🚀 ~ AuthContext.tsx:91 ~ savedUser:', savedUser)
       if (savedUser) {
         setUser(JSON.parse(savedUser))
       }

@@ -1,7 +1,7 @@
 'use client'
 import { BarChart } from '@/components/chart'
 import { JobCard, JobStatsCard } from '@/components/ui'
-import { VStack, Heading, Text, Flex, HStack, Box, Button } from '@chakra-ui/react'
+import { VStack, Heading, Text, Flex, HStack, Box } from '@chakra-ui/react'
 import { BsArrowRight } from 'react-icons/bs'
 import { useAuth } from '@/contexts/AuthContext'
 

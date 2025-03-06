@@ -1,8 +1,18 @@
 'use client'
 import { Button } from '@/components/ui/button'
 import TemplateCard from '@/components/ui/template-card'
-import { Heading, HStack, Text, VStack } from '@chakra-ui/react'
+import { Heading, HStack, Text, VStack, Input, Textarea, Field } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import {
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogRoot,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 
 const dummyTemplates = [
   {
@@ -26,8 +36,27 @@ const dummyTemplates = [
     name: 'Double Paver Blocks Deluxe',
   },
 ]
+
 export default function CreateProject() {
   const router = useRouter()
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      clientName: '',
+      jobTitle: '',
+      jobDescription: '',
+      dueDate: '',
+    },
+  })
+
+  const onSubmit = data => {
+    console.log('Form submitted:', data)
+    router.push('/create-project/blank')
+  }
 
   return (
     <VStack
@@ -54,15 +83,80 @@ export default function CreateProject() {
         ))}
       </HStack>
 
-      <Button
-        fontSize="small"
-        p={2}
-        py={0}
-        mt={3}
-        onClick={() => router.push('/create-project/blank')}
-      >
-        Create Blank Project
-      </Button>
+      <DialogRoot>
+        <DialogTrigger asChild>
+          <Button fontSize="small" p={2} py={0} mt={3}>
+            Create Blank Project
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New Project Details</DialogTitle>
+          </DialogHeader>
+          <DialogBody pb="8">
+            <form id="project-form" onSubmit={handleSubmit(onSubmit)}>
+              <VStack gap={4} align="stretch">
+                <Field.Root invalid={!!errors.clientName}>
+                  <Field.Label>
+                    Client Name
+                    <Field.RequiredIndicator />
+                  </Field.Label>
+                  <Input
+                    {...register('clientName', {
+                      required: 'Client name is required',
+                    })}
+                    placeholder="Enter client name"
+                  />
+                  {errors.clientName && (
+                    <Field.ErrorText>{errors.clientName.message}</Field.ErrorText>
+                  )}
+                </Field.Root>
+
+                <Field.Root invalid={!!errors.jobTitle}>
+                  <Field.Label>
+                    Job Title
+                    <Field.RequiredIndicator />
+                  </Field.Label>
+                  <Input
+                    {...register('jobTitle', {
+                      required: 'Job title is required',
+                    })}
+                    placeholder="Enter job title"
+                  />
+                  {errors.jobTitle && <Field.ErrorText>{errors.jobTitle.message}</Field.ErrorText>}
+                </Field.Root>
+
+                <Field.Root invalid={!!errors.jobDescription}>
+                  <Field.Label>
+                    Job Description
+                    <Field.RequiredIndicator />
+                  </Field.Label>
+                  <Textarea {...register('jobDescription')} placeholder="Enter job description" />
+                  {errors.jobDescription && (
+                    <Field.ErrorText>{errors.jobDescription.message}</Field.ErrorText>
+                  )}
+                </Field.Root>
+
+                <Field.Root invalid={!!errors.dueDate}>
+                  <Field.Label>
+                    Due Date
+                    <Field.RequiredIndicator />
+                  </Field.Label>
+                  <Input type="date" {...register('dueDate')} />
+                  {errors.dueDate && <Field.ErrorText>{errors.dueDate.message}</Field.ErrorText>}
+                </Field.Root>
+
+                <HStack justify="space-between" pt={4}>
+                  <DialogCloseTrigger asChild></DialogCloseTrigger>
+                  <Button type="submit" form="project-form">
+                    Create Project
+                  </Button>
+                </HStack>
+              </VStack>
+            </form>
+          </DialogBody>
+        </DialogContent>
+      </DialogRoot>
     </VStack>
   )
 }

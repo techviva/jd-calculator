@@ -5,13 +5,14 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
+import { Project } from '@/types'
 
-export default function ProjectDetails({ params }) {
+export default function ProjectDetails({ params }: { params: { id: string } }) {
   const router = useRouter()
   const { id } = params
-  const [project, setProject] = useState(null)
+  const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -20,7 +21,7 @@ export default function ProjectDetails({ params }) {
         const docSnap = await getDoc(docRef)
 
         if (docSnap.exists()) {
-          setProject({ id: docSnap.id, ...docSnap.data() })
+          setProject({ id: docSnap.id, ...docSnap.data() } as Project)
         } else {
           setError('Project not found')
         }
@@ -37,7 +38,7 @@ export default function ProjectDetails({ params }) {
 
   if (loading) {
     return (
-      <VStack justifyContent="center" alignItems="center" h="100vh" spacing={4}>
+      <VStack justifyContent="center" alignItems="center" h="100vh" gap={4}>
         <Spinner size="xl" />
         <Text>Loading project details...</Text>
       </VStack>
@@ -46,7 +47,7 @@ export default function ProjectDetails({ params }) {
 
   if (error) {
     return (
-      <VStack justifyContent="center" alignItems="center" h="100vh" spacing={4}>
+      <VStack justifyContent="center" alignItems="center" h="100vh" gap={4}>
         <Heading size="md" color="red.500">
           Error
         </Heading>
@@ -57,37 +58,36 @@ export default function ProjectDetails({ params }) {
   }
 
   // Format date for display
-  const formatDate = dateString => {
+  const formatDate = (dateString?: string) => {
     if (!dateString) return 'N/A'
     return new Date(dateString).toLocaleDateString()
   }
 
   return (
-    <VStack alignItems="flex-start" width="100%" p={5} spacing={6}>
-      <Button variant="outline" onClick={() => router.push('/create-project')}>
-        Back to Projects
-      </Button>
+    <VStack alignItems="flex-start" width="100%" p={5} gap={6}>
+      <Button onClick={() => router.push('/create-project')}>Back to Projects</Button>
+      <Button onClick={() => router.push(`/project/${id}/update`)}>Update Materials</Button>
 
       <Heading as="h1" size="xl">
-        {project.jobTitle}
+        {project?.title}
       </Heading>
 
       <Box w="100%" p={5} borderWidth="1px" borderRadius="lg">
-        <VStack align="stretch" spacing={4}>
+        <VStack align="stretch" gap={4}>
           <HStack justify="space-between">
             <Text fontWeight="bold">Client:</Text>
-            <Text>{project.clientName}</Text>
+            <Text>{project?.clientName}</Text>
           </HStack>
 
           <HStack justify="space-between">
             <Text fontWeight="bold">Due Date:</Text>
-            <Text>{formatDate(project.dueDate)}</Text>
+            <Text>{formatDate(project?.dueDate)}</Text>
           </HStack>
 
           <VStack align="stretch">
             <Text fontWeight="bold">Description:</Text>
             <Box p={3} bg="gray.50" borderRadius="md">
-              <Text>{project.jobDescription}</Text>
+              <Text>{project?.description}</Text>
             </Box>
           </VStack>
         </VStack>

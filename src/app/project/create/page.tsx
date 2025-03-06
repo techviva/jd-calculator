@@ -54,13 +54,20 @@ export default function CreateProject() {
   } = useForm({
     defaultValues: {
       clientName: '',
-      jobTitle: '',
-      jobDescription: '',
+      title: '',
+      description: '',
       dueDate: '',
     },
   })
 
-  const onSubmit = async data => {
+  interface ProjectFormData {
+    clientName: string
+    title: string
+    description: string
+    dueDate: string
+  }
+
+  const onSubmit = async (data: ProjectFormData) => {
     try {
       setIsSubmitting(true)
 
@@ -76,7 +83,7 @@ export default function CreateProject() {
 
       toaster.create({
         title: 'Project created',
-        description: `Project ${data.jobTitle} has been created successfully`,
+        description: `Project ${data.title} has been created successfully`,
         type: 'success',
       })
 
@@ -148,33 +155,28 @@ export default function CreateProject() {
                   )}
                 </Field.Root>
 
-                <Field.Root invalid={!!errors.jobTitle}>
+                <Field.Root invalid={!!errors.title}>
                   <Field.Label>
                     Job Title
                     <Field.RequiredIndicator />
                   </Field.Label>
                   <Input
-                    {...register('jobTitle', {
+                    {...register('title', {
                       required: 'Job title is required',
                     })}
                     placeholder="Enter job title"
                   />
-                  {errors.jobTitle && <Field.ErrorText>{errors.jobTitle.message}</Field.ErrorText>}
+                  {errors.title && <Field.ErrorText>{errors.title.message}</Field.ErrorText>}
                 </Field.Root>
 
-                <Field.Root invalid={!!errors.jobDescription}>
+                <Field.Root invalid={!!errors.description}>
                   <Field.Label>
                     Job Description
                     <Field.RequiredIndicator />
                   </Field.Label>
-                  <Textarea
-                    {...register('jobDescription', {
-                      required: 'Job description is required',
-                    })}
-                    placeholder="Enter job description"
-                  />
-                  {errors.jobDescription && (
-                    <Field.ErrorText>{errors.jobDescription.message}</Field.ErrorText>
+                  <Textarea {...register('description')} placeholder="Enter job description" />
+                  {errors.description && (
+                    <Field.ErrorText>{errors.description.message}</Field.ErrorText>
                   )}
                 </Field.Root>
 
@@ -183,12 +185,7 @@ export default function CreateProject() {
                     Due Date
                     <Field.RequiredIndicator />
                   </Field.Label>
-                  <Input
-                    type="date"
-                    {...register('dueDate', {
-                      required: 'Due date is required',
-                    })}
-                  />
+                  <Input type="date" {...register('dueDate')} />
                   {errors.dueDate && <Field.ErrorText>{errors.dueDate.message}</Field.ErrorText>}
                 </Field.Root>
 

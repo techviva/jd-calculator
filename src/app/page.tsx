@@ -8,7 +8,6 @@ import { useEffect, useState } from 'react'
 import { collection, getDocs } from 'firebase/firestore'
 import { Project } from '@/types'
 import { db } from '@/lib/firebase'
-import { SkeletonText } from '@/components/ui/skeleton'
 
 const dummyStats = [
   {

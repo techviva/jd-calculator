@@ -87,7 +87,7 @@ export const JobCard = ({ projectId, title, clientName, description, dueDate }: 
           {title}
         </Card.Title>
         <Text fontSize="small" color="fg.info" fontWeight="bold">{clientName}</Text>
-        <Card.Description lineClamp={1} fontSize="xs">{`Job description: ${description}`}</Card.Description>
+        <Card.Description lineClamp={1} fontSize="xs">{description}</Card.Description>
       </Card.Body>
       <Card.Footer justifyContent="flex-start" fontSize="xs" fontWeight="semibold" mt={1} color="fg.info">
         {dueDate && (

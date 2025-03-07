@@ -100,12 +100,12 @@ export const JobCard = ({ projectId, title, clientName, description, startDate, 
         <Text fontSize="small" color="stale" fontWeight="bold">{clientName}</Text>
         <Card.Description lineClamp={1} fontSize="xs">{description}</Card.Description>
       </Card.Body>
-      <Card.Footer justifyContent="flex-start" fontSize="xs" fontWeight="semibold" mt={1} color="stale">
+      <Card.Footer justifyContent="flex-start" fontSize="xs" fontWeight="semibold" mt={1} color={remainingDays && remainingDays < 0 ? 'red' : 'stale'} gap={1}>
         {dueDate && (
           <ProgressCircle
             size="xs"
-            color="stale"
-            trackColor="transparent"
+            color={remainingDays && remainingDays < 0 ? 'red' : 'stale'}
+            trackColor="total"
             style={{ transform: 'scale(0.7)', marginRight: '2px' }}
             value={progressValue}
           />

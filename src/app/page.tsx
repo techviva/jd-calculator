@@ -1,6 +1,6 @@
 'use client'
 import { BarChart } from '@/components/chart'
-import { JobCard, JobStatsCard } from '@/components/ui'
+import { Button, JobCard, JobStatsCard } from '@/components/ui'
 import { VStack, Heading, Text, Flex, HStack, Box } from '@chakra-ui/react'
 import { BsArrowRight } from 'react-icons/bs'
 import { useAuth } from '@/contexts/AuthContext'
@@ -9,6 +9,7 @@ import { collection, getDocs } from 'firebase/firestore'
 import { Project } from '@/types'
 import { db } from '@/lib/firebase'
 import HomeSkeleton from '@/components/ui/home-skeleton'
+import { useRouter } from 'next/navigation'
 
 const dummyStats = [
   {
@@ -35,6 +36,7 @@ export default function Home() {
   const { user } = useAuth()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -147,12 +149,14 @@ export default function Home() {
       >
         <Flex justifyContent="space-between" width="100%" alignItems="center" color="fg.muted">
           <Heading fontSize="medium">Recent Projects</Heading>
-          <Flex gap={1} align="center">
-            <Text fontVariant="contextual" fontSize="small">
-              See all
-            </Text>
-            <BsArrowRight fontWeight="bold" />
-          </Flex>
+          <Button colorPalette="transparent" variant="ghost" size="sm" onClick={() => router.push('/jobs')}>
+            <Flex gap={1} align="center">
+              <Text fontVariant="contextual" fontSize="small">
+                See all
+              </Text>
+              <BsArrowRight fontWeight="bold" />
+            </Flex>
+          </Button>
         </Flex>
         {projects.length > 0 ? (
           projects

@@ -189,10 +189,11 @@ export default function Home() {
             .map(project => (
               <JobCard
                 key={project.id}
+                projectId={project.id}
                 title={project.title || 'Unnamed Project'}
                 clientName={project.clientName || 'Unnamed Client'}
                 description={project.description || 'No description available'}
-                dueDate={project.dueDate || 'No due date'}
+                dueDate={project.dueDate}
               />
             ))
         ) : (

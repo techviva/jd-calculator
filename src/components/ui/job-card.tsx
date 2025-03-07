@@ -2,11 +2,16 @@
 import { Card, Flex, Text } from '@chakra-ui/react'
 import { JobsIcon } from '../icons'
 import { ProgressCircle } from './progress-circle'
+import { useRouter } from 'next/navigation'
 
-export const JobCard = ({ title, clientName, description, dueDate }: { title: string, clientName: string, description: string, dueDate: string | undefined }) => {
+export const JobCard = ({ projectId, title, clientName, description, dueDate }: { projectId: string | number, title: string, clientName: string, description: string, dueDate: string | undefined }) => {
 
-  console.log('Due date:', dueDate)
-  const getRemainingDays = (dueDate: string) => {
+  const router = useRouter();
+  const getRemainingDays = (dueDate: string | undefined) => {
+
+    if (!dueDate) {
+      return undefined;
+    }
     const dueDateTime = new Date(dueDate).getTime()
     const currentTime = new Date().getTime()
     const remainingDays = Math.floor((dueDateTime - currentTime) / (1000 * 60 * 60 * 24))
@@ -14,17 +19,25 @@ export const JobCard = ({ title, clientName, description, dueDate }: { title: st
     return remainingDays;
   }
 
-  const remainingDays = getRemainingDays(dueDate || '');
+  const remainingDays = getRemainingDays(dueDate);
 
-  const calculateProgressPercentage = (dueDate: string) => {
+  const calculateProgressPercentage = (dueDate: string | undefined) => {
+
+    if (!dueDate) {
+      return undefined;
+    }
     const dueDateTime = new Date(dueDate).getTime()
     const currentTime = new Date().getTime()
-    const totalDuration = dueDateTime - currentTime
-    const elapsedDuration = currentTime - new Date().setDate(new Date().getDate() - 7) // Assuming 7 days ago as start
-    return (elapsedDuration / totalDuration) * 100
+    const totalDuration = dueDateTime - new Date().setDate(new Date().getDate() - 30) // Assuming 30 days ago as start
+    const elapsedDuration = currentTime - new Date().setDate(new Date().getDate() - 30) // Assuming 30 days ago as start
+    const progressPercentage = (elapsedDuration / totalDuration) * 100
+
+    return Math.min(Math.max(progressPercentage, 0), 100); // Clamp the value between 0 and 100
   }
 
-  const progressValue = calculateProgressPercentage(dueDate || '');
+  const progressValue = calculateProgressPercentage(dueDate);
+
+  console.log('ProgressValue', progressValue);
 
 
   const daysToDisplay = () => {
@@ -56,7 +69,7 @@ export const JobCard = ({ title, clientName, description, dueDate }: { title: st
         transition: 'all 0.3s ease-in-out',
       }}
       onClick={() => {
-        window.alert('Job Card clicked')
+        router.push(`/project/${projectId}`)
       }}
     >
       <Card.Body gap="1" pb={1}>
@@ -68,7 +81,7 @@ export const JobCard = ({ title, clientName, description, dueDate }: { title: st
           justify="center"
           width="fit-content"
         >
-          <JobsIcon width={'14px'} height={'14px'} color="blue.focusRing" />
+          <JobsIcon width="14px" height="14px" color="blue.focusRing" />
         </Flex>
         <Card.Title fontSize="medium">
           {title}
@@ -78,17 +91,15 @@ export const JobCard = ({ title, clientName, description, dueDate }: { title: st
       </Card.Body>
       <Card.Footer justifyContent="flex-start" fontSize="xs" fontWeight="semibold" mt={1} color="fg.info">
         {dueDate && (
-          <>
-            <ProgressCircle
-              size="xs"
-              color="fg.info"
-              trackColor="transparent"
-              style={{ transform: 'scale(0.7)', marginRight: '2px' }}
-              value={progressValue || 0}
-            />
-            {daysToDisplay()}
-          </>
+          <ProgressCircle
+            size="xs"
+            color="fg.info"
+            trackColor="transparent"
+            style={{ transform: 'scale(0.7)', marginRight: '2px' }}
+            value={progressValue}
+          />
         )}
+        {daysToDisplay()}
       </Card.Footer>
     </Card.Root>
   )

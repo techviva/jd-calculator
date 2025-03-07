@@ -4,7 +4,7 @@ import { JobsIcon } from '../icons'
 import { ProgressCircle } from './progress-circle'
 import { useRouter } from 'next/navigation'
 
-export const JobCard = ({ projectId, title, clientName, description, dueDate }: { projectId: string | number, title: string, clientName: string, description: string, dueDate: string | undefined }) => {
+export const JobCard = ({ projectId, title, clientName, description, startDate, dueDate }: { projectId: string | number, title: string, clientName: string, description: string, startDate: string | undefined, dueDate: string | undefined }) => {
 
   const router = useRouter();
   const getRemainingDays = (dueDate: string | undefined) => {
@@ -21,24 +21,35 @@ export const JobCard = ({ projectId, title, clientName, description, dueDate }: 
 
   const remainingDays = getRemainingDays(dueDate);
 
-  const calculateProgressPercentage = (dueDate: string | undefined) => {
-
-    if (!dueDate) {
+  const calculateProgressPercentage = (startDate: string | undefined, dueDate: string | undefined) => {
+    // If either date is missing, we can't calculate progress
+    if (!startDate || !dueDate) {
       return undefined;
     }
-    const dueDateTime = new Date(dueDate).getTime()
-    const currentTime = new Date().getTime()
-    const totalDuration = dueDateTime - new Date().setDate(new Date().getDate() - 30) // Assuming 30 days ago as start
-    const elapsedDuration = currentTime - new Date().setDate(new Date().getDate() - 30) // Assuming 30 days ago as start
-    const progressPercentage = (elapsedDuration / totalDuration) * 100
 
-    return Math.min(Math.max(progressPercentage, 0), 100); // Clamp the value between 0 and 100
+    const startDateTime = new Date(startDate).getTime();
+    const dueDateTime = new Date(dueDate).getTime();
+    const currentTime = new Date().getTime();
+
+    // Calculate total project duration
+    const totalDuration = dueDateTime - startDateTime;
+
+    // If total duration is zero or negative, handle appropriately
+    if (totalDuration <= 0) {
+      return 100;
+    }
+
+    // Calculate elapsed time since project start
+    const elapsedDuration = currentTime - startDateTime;
+
+    // Calculate progress as a percentage
+    const progressPercentage = (elapsedDuration / totalDuration) * 100;
+
+    // Clamp the value between 0 and 100
+    return Math.min(Math.max(progressPercentage, 0), 100);
   }
 
-  const progressValue = calculateProgressPercentage(dueDate);
-
-  console.log('ProgressValue', progressValue);
-
+  const progressValue = calculateProgressPercentage(startDate, dueDate);
 
   const daysToDisplay = () => {
     if (!remainingDays) {

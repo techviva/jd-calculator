@@ -45,15 +45,14 @@ export default function Jobs() {
                 </Heading>
             </Box>
 
-            <HStack width="100%" alignItems="center" gap={4}>
+            <HStack width="100%" alignItems="center" gap={4} flexWrap="wrap">
                 {loading ? (
                     // Skeleton loaders that better mimic the JobCard design
-                    Array.from({ length: 3 }).map((_, index) => (
+                    Array.from({ length: projects.length }).map((_, index) => (
                         <JobCardSkeleton key={index} />
                     ))
                 ) : projects.length > 0 ? (
                     projects
-                        .slice(0, 3)
                         .map(project => (
                             <JobCard
                                 key={project.id}
@@ -61,6 +60,7 @@ export default function Jobs() {
                                 title={project.title || 'Unnamed Project'}
                                 clientName={project.clientName || 'Unnamed Client'}
                                 description={project.description || 'No description available'}
+                                startDate={'2025-02-24'}
                                 dueDate={project.dueDate}
                             />
                         ))

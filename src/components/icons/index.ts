@@ -1,6 +1,7 @@
 export { default as JobsIcon } from './jobs-icon'
 export { default as SearchIcon } from './search-icon'
 export { default as HomeIcon } from './home-icon'
+export { default as EditIcon } from './edit-icon'
 export { default as TrendsIcon } from './trends-icon'
 export { default as ManagementIcon } from './management-icon'
 export { default as CreateProjectIcon } from './create-project-icon'

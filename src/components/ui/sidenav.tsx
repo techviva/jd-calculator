@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Flex, Text, VStack, Button as DefaultButton, DialogActionTrigger } from '@chakra-ui/react'
-import { HomeIcon, JobsIcon, ManagementIcon, TrendsIcon, } from '../icons'
+import { CreateProjectIcon, HomeIcon, JobsIcon, ManagementIcon, TrendsIcon, } from '../icons'
 import NavItem from './nav-item'
 import { ColorModeButton } from './color-mode'
 import { Button } from './button'
@@ -24,6 +24,11 @@ const navItems = [
     title: 'Home',
     linkTo: '/',
     icon: <HomeIcon width="20px" height="18px" />,
+  },
+  {
+    title: 'Create Project',
+    linkTo: '/project/create',
+    icon: <CreateProjectIcon width="20px" height="18px" />,
   },
   {
     title: 'Jobs',

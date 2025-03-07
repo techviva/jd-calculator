@@ -13,7 +13,7 @@ const CreateProjectIcon = ({ color = '', ...rest }: IconProps) => (
             <path
                 stroke="currentColor"
                 strokeLinecap="round"
-                strokeWidth="2"
+                strokeWidth="1"
                 d="M10 6v8m-4-4h8M3 1h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2Z"
             ></path>
         </svg>

@@ -12,7 +12,7 @@ interface NavItemProps {
 export default function NavItem({ icon, title, linkTo, isExtended, active }: NavItemProps) {
 
   return (
-    <Flex bg={active ? 'spot' : 'transparent'} borderRadius={isExtended ? '2xl' : 'lg'} alignItems="center" justifyContent="flex-start" width="100%">
+    <Flex bg={active ? 'spot' : 'transparent'} borderRadius={isExtended ? '2xl' : 'lg'} alignItems="center" justifyContent="flex-start" width="100%" _hover={{ bg: 'bg.subtle' }}>
       <Link
         href={linkTo}
         style={{

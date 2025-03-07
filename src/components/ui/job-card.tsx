@@ -81,19 +81,19 @@ export const JobCard = ({ projectId, title, clientName, description, dueDate }: 
           justify="center"
           width="fit-content"
         >
-          <JobsIcon width="14px" height="14px" color="blue.focusRing" />
+          <JobsIcon width="14px" height="14px" color="stale" />
         </Flex>
         <Card.Title fontSize="medium">
           {title}
         </Card.Title>
-        <Text fontSize="small" color="fg.info" fontWeight="bold">{clientName}</Text>
+        <Text fontSize="small" color="stale" fontWeight="bold">{clientName}</Text>
         <Card.Description lineClamp={1} fontSize="xs">{description}</Card.Description>
       </Card.Body>
-      <Card.Footer justifyContent="flex-start" fontSize="xs" fontWeight="semibold" mt={1} color="fg.info">
+      <Card.Footer justifyContent="flex-start" fontSize="xs" fontWeight="semibold" mt={1} color="stale">
         {dueDate && (
           <ProgressCircle
             size="xs"
-            color="fg.info"
+            color="stale"
             trackColor="transparent"
             style={{ transform: 'scale(0.7)', marginRight: '2px' }}
             value={progressValue}

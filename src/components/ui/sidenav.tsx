@@ -17,6 +17,7 @@ import {
   DialogRoot,
   DialogTitle,
   DialogTrigger,
+  Tooltip,
 } from '@/components/ui'
 
 const navItems = [
@@ -92,14 +93,17 @@ export const Sidenav = () => {
       mr={6}
     >
       {navItems.map(item => (
-        <NavItem
-          key={item.title}
-          title={item.title}
-          linkTo={item.linkTo}
-          icon={item.icon}
-          isExtended={isExtended}
-          active={currentPath === item.linkTo}
-        />
+        <Tooltip content={item.title} key={item.title} disabled={isExtended} openDelay={10} positioning={{ placement: "right" }}>
+          <Box width="100%">
+            <NavItem
+              title={item.title}
+              linkTo={item.linkTo}
+              icon={item.icon}
+              isExtended={isExtended}
+              active={currentPath === item.linkTo}
+            />
+          </Box>
+        </Tooltip>
       ))}
       <Flex
         direction={isExtended ? 'row' : 'column'}

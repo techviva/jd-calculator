@@ -14,7 +14,7 @@ const dummyStats = [
   {
     title: 'Total Jobs',
     stats: 431,
-    iconColor: 'blue.focusRing',
+    iconColor: 'stale',
     iconBg: 'total',
   },
   {

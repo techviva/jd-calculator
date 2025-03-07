@@ -27,6 +27,9 @@ const customTheme = createSystem(defaultConfig, {
         profit: {
           value: { base: '#9AA0F8', _dark: '#B0B6FF' },
         },
+        stale: {
+          value: { base: '#3C8AEF', _dark: '#8EC8FF' },
+        },
       },
     },
   },

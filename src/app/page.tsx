@@ -190,7 +190,9 @@ export default function Home() {
               <JobCard
                 key={project.id}
                 title={project.title || 'Unnamed Project'}
+                clientName={project.clientName || 'Unnamed Client'}
                 description={project.description || 'No description available'}
+                dueDate={project.dueDate || 'No due date'}
               />
             ))
         ) : (

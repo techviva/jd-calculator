@@ -56,6 +56,7 @@ export default function CreateProject() {
       clientName: '',
       title: '',
       description: '',
+      startDate: '',
       dueDate: '',
     },
   })
@@ -64,6 +65,7 @@ export default function CreateProject() {
     clientName: string
     title: string
     description: string
+    startDate: string
     dueDate: string
   }
 
@@ -132,7 +134,7 @@ export default function CreateProject() {
             Create Blank Project
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent borderRadius="3xl">
           <DialogHeader>
             <DialogTitle>New Project Details</DialogTitle>
           </DialogHeader>
@@ -180,7 +182,16 @@ export default function CreateProject() {
                   )}
                 </Field.Root>
 
-                <Field.Root invalid={!!errors.dueDate}>
+                <Field.Root invalid={!!errors.startDate}>
+                  <Field.Label>
+                    Start Date
+                    <Field.RequiredIndicator />
+                  </Field.Label>
+                  <Input type="date" {...register('startDate')} />
+                  {errors.startDate && <Field.ErrorText>{errors.startDate.message}</Field.ErrorText>}
+                </Field.Root>
+
+                <Field.Root invalid={!!errors.startDate}>
                   <Field.Label>
                     Due Date
                     <Field.RequiredIndicator />

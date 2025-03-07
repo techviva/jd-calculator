@@ -8,12 +8,12 @@ import {
     DialogTrigger,
 } from '@/components/ui'
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+// import { useState } from "react";
 import { EditIcon } from "@/components/icons";
 
 export default function CostManagement() {
 
-    const [isSubmitting, setIsSubmitting] = useState(false)
+    // const [isSubmitting, setIsSubmitting] = useState(false)
 
     const { open, onOpen, onClose, setOpen } = useDisclosure()
 
@@ -126,7 +126,6 @@ export default function CostManagement() {
                                             <Button
                                                 type="submit"
                                                 form="project-form"
-                                                loading={isSubmitting}
                                                 loadingText="Creating..."
                                                 fontSize="small"
                                                 colorPalette="default"

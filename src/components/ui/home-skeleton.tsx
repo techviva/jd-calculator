@@ -11,6 +11,7 @@ export default function HomeSkeleton() {
             height="max-content"
             width="100%"
             alignItems="flex-start"
+            alignSelf="stretch"
             gap={4}
             py={2}
             wrap={{ base: 'wrap', lg: 'nowrap' }}
@@ -37,7 +38,7 @@ export default function HomeSkeleton() {
                     <HStack
                         pb={4}
                         borderBottom="2px solid"
-                        borderColor="gray.subtle"
+                        borderColor="gray.emphasized"
                         mb={2}
                         justifyContent="space-between"
                     >
@@ -92,7 +93,7 @@ export default function HomeSkeleton() {
                         boxShadow="sm"
                     >
                         <VStack align="flex-start" gap="1" pb={1}>
-                            <Box p={2} borderRadius="full" bg="bg.subtle" width="28px" height="28px" />
+                            <Box p={2} borderRadius="full" bg="bg.emphasized" width="28px" height="28px" />
                             <Skeleton height="20px" width="70%" mt="5" />
                             <Skeleton height="16px" width="90%" />
                             <Skeleton height="14px" width="40px" mt={1} />

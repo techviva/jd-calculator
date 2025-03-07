@@ -1,12 +1,13 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { Heading, Text, VStack, HStack, Spinner, Flex, Table } from '@chakra-ui/react'
+import { Heading, Text, VStack, HStack, Flex, Table } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { Project } from '@/types'
 import { DataListItem, DataListRoot } from '@/components/ui'
+import ProjectDetailsSkeleton from '@/components/ui/project-details-skeleton'
 
 export default function ProjectDetails() {
   const router = useRouter()
@@ -40,10 +41,7 @@ export default function ProjectDetails() {
 
   if (loading) {
     return (
-      <VStack justifyContent="center" alignItems="center" h="100vh" gap={4} width="100%">
-        <Spinner size="xl" />
-        <Text>Loading project details...</Text>
-      </VStack>
+      <ProjectDetailsSkeleton />
     )
   }
 

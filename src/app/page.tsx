@@ -1,9 +1,14 @@
 'use client'
 import { BarChart } from '@/components/chart'
 import { JobCard, JobStatsCard } from '@/components/ui'
-import { VStack, Heading, Text, Flex, HStack, Box } from '@chakra-ui/react'
+import { VStack, Heading, Text, Flex, HStack, Box, Skeleton, Card } from '@chakra-ui/react'
 import { BsArrowRight } from 'react-icons/bs'
 import { useAuth } from '@/contexts/AuthContext'
+import { useEffect, useState } from 'react'
+import { collection, getDocs } from 'firebase/firestore'
+import { Project } from '@/types'
+import { db } from '@/lib/firebase'
+import { SkeletonText } from '@/components/ui/skeleton'
 
 const dummyStats = [
   {
@@ -28,6 +33,29 @@ const dummyStats = [
 
 export default function Home() {
   const { user } = useAuth()
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      setLoading(true)
+      try {
+        const projectsCollection = collection(db, 'projects')
+        const projectSnapshot = await getDocs(projectsCollection)
+        const projectList = projectSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Project[]
+        setProjects(projectList)
+      } catch (error) {
+        console.error('Error fetching projects:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProjects()
+  }, [])
 
   return (
     <HStack
@@ -120,9 +148,55 @@ export default function Home() {
             <BsArrowRight fontWeight="bold" />
           </Flex>
         </Flex>
-        {Array.from({ length: 3 }).map((_, index) => (
-          <JobCard key={index} title="Mr. Krasinski's House" description="He wants..." />
-        ))}
+        {loading ? (
+          // Skeleton loaders that better mimic the JobCard design
+          Array.from({ length: 3 }).map((_, index) => (
+            <Card.Root
+              key={`skeleton-${index}`}
+              borderRadius="3xl"
+              minWidth="200px"
+              width="100%"
+              maxWidth="300px"
+              bg="white"
+              p={4}
+              boxShadow="sm"
+            >
+              <Card.Body gap="1" pb={1}>
+                <VStack align="flex-start" gap="1" pb={1}>
+                  {/* Card header with icon placeholder */}
+                  <Box p={2} borderRadius="full" bg="gray.100" width="28px" height="28px" />
+
+                  {/* Card title */}
+                  <Box mt="5">
+                    <Skeleton height="20px" width="70%" />
+                  </Box>
+
+                  {/* Card description */}
+                  <Box width="100%">
+                    <Skeleton height="16px" width="90%" />
+                  </Box>
+
+                  {/* Card footer */}
+                  <Box mt={1} width="40px">
+                    <Skeleton height="14px" />
+                  </Box>
+                </VStack>
+              </Card.Body>
+            </Card.Root>
+          ))
+        ) : projects.length > 0 ? (
+          projects
+            .slice(0, 3)
+            .map(project => (
+              <JobCard
+                key={project.id}
+                title={project.title || 'Unnamed Project'}
+                description={project.description || 'No description available'}
+              />
+            ))
+        ) : (
+          <Text color="fg.muted">No projects found</Text>
+        )}
       </VStack>
     </HStack>
   )

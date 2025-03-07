@@ -12,7 +12,7 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated } = useAuth()
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && typeof window !== 'undefined') {
     return (
       <Center minH="100vh" bg="bg.subtle">
         <VStack gap={8}>

@@ -106,7 +106,7 @@ export const Sidenav = () => {
         </Tooltip>
       ))}
       <Flex
-        direction={isExtended ? 'row' : 'column'}
+        direction={isExtended ? 'row' : 'column-reverse'}
         alignItems={isExtended ? 'center' : 'flex-start'}
         justifyContent={isExtended ? 'space-between' : 'center'}
         width="100%"

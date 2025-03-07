@@ -1,7 +1,7 @@
 'use client'
 import { BarChart } from '@/components/chart'
 import { Button, JobCard, JobStatsCard } from '@/components/ui'
-import { VStack, Heading, Text, Flex, HStack, Box } from '@chakra-ui/react'
+import { VStack, Heading, Text, Flex, HStack } from '@chakra-ui/react'
 import { BsArrowRight } from 'react-icons/bs'
 import { useAuth } from '@/contexts/AuthContext'
 import { useEffect, useState } from 'react'
@@ -99,39 +99,7 @@ export default function Home() {
             />
           ))}
         </Flex>
-        <Box width="100%" p={6} borderRadius="3xl" bg="bg">
-          <HStack
-            pb={4}
-            borderBottom="2px solid"
-            borderColor="gray.subtle"
-            mb={2}
-            justifyContent="space-between"
-          >
-            <Box width="fit-content">
-              <Text color="fg.muted" fontWeight="semibold">
-                Statistics
-              </Text>
-              <Heading as="h2" fontWeight="bold">
-                Profit vs Revenue
-              </Heading>
-            </Box>
-            <Box>
-              <Flex alignItems="center">
-                <Box width="10px" height="10px" borderRadius="full" bg="revenue" mr={2} />
-                <Text color="fg.muted" fontSize="small">
-                  Revenue
-                </Text>
-              </Flex>
-              <Flex alignItems="center">
-                <Box width="10px" height="10px" borderRadius="full" bg="profit" mr={2} />
-                <Text color="fg.muted" fontSize="small">
-                  Profit
-                </Text>
-              </Flex>
-            </Box>
-          </HStack>
-          <BarChart />
-        </Box>
+        <BarChart />
       </VStack>
       <VStack
         gap={4}

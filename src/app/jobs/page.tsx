@@ -1,5 +1,5 @@
 "use client";
-import { JobCard, JobCardSkeleton } from "@/components/ui";
+import { JobCard, JobPageSkeleton } from "@/components/ui";
 import { db } from "@/lib/firebase";
 import { Project } from "@/types";
 import { Box, Heading, HStack, Text, VStack } from "@chakra-ui/react";
@@ -44,31 +44,28 @@ export default function Jobs() {
                     Projects
                 </Heading>
             </Box>
-
-            <HStack width="100%" alignItems="center" gap={4} flexWrap="wrap">
-                {loading ? (
-                    // Skeleton loaders that better mimic the JobCard design
-                    Array.from({ length: projects.length }).map((_, index) => (
-                        <JobCardSkeleton key={index} />
-                    ))
-                ) : projects.length > 0 ? (
-                    projects
-                        .map(project => (
-                            <JobCard
-                                key={project.id}
-                                projectId={project.id}
-                                title={project.title || 'Unnamed Project'}
-                                clientName={project.clientName || 'Unnamed Client'}
-                                description={project.description || 'No description available'}
-                                startDate={'2025-02-24'}
-                                dueDate={project.dueDate}
-                            />
-                        ))
-                ) : (
-                    <Text color="fg.muted">No projects found</Text>
-                )}
-            </HStack>
-
+            {loading ? (
+                <JobPageSkeleton />
+            ) :
+                <HStack width="100%" alignItems="center" gap={4} flexWrap="wrap">
+                    {projects.length > 0 ? (
+                        projects
+                            .map(project => (
+                                <JobCard
+                                    key={project.id}
+                                    projectId={project.id}
+                                    title={project.title || 'Unnamed Project'}
+                                    clientName={project.clientName || 'Unnamed Client'}
+                                    description={project.description || 'No description available'}
+                                    startDate={'2025-02-24'}
+                                    dueDate={project.dueDate}
+                                />
+                            ))
+                    ) : (
+                        <Text color="fg.muted">No projects found</Text>
+                    )}
+                </HStack>
+            }
         </VStack>
     )
 }

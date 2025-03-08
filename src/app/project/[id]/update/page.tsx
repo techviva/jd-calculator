@@ -93,11 +93,13 @@ export default function BlankProject() {
                             control: (baseStyles) => ({
                               ...baseStyles,
                               backgroundColor: 'var(--chakra-colors-bg)',
+                              borderColor: 'var(--chakra-colors-border)',
                             }),
-
                             menu: (baseStyles) => ({
                               ...baseStyles,
                               backgroundColor: 'var(--chakra-colors-bg)',
+                              border: '1px solid var(--chakra-colors-border)',
+                              boxShadow: '0 0 0 1px var(--chakra-colors-border)',
                             }),
                             option: (baseStyles, state) => ({
                               ...baseStyles,
@@ -120,10 +122,6 @@ export default function BlankProject() {
                               ...baseStyles,
                               caretColor: 'var(--chakra-colors-fg)',
                               // Changes cursor color
-                            }),
-                            container: (baseStyles) => ({
-                              ...baseStyles,
-                              borderColor: 'var(--chakra-colors-border)',
                             }),
                             singleValue: (baseStyles) => ({
                               ...baseStyles,
@@ -207,6 +205,7 @@ export default function BlankProject() {
             justifyContent="space-between"
             widows="100%"
             alignItems="center"
+            pl={3}
           >
             <Button
               fontSize="small"
@@ -233,6 +232,7 @@ export default function BlankProject() {
         height="100%"
         ml={{ base: 2, lg: 4 }}
         pt={{ base: 10, lg: 5 }}
+        pl={1}
       >
         <Box>
           <Text fontWeight="light" fontSize="xx-small">

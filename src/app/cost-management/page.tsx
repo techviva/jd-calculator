@@ -1,25 +1,22 @@
 "use client"
-import { Button, NativeSelectField, NativeSelectRoot } from "@/components/ui";
-import { Box, Field, Heading, HStack, Input, Table, Text, Textarea, useDisclosure, VStack } from "@chakra-ui/react";
+import { Button, DialogActionTrigger, NativeSelectField, NativeSelectRoot } from "@/components/ui";
+import { Box, DialogTitle, Field, Flex, Heading, HStack, Input, Table, Text, Textarea, VStack } from "@chakra-ui/react";
 import {
     DialogBody,
     DialogContent,
     DialogRoot,
-    DialogTrigger,
 } from '@/components/ui'
 import { useForm } from "react-hook-form";
-// import { useState } from "react";
-import { EditIcon } from "@/components/icons";
+import { useState } from "react";
+import { DeleteIcon, EditIcon } from "@/components/icons";
 
 export default function CostManagement() {
 
-    // const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const { open, onOpen, onClose, setOpen } = useDisclosure()
+    const [addMaterialModalOpen, setAddMaterialModalOpen] = useState(false)
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+    const [materialToDelete, setMaterialToDelete] = useState<string | null>(null)
 
-    const handleOpenChange = (details: { open: boolean }) => {
-        setOpen(details.open);
-    }
 
     const {
         register,
@@ -49,7 +46,20 @@ export default function CostManagement() {
 
         } catch (error) {
             console.error('Error adding project: ', error)
+        } finally {
+            setAddMaterialModalOpen(false)
         }
+    }
+
+    const handleDeleteMaterial = async (id: string) => {
+        try {
+            console.log('deleting material with id: ', id)
+        } catch (error) {
+            console.error('Error deleting material: ', error)
+        } finally {
+            setDeleteModalOpen(false)
+        }
+
     }
 
     return (
@@ -66,10 +76,8 @@ export default function CostManagement() {
                 <Heading as="h1" fontWeight="bold">
                     Cost Management
                 </Heading>
-                <DialogRoot placement="center" open={open} onOpenChange={handleOpenChange}>
-                    <DialogTrigger asChild>
-                        <Button colorPalette="green" fontSize="small" onClick={onOpen}>Add a new cost</Button>
-                    </DialogTrigger>
+                <DialogRoot placement="center" open={addMaterialModalOpen} onOpenChange={() => setAddMaterialModalOpen(!addMaterialModalOpen)} unmountOnExit>
+                    <Button colorPalette="green" fontSize="small" onClick={() => setAddMaterialModalOpen(true)}>Add a new cost</Button>
                     <DialogContent borderRadius="3xl" py={4}>
                         <DialogBody pb="2">
                             <form id="project-form" onSubmit={handleSubmit(onSubmit)}>
@@ -135,12 +143,12 @@ export default function CostManagement() {
                                         </Box>
                                         <Box width="fit-content" p={0} m={0}>
                                             <Button
-                                                colorPalette="red" fontSize="small"
+                                                colorPalette="gray" fontSize="small"
                                                 onClick={() => {
                                                     reset()
-                                                    onClose()
+                                                    setAddMaterialModalOpen(false)
                                                 }}
-                                            >Delete</Button>
+                                            >Cancel</Button>
                                         </Box>
                                     </HStack>
                                 </VStack>
@@ -166,14 +174,56 @@ export default function CostManagement() {
                                 <Table.Cell py={0}>{job.jobType}</Table.Cell>
                                 <Table.Cell py={0}>{job.jobOptions}</Table.Cell>
                                 <Table.Cell py={0}>{job.rate}</Table.Cell>
-                                <Table.Cell py={0}><Button fontSize="small" variant="ghost" p={1} colorPalette="transparent"><EditIcon width="18px" height="18px" /></Button></Table.Cell>
+                                <Table.Cell py={0} >
+                                    <Flex gap={1} p={0} m={0}>
+                                        <Button fontSize="small" variant="ghost" p={1} colorPalette="transparent"><EditIcon width="18px" height="18px" /></Button>
+                                        <Button
+                                            fontSize="small"
+                                            variant="ghost"
+                                            p={1}
+                                            colorPalette="transparent"
+                                            onClick={() => {
+                                                setMaterialToDelete(job.id);
+                                                setDeleteModalOpen(true);
+                                            }}
+                                        >
+                                            <DeleteIcon width="18px" height="18px" />
+                                        </Button>
+                                    </Flex>
+                                </Table.Cell>
                             </Table.Row>
                         ))}
                     </Table.Body>
                 </Table.Root>
             </VStack>
 
+            <DialogRoot placement="center" open={deleteModalOpen} onOpenChange={() => setDeleteModalOpen(!deleteModalOpen)} unmountOnExit>
+                <DialogContent borderRadius="3xl" py={4} width="fit-content">
+                    <DialogBody pb="2">
+                        <DialogTitle mb={2}>Delete Material</DialogTitle>
+                        <Text>Are you sure? You can&apos;t undo this action afterwards</Text>
+                        <HStack justify="space-between" pt={4}>
+                            <Box width="fit-content" p={0} m={0}>
+                                <DialogActionTrigger>
+                                    <Button fontSize="small" colorPalette="gray">Cancel</Button>
+                                </DialogActionTrigger>
+                            </Box>
+                            <Box width="fit-content" p={0} m={0}>
+                                <Button
+                                    colorPalette="red"
+                                    onClick={() => {
 
+                                        setDeleteModalOpen(false);
+                                        handleDeleteMaterial(materialToDelete as string);
+                                    }}
+                                >
+                                    Delete
+                                </Button>
+                            </Box>
+                        </HStack>
+                    </DialogBody>
+                </DialogContent>
+            </DialogRoot>
         </VStack>
     )
 }

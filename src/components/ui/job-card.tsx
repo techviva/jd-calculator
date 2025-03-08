@@ -4,7 +4,7 @@ import { JobsIcon } from '../icons'
 import { ProgressCircle } from './progress-circle'
 import { useRouter } from 'next/navigation'
 
-export const JobCard = ({ projectId, title, clientName, description, startDate, dueDate }: { projectId: string | number, title: string, clientName: string, description: string, startDate: string | undefined, dueDate: string | undefined }) => {
+export const JobCard = ({ projectId, title, clientName, description, startDate, dueDate }: { projectId: string | number, title: string, clientName: string, description: string | undefined, startDate: string | undefined, dueDate: string | undefined }) => {
 
   const router = useRouter();
   const getRemainingDays = (dueDate: string | undefined) => {
@@ -99,8 +99,8 @@ export const JobCard = ({ projectId, title, clientName, description, startDate, 
           {title}
         </Card.Title>
         <Text fontSize="small" color="stale" fontWeight="bold">{clientName}</Text>
-        <Card.Description lineClamp={1} fontSize="xs">{description}</Card.Description>
-      </Card.Body>
+        {description && <Card.Description lineClamp={1} fontSize="xs">{description}</Card.Description>
+        }      </Card.Body>
       <Card.Footer justifyContent="flex-start" fontSize="xs" fontWeight="semibold" mt={1} color={remainingDays && remainingDays < 0 ? 'red' : 'stale'} gap={1}>
         {dueDate && (
           <>

@@ -14,9 +14,8 @@ import {
   Flex,
   HStack,
 } from '@chakra-ui/react'
-import { createListCollection } from '@chakra-ui/react'
 import { IoIosClose } from 'react-icons/io'
-import { NativeSelectField, NativeSelectRoot } from '@/components/ui'
+import Select from 'react-select'
 
 export default function BlankProject() {
   const { control, handleSubmit } = useForm({
@@ -90,9 +89,45 @@ export default function BlankProject() {
                         name={`materials.${index}.material`}
                         control={control}
                         render={({ field }) => (
-                          <NativeSelectRoot {...field} variant="outline">
-                            <NativeSelectField items={materials.items} fontSize="small" />
-                          </NativeSelectRoot>
+                          <Select {...field} options={materials} placeholder="material" styles={{
+                            control: (baseStyles) => ({
+                              ...baseStyles,
+                              backgroundColor: 'var(--chakra-colors-bg)',
+                              borderColor: 'var(--chakra-colors-border)',
+                            }),
+                            menu: (baseStyles) => ({
+                              ...baseStyles,
+                              backgroundColor: 'var(--chakra-colors-bg)',
+                              border: '1px solid var(--chakra-colors-border)',
+                              boxShadow: '0 0 0 1px var(--chakra-colors-border)',
+                            }),
+                            option: (baseStyles, state) => ({
+                              ...baseStyles,
+                              backgroundColor: state.isFocused
+                                ? 'var(--chakra-colors-gray-100)'
+                                : 'var(--chakra-colors-bg)',
+                              color: state.isFocused ? 'var(--chakra-colors-yellow-contrast)' : 'var(--chakra-colors-text)',  // Option text color
+                              boxShadow: '0 0 0 1px var(--chakra-colors-bg)',
+                              ':active': {
+                                ...baseStyles[':active'],
+                                backgroundColor: 'var(--chakra-colors-gray-200)',
+                              },
+                              ':hover': {
+                                ...baseStyles[':hover'],
+                                backgroundColor: 'var(--chakra-colors-gray-100)',
+                                color: 'var(--chakra-colors-yellow-contrast)',  // Hovered option text color
+                              },
+                            }),
+                            input: (baseStyles) => ({
+                              ...baseStyles,
+                              caretColor: 'var(--chakra-colors-fg)',
+                              // Changes cursor color
+                            }),
+                            singleValue: (baseStyles) => ({
+                              ...baseStyles,
+                              color: 'var(--chakra-colors-text)',  // Selected value text color
+                            }),
+                          }} />
                         )}
                       />
                     </Table.Cell>
@@ -170,6 +205,7 @@ export default function BlankProject() {
             justifyContent="space-between"
             widows="100%"
             alignItems="center"
+            pl={3}
           >
             <Button
               fontSize="small"
@@ -196,6 +232,7 @@ export default function BlankProject() {
         height="100%"
         ml={{ base: 2, lg: 4 }}
         pt={{ base: 10, lg: 5 }}
+        pl={1}
       >
         <Box>
           <Text fontWeight="light" fontSize="xx-small">
@@ -220,15 +257,15 @@ export default function BlankProject() {
   )
 }
 
-const materials = createListCollection({
-  items: [
-    { value: 'Plywood', label: 'Plywood' },
-    { value: 'MDF', label: 'MDF' },
-    { value: 'Laminated Wood', label: 'Laminated Wood' },
-    { value: 'Vinyl', label: 'Vinyl' },
-    { value: 'Metal', label: 'Metal' },
-    { value: 'Plastic', label: 'Plastic' },
-    { value: 'Glass', label: 'Glass' },
-    { value: 'Ceramic', label: 'Ceramic' },
-  ],
-})
+const materials = [
+  { value: 'Plywood', label: 'Plywood' },
+  { value: 'MDF', label: 'MDF' },
+  { value: 'Laminated Wood', label: 'Laminated Wood' },
+  { value: 'Vinyl', label: 'Vinyl' },
+  { value: 'Metal', label: 'Metal' },
+  { value: 'Plastic', label: 'Plastic' },
+  { value: 'Glass', label: 'Glass' },
+  { value: 'Ceramic', label: 'Ceramic' },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+] as any
+

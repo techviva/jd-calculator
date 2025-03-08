@@ -73,6 +73,7 @@ export const JobCard = ({ projectId, title, clientName, description, startDate, 
       width="100%"
       maxWidth="300px"
       transition="all 0.2s ease-in-out"
+      alignSelf="stretch"
       _hover={{
         cursor: 'pointer',
         bg: 'gray.subtle',
@@ -102,15 +103,16 @@ export const JobCard = ({ projectId, title, clientName, description, startDate, 
       </Card.Body>
       <Card.Footer justifyContent="flex-start" fontSize="xs" fontWeight="semibold" mt={1} color={remainingDays && remainingDays < 0 ? 'red' : 'stale'} gap={1}>
         {dueDate && (
-          <ProgressCircle
-            size="xs"
-            color={remainingDays && remainingDays < 0 ? 'red' : 'stale'}
-            trackColor="total"
-            style={{ transform: 'scale(0.7)', marginRight: '2px' }}
-            value={progressValue}
-          />
-        )}
-        {daysToDisplay()}
+          <>
+            <ProgressCircle
+              size="xs"
+              color={remainingDays && remainingDays < 0 ? 'red' : 'stale'}
+              trackColor="total"
+              style={{ transform: 'scale(0.7)', marginRight: '2px' }}
+              value={progressValue}
+            />
+
+            {daysToDisplay()} </>)}
       </Card.Footer>
     </Card.Root>
   )

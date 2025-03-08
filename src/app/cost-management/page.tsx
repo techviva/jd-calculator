@@ -292,7 +292,9 @@ export default function CostManagement() {
                 <Table.Row key={item.id}>
                   <Table.Cell py={0}>{item.category}</Table.Cell>
                   <Table.Cell py={0}>{item.description}</Table.Cell>
-                  <Table.Cell py={0}>{formatRateWithUnit(item.rate, item.unit)}</Table.Cell>
+                  <Table.Cell py={0}>
+                    {formatRateWithUnit(item.rate.toString(), item.unit)}
+                  </Table.Cell>
                   <Table.Cell py={0}>
                     <Button fontSize="small" variant="ghost" p={1} colorPalette="transparent">
                       <EditIcon width="18px" height="18px" />

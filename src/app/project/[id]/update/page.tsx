@@ -131,9 +131,10 @@ export default function UpdateProject() {
         const price = selectedMaterial ? selectedMaterial.price * quantity : 0
 
         return {
-          value: item.value,
+          id: item.value,
           quantity: quantity,
-          calculatedPrice: price,
+          price: price,
+          name: selectedMaterial ? selectedMaterial.label : '',
         }
       })
 

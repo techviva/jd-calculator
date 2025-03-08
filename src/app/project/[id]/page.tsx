@@ -8,6 +8,8 @@ import { db } from '@/lib/firebase'
 import { Project } from '@/types'
 import { DataListItem, DataListRoot } from '@/components/ui'
 import ProjectDetailsSkeleton from '@/components/ui/project-details-skeleton'
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { ProjectPDFDocument } from '@/components/pdf'
 
 export default function ProjectDetails() {
   const router = useRouter()
@@ -80,7 +82,16 @@ export default function ProjectDetails() {
         </Heading>
 
         <Flex width="fit-content" gap={2} alignItems="center">
-          <Button fontSize="small" colorPalette="green" onClick={() => window.alert('Feature coming soon!')}>Export to PDF</Button>
+          <Button fontSize="small" colorPalette="green">
+            <PDFDownloadLink
+              document={<ProjectPDFDocument project={project} />}
+              fileName={`${project?.clientName}_Project_Details.pdf`}
+            >
+              {({ loading }) =>
+                loading ? 'Loading document...' : 'Export to PDF'
+              }
+            </PDFDownloadLink>
+          </Button>
           <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={() => window.alert('Feature coming soon!')}>Make this a Template</Button>
           <Button fontSize="small" onClick={() => router.push(`/project/${id}/update`)}>Update Materials</Button>
         </Flex>

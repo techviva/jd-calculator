@@ -14,9 +14,8 @@ import {
   Flex,
   HStack,
 } from '@chakra-ui/react'
-import { createListCollection } from '@chakra-ui/react'
 import { IoIosClose } from 'react-icons/io'
-import { NativeSelectField, NativeSelectRoot } from '@/components/ui'
+import Select from 'react-select'
 
 export default function BlankProject() {
   const { control, handleSubmit } = useForm({
@@ -90,9 +89,7 @@ export default function BlankProject() {
                         name={`materials.${index}.material`}
                         control={control}
                         render={({ field }) => (
-                          <NativeSelectRoot {...field} variant="outline">
-                            <NativeSelectField items={materials.items} fontSize="small" />
-                          </NativeSelectRoot>
+                          <Select {...field} options={materials} placeholder="material" />
                         )}
                       />
                     </Table.Cell>
@@ -220,15 +217,15 @@ export default function BlankProject() {
   )
 }
 
-const materials = createListCollection({
-  items: [
-    { value: 'Plywood', label: 'Plywood' },
-    { value: 'MDF', label: 'MDF' },
-    { value: 'Laminated Wood', label: 'Laminated Wood' },
-    { value: 'Vinyl', label: 'Vinyl' },
-    { value: 'Metal', label: 'Metal' },
-    { value: 'Plastic', label: 'Plastic' },
-    { value: 'Glass', label: 'Glass' },
-    { value: 'Ceramic', label: 'Ceramic' },
-  ],
-})
+const materials = [
+  { value: 'Plywood', label: 'Plywood' },
+  { value: 'MDF', label: 'MDF' },
+  { value: 'Laminated Wood', label: 'Laminated Wood' },
+  { value: 'Vinyl', label: 'Vinyl' },
+  { value: 'Metal', label: 'Metal' },
+  { value: 'Plastic', label: 'Plastic' },
+  { value: 'Glass', label: 'Glass' },
+  { value: 'Ceramic', label: 'Ceramic' },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+] as any
+

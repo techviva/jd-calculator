@@ -8,7 +8,7 @@ export const JobCardSkeleton = () => {
             minWidth="200px"
             width="100%"
             maxWidth="300px"
-            bg="white"
+            bg="bg"
             p={4}
             boxShadow="sm"
         >

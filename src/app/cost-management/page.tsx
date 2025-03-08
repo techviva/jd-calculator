@@ -14,15 +14,25 @@ import {
 } from '@chakra-ui/react'
 import { DialogBody, DialogContent, DialogRoot, DialogTrigger } from '@/components/ui'
 import { useForm } from 'react-hook-form'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { EditIcon } from '@/components/icons'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { toaster } from '@/components/ui/toaster'
 import { parseError } from '@/utils/errorParser'
 
+interface CostItem {
+  id: string
+  category: string
+  description: string
+  rate: number
+  unit?: string
+}
+
 export default function CostManagement() {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [costData, setCostData] = useState<CostItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const { open, onOpen, onClose, setOpen } = useDisclosure()
 
@@ -51,6 +61,35 @@ export default function CostManagement() {
     unit?: string
   }
 
+  // Fetch cost data from Firestore
+  const fetchCostData = async () => {
+    try {
+      setIsLoading(true)
+      const costsCollection = collection(db, 'costs')
+      const costsSnapshot = await getDocs(costsCollection)
+      const costsData = costsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as CostItem[]
+
+      setCostData(costsData)
+    } catch (error) {
+      console.error('Error fetching cost data:', error)
+      toaster.create({
+        title: 'Error loading cost items',
+        description: parseError(error),
+        type: 'error',
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Load cost data when component mounts
+  useEffect(() => {
+    fetchCostData()
+  }, [])
+
   const onSubmit = async (data: CostFormData) => {
     try {
       setIsSubmitting(true)
@@ -70,6 +109,9 @@ export default function CostManagement() {
         type: 'success',
       })
 
+      // Refresh cost data
+      fetchCostData()
+
       // Reset form and close dialog
       reset()
       onClose()
@@ -85,9 +127,17 @@ export default function CostManagement() {
     }
   }
 
+  // Format the rate and unit for display
+  const formatRateWithUnit = (rate: string, unit?: string) => {
+    const parsedRate = parseFloat(rate)
+    if (isNaN(parsedRate)) return 'Invalid rate'
+    if (!unit) return `$${parsedRate.toFixed(2)}`
+    return `$${parsedRate.toFixed(2)}${unit}`
+  }
+
   return (
     <VStack
-      alignCategorys="flex-start"
+      alignItems="flex-start"
       width="100%"
       alignSelf="stretch"
       borderRadius="4xl"
@@ -138,7 +188,11 @@ export default function CostManagement() {
                         Rate
                         <Field.RequiredIndicator />
                       </Field.Label>
-                      <Input type="number" {...register('rate')} />
+                      <Input
+                        type="number"
+                        step="0.01"
+                        {...register('rate', { valueAsNumber: true })}
+                      />
                       {errors.rate && <Field.ErrorText>{errors.rate.message}</Field.ErrorText>}
                     </Field.Root>
                     <Field.Root invalid={!!errors.unit}>
@@ -207,7 +261,7 @@ export default function CostManagement() {
                 htmlWidth="35%"
                 fontWeight="medium"
               >
-                Options
+                Description
               </Table.ColumnHeader>
               <Table.ColumnHeader
                 color="fg.subtle"
@@ -221,18 +275,32 @@ export default function CostManagement() {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {jobData.map(job => (
-              <Table.Row key={job.id}>
-                <Table.Cell py={0}>{job.category}</Table.Cell>
-                <Table.Cell py={0}>{job.jobOptions}</Table.Cell>
-                <Table.Cell py={0}>{job.rate}</Table.Cell>
-                <Table.Cell py={0}>
-                  <Button fontSize="small" variant="ghost" p={1} colorPalette="transparent">
-                    <EditIcon width="18px" height="18px" />
-                  </Button>
+            {isLoading ? (
+              <Table.Row>
+                <Table.Cell colSpan={4} textAlign="center">
+                  Loading...
                 </Table.Cell>
               </Table.Row>
-            ))}
+            ) : costData.length === 0 ? (
+              <Table.Row>
+                <Table.Cell colSpan={4} textAlign="center">
+                  No cost items available
+                </Table.Cell>
+              </Table.Row>
+            ) : (
+              costData.map(item => (
+                <Table.Row key={item.id}>
+                  <Table.Cell py={0}>{item.category}</Table.Cell>
+                  <Table.Cell py={0}>{item.description}</Table.Cell>
+                  <Table.Cell py={0}>{formatRateWithUnit(item.rate, item.unit)}</Table.Cell>
+                  <Table.Cell py={0}>
+                    <Button fontSize="small" variant="ghost" p={1} colorPalette="transparent">
+                      <EditIcon width="18px" height="18px" />
+                    </Button>
+                  </Table.Cell>
+                </Table.Row>
+              ))
+            )}
           </Table.Body>
         </Table.Root>
       </VStack>
@@ -242,53 +310,14 @@ export default function CostManagement() {
 
 const unitOptions = [
   { label: 'none', value: '' },
-  { label: '$/sqft (per square foot)', value: '$/sqft' },
-  { label: '$/hr (per hour)', value: '$/hr' },
-  { label: '$/day (per day)', value: '$/day' },
-  { label: '$/category (per unit)', value: '$/category' },
-  { label: '$/linear ft (per linear foot)', value: '$/linear ft' },
-  { label: '$/cubic yd (per cubic yard)', value: '$/cubic yd' },
-  { label: '$/acre (per acre)', value: '$/acre' },
-  { label: '$/mile (per mile)', value: '$/mile' },
-  { label: '$/project (flat rate)', value: '$/project' },
-  { label: '$/week (per week)', value: '$/week' },
-]
-
-const jobData = [
-  {
-    id: 'job-001',
-    category: 'Pavers',
-    jobOptions: 'Phoenix Pavers',
-    rate: '$4.00/sqft',
-  },
-  {
-    id: 'job-002',
-    category: 'Pavers',
-    jobOptions: 'Economy Pavers 1x1',
-    rate: '$2.75/sqft',
-  },
-  {
-    id: 'job-003',
-    category: 'Artificial Turf',
-    jobOptions: '80 oz or similar turf',
-    rate: '$2.75/sqft',
-  },
-  {
-    id: 'job-004',
-    category: 'Travertine',
-    jobOptions: 'Higher Tier Turf',
-    rate: '$3.25/sqft',
-  },
-  {
-    id: 'job-005',
-    category: 'Sod (Natural Sod)',
-    jobOptions: 'Bermuda Grass Sod',
-    rate: '$0.78/sqft',
-  },
-  {
-    id: 'job-006',
-    category: 'Sod (Natural Sod)',
-    jobOptions: 'St Augustine Sod',
-    rate: '$1.00/sqft',
-  },
+  { label: '/sqft (per square foot)', value: '/sqft' },
+  { label: '/hr (per hour)', value: '/hr' },
+  { label: '/day (per day)', value: '/day' },
+  { label: '/category (per unit)', value: '/category' },
+  { label: '/linear ft (per linear foot)', value: '/linear ft' },
+  { label: '/cubic yd (per cubic yard)', value: '/cubic yd' },
+  { label: '/acre (per acre)', value: '/acre' },
+  { label: '/mile (per mile)', value: '/mile' },
+  { label: '/project (flat rate)', value: '/project' },
+  { label: '/week (per week)', value: '/week' },
 ]

@@ -1,35 +1,20 @@
 'use client'
 
-import { Box, Flex, Text, VStack, Button as DefaultButton, DialogActionTrigger } from '@chakra-ui/react'
-import { CreateProjectIcon, HomeIcon, JobsIcon, ManagementIcon, TrendsIcon, } from '../icons'
+import { Box, Flex, VStack } from '@chakra-ui/react'
+import { CreateProjectIcon, HomeIcon, JobsIcon, ManagementIcon, TrendsIcon } from '../icons'
 import NavItem from './nav-item'
-import { ColorModeButton } from './color-mode'
+
 import { Button } from './button'
 import { MdKeyboardDoubleArrowLeft } from 'react-icons/md'
-import { FiLogOut } from 'react-icons/fi'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { useAuth } from '@/contexts/AuthContext'
-import {
-  DialogBody,
-  DialogContent,
-  DialogHeader,
-  DialogRoot,
-  DialogTitle,
-  DialogTrigger,
-  Tooltip,
-} from '@/components/ui'
+import { Tooltip } from '@/components/ui'
 
 const navItems = [
   {
     title: 'Home',
     linkTo: '/',
     icon: <HomeIcon width="20px" height="18px" />,
-  },
-  {
-    title: 'Create Project',
-    linkTo: '/project/create',
-    icon: <CreateProjectIcon width="20px" height="18px" />,
   },
   {
     title: 'Jobs',
@@ -47,14 +32,17 @@ const navItems = [
     linkTo: '/cost-management',
     icon: <ManagementIcon width="20px" height="18px" />,
   },
+  {
+    title: 'Create Project',
+    linkTo: '/project/create',
+    icon: <CreateProjectIcon width="20px" height="18px" />,
+  },
 ]
 
 export const Sidenav = () => {
   const [isExtended, setIsExtended] = useState(true)
 
   const currentPath = usePathname()
-
-  const { logout } = useAuth()
 
   useEffect(() => {
     const handleResize = () => {
@@ -93,7 +81,13 @@ export const Sidenav = () => {
       mr={6}
     >
       {navItems.map(item => (
-        <Tooltip content={item.title} key={item.title} disabled={isExtended} openDelay={10} positioning={{ placement: "right" }}>
+        <Tooltip
+          content={item.title}
+          key={item.title}
+          disabled={isExtended}
+          openDelay={10}
+          positioning={{ placement: 'right' }}
+        >
           <Box width="100%">
             <NavItem
               title={item.title}
@@ -105,6 +99,7 @@ export const Sidenav = () => {
           </Box>
         </Tooltip>
       ))}
+
       <Flex
         direction={isExtended ? 'row' : 'column-reverse'}
         alignItems={isExtended ? 'center' : 'flex-start'}
@@ -113,7 +108,8 @@ export const Sidenav = () => {
         mt="auto"
         gap={3}
         mr="auto"
-        mb="50px">
+        mb="50px"
+      >
         <Button
           p={1}
           ml={1}
@@ -131,41 +127,7 @@ export const Sidenav = () => {
             <MdKeyboardDoubleArrowLeft style={{ padding: '0px' }} />
           </Box>
         </Button>
-
-        <DialogRoot placement="center" >
-          <DialogTrigger asChild>
-            <DefaultButton variant="outline" size="sm" justifyContent="center" p={2}>
-              <FiLogOut /> <Text display={isExtended ? 'block' : 'none'}>Logout</Text>
-            </DefaultButton>
-          </DialogTrigger>
-          <DialogContent borderRadius="3xl">
-            <DialogHeader>
-              <DialogTitle textAlign="center">Logout</DialogTitle>
-            </DialogHeader>
-            <DialogBody pb="8" textAlign="center">
-              Are you sure you want to logout?
-              <Flex gap={4} mt={4} justifyContent="center">
-                <DialogActionTrigger>
-                  <Button
-                    fontSize="small"
-                    colorPalette="default"
-                  >
-                    Cancel
-                  </Button>
-                </DialogActionTrigger>
-                <Button
-                  fontSize="small"
-                  colorPalette="red"
-                  onClick={logout}
-                >
-                  Logout
-                </Button>
-              </Flex>
-            </DialogBody>
-          </DialogContent>
-        </DialogRoot>
       </Flex>
-      <ColorModeButton mt="auto" position="absolute" bottom="20px" left={4} />
     </VStack>
   )
 }

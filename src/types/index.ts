@@ -4,5 +4,6 @@ export interface Project {
   clientName: string
   dueDate?: string
   description?: string
+  status: 'completed' | 'in progress' | 'deleted'
   // Add other project properties as needed
 }

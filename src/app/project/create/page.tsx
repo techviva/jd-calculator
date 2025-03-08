@@ -58,6 +58,7 @@ export default function CreateProject() {
       description: '',
       startDate: '',
       dueDate: '',
+      status: 'active',
     },
   })
 
@@ -77,7 +78,7 @@ export default function CreateProject() {
       const projectData = {
         ...data,
         createdAt: serverTimestamp(),
-        status: 'active',
+        status: 'in progress',
       }
 
       // Add document to Firestore
@@ -119,7 +120,7 @@ export default function CreateProject() {
       <Text color="fg.muted" fontWeight="light" width="fit-content" fontSize="small">
         You can start afresh with a blank project
       </Text>
-      <DialogRoot placement="center" >
+      <DialogRoot placement="center">
         <DialogTrigger asChild>
           <Button fontSize="small" p={2} py={0} mt={3}>
             Create Blank Project
@@ -179,7 +180,9 @@ export default function CreateProject() {
                     <Field.RequiredIndicator />
                   </Field.Label>
                   <Input type="date" {...register('startDate')} />
-                  {errors.startDate && <Field.ErrorText>{errors.startDate.message}</Field.ErrorText>}
+                  {errors.startDate && (
+                    <Field.ErrorText>{errors.startDate.message}</Field.ErrorText>
+                  )}
                 </Field.Root>
 
                 <Field.Root invalid={!!errors.startDate}>
@@ -191,7 +194,7 @@ export default function CreateProject() {
                   {errors.dueDate && <Field.ErrorText>{errors.dueDate.message}</Field.ErrorText>}
                 </Field.Root>
 
-                <HStack justify="space-between" pt={4} >
+                <HStack justify="space-between" pt={4}>
                   <DialogCloseTrigger asChild></DialogCloseTrigger>
                   <Button
                     type="submit"

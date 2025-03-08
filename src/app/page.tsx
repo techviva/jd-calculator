@@ -11,31 +11,15 @@ import { db } from '@/lib/firebase'
 import HomeSkeleton from '@/components/ui/home-skeleton'
 import { useRouter } from 'next/navigation'
 
-const dummyStats = [
-  {
-    title: 'Total Jobs',
-    stats: 431,
-    iconColor: 'stale',
-    iconBg: 'total',
-  },
-  {
-    title: 'In progress',
-    stats: 431,
-    iconColor: 'yellow.focusRing',
-    iconBg: 'progress',
-  },
-  {
-    title: 'Completed',
-    stats: 431,
-    iconColor: 'green.focusRing',
-    iconBg: 'completed',
-  },
-]
-
 export default function Home() {
   const { user } = useAuth()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    total: 0,
+    inProgress: 0,
+    completed: 0,
+  })
   const router = useRouter()
 
   useEffect(() => {
@@ -48,6 +32,18 @@ export default function Home() {
           id: doc.id,
           ...doc.data(),
         })) as Project[]
+
+        // Calculate stats from projects
+        const total = projectList.length
+        const inProgress = projectList.filter(project => project.status === 'in progress').length
+        const completed = projectList.filter(project => project.status === 'completed').length
+
+        setStats({
+          total,
+          inProgress,
+          completed,
+        })
+
         setProjects(projectList)
       } catch (error) {
         console.error('Error fetching projects:', error)
@@ -59,10 +55,30 @@ export default function Home() {
     fetchProjects()
   }, [])
 
+  // Stats configuration based on real data
+  const statsConfig = [
+    {
+      title: 'Total Jobs',
+      stats: stats.total,
+      iconColor: 'stale',
+      iconBg: 'total',
+    },
+    {
+      title: 'In progress',
+      stats: stats.inProgress,
+      iconColor: 'yellow.focusRing',
+      iconBg: 'progress',
+    },
+    {
+      title: 'Completed',
+      stats: stats.completed,
+      iconColor: 'green.focusRing',
+      iconBg: 'completed',
+    },
+  ]
+
   if (loading) {
-    return (
-      <HomeSkeleton />
-    )
+    return <HomeSkeleton />
   }
 
   return (
@@ -89,7 +105,7 @@ export default function Home() {
           Some Stats
         </Text>
         <Flex gap={4} width="100%" wrap="wrap">
-          {dummyStats.map(({ title, stats, iconColor, iconBg }) => (
+          {statsConfig.map(({ title, stats, iconColor, iconBg }) => (
             <JobStatsCard
               key={title}
               title={title}
@@ -117,7 +133,12 @@ export default function Home() {
       >
         <Flex justifyContent="space-between" width="100%" alignItems="center" color="fg.muted">
           <Heading fontSize="medium">Recent Projects</Heading>
-          <Button colorPalette="transparent" variant="ghost" size="sm" onClick={() => router.push('/jobs')}>
+          <Button
+            colorPalette="transparent"
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push('/jobs')}
+          >
             <Flex gap={1} align="center">
               <Text fontVariant="contextual" fontSize="small">
                 See all
@@ -128,7 +149,7 @@ export default function Home() {
         </Flex>
         {projects.length > 0 ? (
           projects
-            .slice(0, 3)
+            .slice(0, 5)
             .map(project => (
               <JobCard
                 key={project.id}

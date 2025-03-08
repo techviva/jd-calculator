@@ -17,7 +17,7 @@ const navItems = [
     icon: <HomeIcon width="20px" height="18px" />,
   },
   {
-    title: 'Jobs',
+    title: 'Projects',
     linkTo: '/jobs',
     icon: <JobsIcon width="20px" height="18px" />,
   },

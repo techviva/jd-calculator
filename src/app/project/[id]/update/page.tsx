@@ -16,11 +16,43 @@ import {
 } from '@chakra-ui/react'
 import { IoIosClose } from 'react-icons/io'
 import Select from 'react-select'
+import { useState, useEffect } from 'react'
+import { collection, getDocs, getDoc, doc, updateDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+import { useParams } from 'next/navigation'
+import { CostItem } from '@/app/cost-management/page'
 
-export default function BlankProject() {
-  const { control, handleSubmit } = useForm({
+// Define TypeScript interfaces for our data
+interface Material {
+  id: string
+  name: string
+  price: number
+}
+
+interface MaterialOption {
+  value: string
+  label: string
+  price: number
+}
+
+interface MaterialInput {
+  materialId: string
+  quantity: string
+  price: string
+}
+
+export default function UpdateProject() {
+  const [materials, setMaterials] = useState<MaterialOption[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [totalCost, setTotalCost] = useState(0)
+  const [netProfit, setNetProfit] = useState(0)
+  const [clientAmount, setClientAmount] = useState(0)
+  const params = useParams()
+  const projectId = params.id as string
+
+  const { control, handleSubmit, watch } = useForm({
     defaultValues: {
-      materials: [{ material: '', quantity: '', price: '' }],
+      materials: [{ materialId: '', quantity: '', price: '' }],
     },
   })
 
@@ -28,6 +60,111 @@ export default function BlankProject() {
     control,
     name: 'materials',
   })
+
+  // Watch all material inputs to calculate totals
+  const watchMaterials = watch('materials')
+
+  // Fetch materials from Firestore
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      try {
+        const costsCollection = collection(db, 'costs')
+        const materialsSnapshot = await getDocs(costsCollection)
+
+        const materialOptions: MaterialOption[] = []
+
+        materialsSnapshot.forEach(doc => {
+          const materialData = doc.data() as CostItem
+          materialOptions.push({
+            value: doc.id,
+            label: materialData.description,
+            price: materialData.rate,
+          })
+        })
+
+        setMaterials(materialOptions)
+        setIsLoading(false)
+      } catch (error) {
+        console.error('Error fetching materials:', error)
+        setIsLoading(false)
+      }
+    }
+
+    // Fetch existing project data if available
+    const fetchProjectData = async () => {
+      try {
+        const projectRef = doc(db, 'projects', projectId)
+        const projectSnapshot = await getDoc(projectRef)
+
+        if (projectSnapshot.exists()) {
+          const projectData = projectSnapshot.data()
+          // TODO: Add logic to populate form with existing project data
+        }
+      } catch (error) {
+        console.error('Error fetching project data:', error)
+      }
+    }
+
+    fetchMaterials()
+    fetchProjectData()
+  }, [projectId])
+
+  // Calculate totals whenever materials change
+  useEffect(() => {
+    let cost = 0
+
+    watchMaterials.forEach(material => {
+      if (material.value && material.quantity) {
+        const selectedMaterial = materials.find(m => m.value === material.value)
+        if (selectedMaterial) {
+          const quantity = parseFloat(material.quantity) || 0
+          const itemCost = selectedMaterial.price * quantity
+          cost += itemCost
+        }
+      }
+    })
+
+    setTotalCost(cost)
+    // Example calculations - adjust based on your business logic
+    setNetProfit(cost * 0.2) // 20% profit margin
+    setClientAmount(cost * 1.2) // Cost + profit
+  }, [watchMaterials, materials])
+
+  const onSubmit = async (data: any) => {
+    try {
+      // Format data for Firestore
+      const materialsToSave = data.materials.map((item: MaterialInput) => {
+        const selectedMaterial = materials.find(m => m.value === item.materialId)
+        const quantity = parseFloat(item.quantity) || 0
+        const price = selectedMaterial ? selectedMaterial.price * quantity : 0
+
+        return {
+          materialId: item.materialId,
+          quantity: quantity,
+          calculatedPrice: price,
+        }
+      })
+
+      // Save to Firestore
+      const projectRef = doc(db, 'projects', projectId)
+      await updateDoc(projectRef, {
+        materials: materialsToSave,
+        totalCost,
+        netProfit,
+        clientAmount,
+      })
+
+      console.log('Project updated successfully')
+      // Navigate or show success message
+    } catch (error) {
+      console.error('Error updating project:', error)
+      // Show error message
+    }
+  }
+
+  if (isLoading) {
+    return <Text>Loading materials...</Text>
+  }
 
   return (
     <Flex
@@ -52,11 +189,11 @@ export default function BlankProject() {
         borderColor={{ base: 'transparent', lg: 'border.muted' }}
       >
         <form
-          onSubmit={handleSubmit(data => console.log(data))}
+          onSubmit={handleSubmit(onSubmit)}
           style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}
         >
           <Heading as="h1" fontWeight="bold" fontSize="larger">
-            Update project
+            Update Project Details
           </Heading>
           <Text color="fg.muted" fontWeight="semibold" mt={1} fontSize="small">
             Enter the details of the materials
@@ -78,7 +215,7 @@ export default function BlankProject() {
                 <Table.Row fontSize="small" fontWeight="light">
                   <Table.ColumnHeader color="fg.muted">Material</Table.ColumnHeader>
                   <Table.ColumnHeader color="fg.muted">Quantity</Table.ColumnHeader>
-                  <Table.ColumnHeader color="fg.muted">price</Table.ColumnHeader>
+                  <Table.ColumnHeader color="fg.muted">Price</Table.ColumnHeader>
                 </Table.Row>
               </Table.Header>
               <Table.Body>
@@ -86,48 +223,55 @@ export default function BlankProject() {
                   <Table.Row key={field.id}>
                     <Table.Cell>
                       <Controller
-                        name={`materials.${index}.material`}
+                        name={`materials.${index}`}
                         control={control}
                         render={({ field }) => (
-                          <Select {...field} options={materials} placeholder="material" styles={{
-                            control: (baseStyles) => ({
-                              ...baseStyles,
-                              backgroundColor: 'var(--chakra-colors-bg)',
-                              borderColor: 'var(--chakra-colors-border)',
-                            }),
-                            menu: (baseStyles) => ({
-                              ...baseStyles,
-                              backgroundColor: 'var(--chakra-colors-bg)',
-                              border: '1px solid var(--chakra-colors-border)',
-                              boxShadow: '0 0 0 1px var(--chakra-colors-border)',
-                            }),
-                            option: (baseStyles, state) => ({
-                              ...baseStyles,
-                              backgroundColor: state.isFocused
-                                ? 'var(--chakra-colors-gray-100)'
-                                : 'var(--chakra-colors-bg)',
-                              color: state.isFocused ? 'var(--chakra-colors-yellow-contrast)' : 'var(--chakra-colors-text)',  // Option text color
-                              boxShadow: '0 0 0 1px var(--chakra-colors-bg)',
-                              ':active': {
-                                ...baseStyles[':active'],
-                                backgroundColor: 'var(--chakra-colors-gray-200)',
-                              },
-                              ':hover': {
-                                ...baseStyles[':hover'],
-                                backgroundColor: 'var(--chakra-colors-gray-100)',
-                                color: 'var(--chakra-colors-yellow-contrast)',  // Hovered option text color
-                              },
-                            }),
-                            input: (baseStyles) => ({
-                              ...baseStyles,
-                              caretColor: 'var(--chakra-colors-fg)',
-                              // Changes cursor color
-                            }),
-                            singleValue: (baseStyles) => ({
-                              ...baseStyles,
-                              color: 'var(--chakra-colors-text)',  // Selected value text color
-                            }),
-                          }} />
+                          <Select
+                            {...field}
+                            options={materials}
+                            placeholder="Select material"
+                            styles={{
+                              // ...existing code...
+                              control: baseStyles => ({
+                                ...baseStyles,
+                                backgroundColor: 'var(--chakra-colors-bg)',
+                                borderColor: 'var(--chakra-colors-border)',
+                              }),
+                              menu: baseStyles => ({
+                                ...baseStyles,
+                                backgroundColor: 'var(--chakra-colors-bg)',
+                                border: '1px solid var(--chakra-colors-border)',
+                                boxShadow: '0 0 0 1px var(--chakra-colors-border)',
+                              }),
+                              option: (baseStyles, state) => ({
+                                ...baseStyles,
+                                backgroundColor: state.isFocused
+                                  ? 'var(--chakra-colors-gray-100)'
+                                  : 'var(--chakra-colors-bg)',
+                                color: state.isFocused
+                                  ? 'var(--chakra-colors-yellow-contrast)'
+                                  : 'var(--chakra-colors-text)',
+                                boxShadow: '0 0 0 1px var(--chakra-colors-bg)',
+                                ':active': {
+                                  ...baseStyles[':active'],
+                                  backgroundColor: 'var(--chakra-colors-gray-200)',
+                                },
+                                ':hover': {
+                                  ...baseStyles[':hover'],
+                                  backgroundColor: 'var(--chakra-colors-gray-100)',
+                                  color: 'var(--chakra-colors-yellow-contrast)',
+                                },
+                              }),
+                              input: baseStyles => ({
+                                ...baseStyles,
+                                caretColor: 'var(--chakra-colors-fg)',
+                              }),
+                              singleValue: baseStyles => ({
+                                ...baseStyles,
+                                color: 'var(--chakra-colors-text)',
+                              }),
+                            }}
+                          />
                         )}
                       />
                     </Table.Cell>
@@ -147,25 +291,34 @@ export default function BlankProject() {
                       />
                     </Table.Cell>
                     <Table.Cell textAlign="end" display="flex" gap={3}>
-                      <Controller
-                        name={`materials.${index}.price`}
-                        control={control}
-                        render={({ field }) => (
-                          <Group attached>
-                            <InputAddon bg="bg" borderRight={0}>
-                              $
-                            </InputAddon>
-                            <Input
-                              {...field}
-                              placeholder="price"
-                              variant="outline"
-                              borderLeft={0}
-                              type="number"
-                              fontSize="small"
-                            />
-                          </Group>
-                        )}
-                      />
+                      <Box flexGrow={1}>
+                        {(() => {
+                          const material = watchMaterials[index]
+                          const selectedMaterial = material.value
+                            ? materials.find(m => m.value === material.value)
+                            : null
+                          const quantity = parseFloat(material.quantity) || 0
+                          const price = selectedMaterial
+                            ? (selectedMaterial.price * quantity).toFixed(2)
+                            : '0.00'
+
+                          return (
+                            <Group attached>
+                              <InputAddon bg="bg" borderRight={0}>
+                                $
+                              </InputAddon>
+                              <Input
+                                value={price}
+                                readOnly
+                                placeholder="0.00"
+                                variant="outline"
+                                borderLeft={0}
+                                fontSize="small"
+                              />
+                            </Group>
+                          )
+                        })()}
+                      </Box>
                       <DefaultButton
                         size="xs"
                         variant="subtle"
@@ -193,7 +346,7 @@ export default function BlankProject() {
               mt={3}
               ml={2}
               mb={2}
-              onClick={() => append({ material: '', quantity: '', price: '' })}
+              onClick={() => append({ materialId: '', quantity: '', price: '' })}
             >
               Add a material
             </Button>
@@ -207,10 +360,7 @@ export default function BlankProject() {
             alignItems="center"
             pl={3}
           >
-            <Button
-              fontSize="small"
-              colorPalette="default"
-            >
+            <Button fontSize="small" colorPalette="default">
               Save as draft
             </Button>
             <Button
@@ -238,34 +388,21 @@ export default function BlankProject() {
           <Text fontWeight="light" fontSize="xx-small">
             Total Cost
           </Text>
-          <Text fontSize="larger">$8000</Text>
+          <Text fontSize="larger">${totalCost.toFixed(2)}</Text>
         </Box>
         <Box>
           <Text fontWeight="light" fontSize="xx-small">
             Net Profit
           </Text>
-          <Text fontSize="larger">$8000</Text>
+          <Text fontSize="larger">${netProfit.toFixed(2)}</Text>
         </Box>
         <Box>
           <Text fontWeight="light" fontSize="xx-small">
             Amount for Clients
           </Text>
-          <Text fontSize="larger">$8000</Text>
+          <Text fontSize="larger">${clientAmount.toFixed(2)}</Text>
         </Box>
       </VStack>
     </Flex>
   )
 }
-
-const materials = [
-  { value: 'Plywood', label: 'Plywood' },
-  { value: 'MDF', label: 'MDF' },
-  { value: 'Laminated Wood', label: 'Laminated Wood' },
-  { value: 'Vinyl', label: 'Vinyl' },
-  { value: 'Metal', label: 'Metal' },
-  { value: 'Plastic', label: 'Plastic' },
-  { value: 'Glass', label: 'Glass' },
-  { value: 'Ceramic', label: 'Ceramic' },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-] as any
-

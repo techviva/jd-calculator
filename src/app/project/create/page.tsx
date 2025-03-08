@@ -106,7 +106,7 @@ export default function CreateProject() {
   return (
     <VStack
       alignItems="center"
-      justifyContent="center"
+      justifyContent="flex-start"
       width="100%"
       borderRadius="4xl"
       bg="spot"
@@ -116,18 +116,9 @@ export default function CreateProject() {
       <Heading as="h1" fontWeight="bold" width="fit-content">
         Create project
       </Heading>
-      <Text color="fg.muted" fontWeight="semibold" mt={-2} width="fit-content" fontSize="small">
-        Pick a template
+      <Text color="fg.muted" fontWeight="light" width="fit-content" fontSize="small">
+        You can start afresh with a blank project
       </Text>
-      <Text color="fg.muted" fontWeight="light" mt={2} width="fit-content" fontSize="small">
-        You can pick a template from one of these
-      </Text>
-      <HStack wrap="wrap" gap={4} mt={4} justifyContent="center">
-        {dummyTemplates.map(({ id, name }) => (
-          <TemplateCard name={name} key={id} />
-        ))}
-      </HStack>
-
       <DialogRoot placement="center" >
         <DialogTrigger asChild>
           <Button fontSize="small" p={2} py={0} mt={3}>
@@ -217,6 +208,14 @@ export default function CreateProject() {
           </DialogBody>
         </DialogContent>
       </DialogRoot>
+      <Text color="fg.muted" fontWeight="light" mt={2} width="fit-content" fontSize="small">
+        or pick a template from one of these
+      </Text>
+      <HStack wrap="wrap" gap={4} mt={4} justifyContent="center">
+        {dummyTemplates.map(({ id, name }) => (
+          <TemplateCard name={name} key={id} />
+        ))}
+      </HStack>
     </VStack>
   )
 }

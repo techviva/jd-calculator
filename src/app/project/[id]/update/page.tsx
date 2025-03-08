@@ -22,23 +22,11 @@ import { db } from '@/lib/firebase'
 import { useParams } from 'next/navigation'
 import { CostItem } from '@/app/cost-management/page'
 
-// Define TypeScript interfaces for our data
-interface Material {
-  id: string
-  name: string
-  price: number
-}
-
 interface MaterialOption {
   value: string
   label: string
   price: number
-}
-
-interface MaterialInput {
-  materialId: string
   quantity: string
-  price: string
 }
 
 export default function UpdateProject() {
@@ -52,7 +40,7 @@ export default function UpdateProject() {
 
   const { control, handleSubmit, watch } = useForm({
     defaultValues: {
-      materials: [{ materialId: '', quantity: '', price: '' }],
+      materials: [{ value: '', label: '', quantity: '', price: '' }],
     },
   })
 
@@ -79,6 +67,7 @@ export default function UpdateProject() {
             value: doc.id,
             label: materialData.description,
             price: materialData.rate,
+            quantity: '',
           })
         })
 
@@ -130,16 +119,16 @@ export default function UpdateProject() {
     setClientAmount(cost * 1.2) // Cost + profit
   }, [watchMaterials, materials])
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: { materials: MaterialOption[] }) => {
     try {
       // Format data for Firestore
-      const materialsToSave = data.materials.map((item: MaterialInput) => {
-        const selectedMaterial = materials.find(m => m.value === item.materialId)
+      const materialsToSave = data.materials.map(item => {
+        const selectedMaterial = materials.find(m => m.value === item.value)
         const quantity = parseFloat(item.quantity) || 0
         const price = selectedMaterial ? selectedMaterial.price * quantity : 0
 
         return {
-          materialId: item.materialId,
+          value: item.value,
           quantity: quantity,
           calculatedPrice: price,
         }
@@ -346,7 +335,7 @@ export default function UpdateProject() {
               mt={3}
               ml={2}
               mb={2}
-              onClick={() => append({ materialId: '', quantity: '', price: '' })}
+              onClick={() => append({ value: '', quantity: '', price: '', label: '' })} // Append a new empty material
             >
               Add a material
             </Button>

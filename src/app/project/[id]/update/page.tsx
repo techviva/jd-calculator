@@ -89,7 +89,47 @@ export default function BlankProject() {
                         name={`materials.${index}.material`}
                         control={control}
                         render={({ field }) => (
-                          <Select {...field} options={materials} placeholder="material" />
+                          <Select {...field} options={materials} placeholder="material" styles={{
+                            control: (baseStyles) => ({
+                              ...baseStyles,
+                              backgroundColor: 'var(--chakra-colors-bg)',
+                            }),
+
+                            menu: (baseStyles) => ({
+                              ...baseStyles,
+                              backgroundColor: 'var(--chakra-colors-bg)',
+                            }),
+                            option: (baseStyles, state) => ({
+                              ...baseStyles,
+                              backgroundColor: state.isFocused
+                                ? 'var(--chakra-colors-gray-100)'
+                                : 'var(--chakra-colors-bg)',
+                              color: state.isFocused ? 'var(--chakra-colors-yellow-contrast)' : 'var(--chakra-colors-text)',  // Option text color
+                              boxShadow: '0 0 0 1px var(--chakra-colors-bg)',
+                              ':active': {
+                                ...baseStyles[':active'],
+                                backgroundColor: 'var(--chakra-colors-gray-200)',
+                              },
+                              ':hover': {
+                                ...baseStyles[':hover'],
+                                backgroundColor: 'var(--chakra-colors-gray-100)',
+                                color: 'var(--chakra-colors-yellow-contrast)',  // Hovered option text color
+                              },
+                            }),
+                            input: (baseStyles) => ({
+                              ...baseStyles,
+                              caretColor: 'var(--chakra-colors-fg)',
+                              // Changes cursor color
+                            }),
+                            container: (baseStyles) => ({
+                              ...baseStyles,
+                              borderColor: 'var(--chakra-colors-border)',
+                            }),
+                            singleValue: (baseStyles) => ({
+                              ...baseStyles,
+                              color: 'var(--chakra-colors-text)',  // Selected value text color
+                            }),
+                          }} />
                         )}
                       />
                     </Table.Cell>

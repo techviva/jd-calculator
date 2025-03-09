@@ -1,70 +1,39 @@
 'use client'
-import { Button, DialogActionTrigger, NativeSelectField, NativeSelectRoot } from '@/components/ui'
+import { Button, CostItemModal, DialogActionTrigger } from '@/components/ui'
 import {
     Box,
     DialogTitle,
-    Field,
     Flex,
     Heading,
     HStack,
-    Input,
     Table,
     Text,
-    Textarea,
     useDisclosure,
     VStack,
 } from '@chakra-ui/react'
-import { DialogBody, DialogContent, DialogRoot, DialogTrigger } from '@/components/ui'
-import { useForm } from 'react-hook-form'
+import { DialogBody, DialogContent, DialogRoot } from '@/components/ui'
 import { useState, useEffect } from 'react'
 import { DeleteIcon, EditIcon } from '@/components/icons'
-import { collection, addDoc, serverTimestamp, getDocs, deleteDoc, doc } from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp, getDocs, deleteDoc, doc, setDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { toaster } from '@/components/ui/toaster'
 import { parseError } from '@/utils/errorParser'
+import { CostFormData, CostItem } from '@/types'
 
 
-export interface CostItem {
-    id: string
-    category: string
-    description: string
-    rate: number
-    unit?: string
-}
+
 
 export default function CostManagement() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [costData, setCostData] = useState<CostItem[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+    const [editModalOpen, setEditModalOpen] = useState(false)
     const [itemToDelete, setItemToDelete] = useState<string | null>(null)
+    const [itemToEdit, setItemToEdit] = useState<string | null>(null)
 
-    const { open, onOpen, onClose, setOpen } = useDisclosure()
+    const { open, onClose, setOpen } = useDisclosure()
 
-    const handleOpenChange = (details: { open: boolean }) => {
-        setOpen(details.open)
-    }
-
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors },
-    } = useForm({
-        defaultValues: {
-            category: '',
-            description: '',
-            rate: 0,
-            unit: '',
-        },
-    })
-
-    interface CostFormData {
-        category: string
-        description: string
-        rate: number
-        unit?: string
-    }
 
     // Fetch cost data from Firestore
     const fetchCostData = async () => {
@@ -118,7 +87,6 @@ export default function CostManagement() {
             fetchCostData()
 
             // Reset form and close dialog
-            reset()
             onClose()
         } catch (error) {
             console.error('Error adding cost item: ', error)
@@ -131,6 +99,32 @@ export default function CostManagement() {
             setIsSubmitting(false)
         }
     }
+
+    const handleEditItem = async (data: CostFormData) => {
+        try {
+            setIsSubmitting(true)
+            const docRef = doc(db, 'costs', itemToEdit as string)
+            await setDoc(docRef, data, { merge: true })
+            toaster.create({
+                title: 'Cost item updated',
+                description: `${data.category} has been updated successfully`,
+                type: 'success',
+            })
+            fetchCostData()
+        } catch (error) {
+            console.error('Error updating cost item: ', error)
+            toaster.create({
+                title: 'Error updating cost item',
+                description: parseError(error),
+                type: 'error',
+            })
+        } finally {
+            setEditModalOpen(false)
+            setItemToEdit(null)
+            setIsSubmitting(false)
+        }
+    }
+
 
     // Handle deleting cost item
     const handleDeleteItem = async (id: string) => {
@@ -177,98 +171,16 @@ export default function CostManagement() {
                 <Heading as="h1" fontWeight="bold">
                     Cost Management
                 </Heading>
-                <DialogRoot placement="center" open={open} onOpenChange={handleOpenChange}>
-                    <DialogTrigger asChild>
-                        <Button colorPalette="green" fontSize="small" onClick={onOpen}>
-                            Add New Cost Item
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent borderRadius="3xl" py={4}>
-                        <DialogBody pb="2">
-                            <form id="project-form" onSubmit={handleSubmit(onSubmit)}>
-                                <VStack gap={4} align="stretch">
-                                    <Field.Root invalid={!!errors.category} required>
-                                        <Field.Label>
-                                            Category
-                                            <Field.RequiredIndicator />
-                                        </Field.Label>
-                                        <Input
-                                            {...register('category', {
-                                                required: 'Category is required',
-                                            })}
-                                            placeholder="Enter category name"
-                                        />
-                                        {errors.category && (
-                                            <Field.ErrorText>{errors.category.message}</Field.ErrorText>
-                                        )}
-                                    </Field.Root>
-
-                                    <Field.Root invalid={!!errors.description} required>
-                                        <Field.Label> Description</Field.Label>
-                                        <Textarea {...register('description')} placeholder="Enter description" />
-                                        {errors.description && (
-                                            <Field.ErrorText>{errors.description.message}</Field.ErrorText>
-                                        )}
-                                    </Field.Root>
-                                    <HStack>
-                                        <Field.Root invalid={!!errors.rate} required>
-                                            <Field.Label>
-                                                Rate
-                                                <Field.RequiredIndicator />
-                                            </Field.Label>
-                                            <Input
-                                                type="number"
-                                                step="0.01"
-                                                {...register('rate', { valueAsNumber: true })}
-                                            />
-                                            {errors.rate && <Field.ErrorText>{errors.rate.message}</Field.ErrorText>}
-                                        </Field.Root>
-                                        <Field.Root invalid={!!errors.unit}>
-                                            <Field.Label>
-                                                Unit
-                                                <Text fontSize="xs" fontWeight="light">
-                                                    (optional)
-                                                </Text>
-                                                <Field.RequiredIndicator />
-                                            </Field.Label>
-                                            <NativeSelectRoot>
-                                                <NativeSelectField {...register('unit')} items={unitOptions} />
-                                            </NativeSelectRoot>
-                                            {errors.unit && <Field.ErrorText>{errors.unit.message}</Field.ErrorText>}
-                                        </Field.Root>
-                                    </HStack>
-
-                                    <HStack justify="space-between" pt={4}>
-                                        <Box width="fit-content" p={0} m={0}>
-                                            <Button
-                                                type="submit"
-                                                form="project-form"
-                                                loading={isSubmitting}
-                                                loadingText="Creating..."
-                                                fontSize="small"
-                                                colorPalette="default"
-                                            >
-                                                Save
-                                            </Button>
-                                        </Box>
-                                        <Box width="fit-content" p={0} m={0}>
-                                            <Button
-                                                colorPalette="gray"
-                                                fontSize="small"
-                                                onClick={() => {
-                                                    reset()
-                                                    onClose()
-                                                }}
-                                            >
-                                                Cancel
-                                            </Button>
-                                        </Box>
-                                    </HStack>
-                                </VStack>
-                            </form>
-                        </DialogBody>
-                    </DialogContent>
-                </DialogRoot>
+                <CostItemModal
+                    open={open}
+                    setOpen={setOpen}
+                    onSubmit={onSubmit}
+                    submitting={isSubmitting}
+                >
+                    <Button colorPalette="green" fontSize="small">
+                        Add New Cost Item
+                    </Button>
+                </CostItemModal>
             </HStack>
 
             <VStack width="100%" border="1.5px solid" borderColor="border.muted" borderRadius="md">
@@ -325,7 +237,16 @@ export default function CostManagement() {
                                     </Table.Cell>
                                     <Table.Cell py={0}>
                                         <Flex gap={1} p={0} m={0}>
-                                            <Button fontSize="small" variant="ghost" p={1} colorPalette="transparent">
+                                            <Button
+                                                fontSize="small"
+                                                variant="ghost"
+                                                p={1}
+                                                colorPalette="transparent"
+                                                onClick={() => {
+                                                    setItemToEdit(item.id)
+                                                    setEditModalOpen(true)
+                                                }}
+                                            >
                                                 <EditIcon width="18px" height="18px" />
                                             </Button>
                                             <Button
@@ -384,20 +305,23 @@ export default function CostManagement() {
                     </DialogBody>
                 </DialogContent>
             </DialogRoot>
+
+            {itemToEdit && (
+                <CostItemModal
+                    open={editModalOpen}
+                    setOpen={(open) => {
+                        setEditModalOpen(open)
+                        if (!open) setItemToEdit(null)
+                    }}
+                    mode="edit"
+                    onSubmit={handleEditItem}
+                    submitting={isSubmitting}
+                    defaultValues={costData.find(item => item.id === itemToEdit) || undefined}
+                >
+                    <span style={{ display: 'none' }}></span>
+                </CostItemModal>
+            )}
         </VStack>
     )
 }
 
-const unitOptions = [
-    { label: 'none', value: '' },
-    { label: '/sqft (per square foot)', value: '/sqft' },
-    { label: '/hr (per hour)', value: '/hr' },
-    { label: '/day (per day)', value: '/day' },
-    { label: '/category (per unit)', value: '/category' },
-    { label: '/linear ft (per linear foot)', value: '/linear ft' },
-    { label: '/cubic yd (per cubic yard)', value: '/cubic yd' },
-    { label: '/acre (per acre)', value: '/acre' },
-    { label: '/mile (per mile)', value: '/mile' },
-    { label: '/project (flat rate)', value: '/project' },
-    { label: '/week (per week)', value: '/week' },
-]

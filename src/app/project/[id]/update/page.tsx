@@ -20,9 +20,8 @@ import { useState, useEffect } from 'react'
 import { collection, getDocs, getDoc, doc, updateDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { useParams, useRouter } from 'next/navigation'
-import { CostItem } from '@/app/cost-management/page'
 import { toaster } from '@/components/ui/toaster'
-import { Material, MaterialOption } from '@/types'
+import { CostItem, Material, MaterialOption } from '@/types'
 import { DataListItem, DataListRoot } from '@/components/ui'
 
 // Add an interface for project details

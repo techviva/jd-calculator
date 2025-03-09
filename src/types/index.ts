@@ -48,3 +48,18 @@ export interface Template {
   netProfit: number
   materials: Material[]
 }
+
+export interface CostFormData {
+  category: string
+  description: string
+  rate: number
+  unit?: string
+}
+
+export interface CostItem {
+  id: string
+  category: string
+  description: string
+  rate: number
+  unit?: string
+}

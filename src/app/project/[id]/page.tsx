@@ -14,7 +14,7 @@ import {
   Textarea,
   Box,
 } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { doc, getDoc, setDoc, collection, deleteDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
@@ -29,6 +29,7 @@ import { PDFDownloadLink } from '@react-pdf/renderer'
 import { ProjectPDFDocument } from '@/components/pdf'
 import { DeleteIcon, EditIcon } from '@/components/icons'
 import { formatDate } from '@/utils/functions'
+import { toaster } from '@/components/ui/toaster'
 
 export default function ProjectDetails() {
   const router = useRouter()
@@ -37,6 +38,7 @@ export default function ProjectDetails() {
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -45,28 +47,28 @@ export default function ProjectDetails() {
   const [saveTemplateLoading, setSaveTemplateLoading] = useState(false)
   const { open, onOpen, onClose } = useDisclosure()
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const docRef = doc(db, 'projects', id)
-        const docSnap = await getDoc(docRef)
-        console.log('🚀 ~ page.tsx:42 ~ docSnap:', docSnap.data())
+  const fetchProject = useCallback(async () => {
+    try {
+      const docRef = doc(db, 'projects', id)
+      const docSnap = await getDoc(docRef)
+      console.log('🚀 ~ page.tsx:42 ~ docSnap:', docSnap.data())
 
-        if (docSnap.exists()) {
-          setProject({ id: docSnap.id, ...docSnap.data() } as Project)
-        } else {
-          setError('Project not found')
-        }
-      } catch (err) {
-        console.error('Error fetching project:', err)
-        setError('Failed to load project details')
-      } finally {
-        setLoading(false)
+      if (docSnap.exists()) {
+        setProject({ id: docSnap.id, ...docSnap.data() } as Project)
+      } else {
+        setError('Project not found')
       }
+    } catch (err) {
+      console.error('Error fetching project:', err)
+      setError('Failed to load project details')
+    } finally {
+      setLoading(false)
     }
+  }, [id])
 
+  useEffect(() => {
     fetchProject()
-  }, [id, isSubmitting])
+  }, [fetchProject])
 
   const defaultValues = {
     clientName: project?.clientName || '',
@@ -87,16 +89,20 @@ export default function ProjectDetails() {
     } finally {
       setIsSubmitting(false)
       setEditModalOpen(false)
+      fetchProject();
     }
   }
 
   const handleDelete = async () => {
     try {
+      setIsDeleting(true)
       const docRef = doc(db, 'projects', id)
       await deleteDoc(docRef)
       router.push('/jobs')
     } catch (error) {
       console.error('Error deleting project:', error)
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -125,14 +131,18 @@ export default function ProjectDetails() {
       const templateRef = doc(collection(db, 'templates'))
       await setDoc(templateRef, templateData)
 
+      toaster.create({
+        title: 'Template saved',
+        description: 'Template saved successfully',
+        type: 'success',
+      })
+
       // Close the dialog and reset the form
       onClose()
       setTemplateName('')
       setTemplateDescription('')
-      window.alert('Template saved successfully!')
     } catch (err) {
       console.error('Error saving template:', err)
-      window.alert('Failed to save template. Please try again.')
     } finally {
       setSaveTemplateLoading(false)
     }
@@ -228,6 +238,7 @@ export default function ProjectDetails() {
                       <Button
                         colorPalette="red"
                         fontSize="small"
+                        loading={isDeleting}
                         onClick={handleDelete}
                       >
                         Delete
@@ -240,7 +251,7 @@ export default function ProjectDetails() {
           </Flex>
         </HStack>
 
-        <Flex width="fit-content" gap={2} alignItems="center">
+        <Flex gap={2} width="100%" alignItems="center" justifyContent="flex-start">
           <Button fontSize="small" colorPalette="green">
             <PDFDownloadLink
               document={<ProjectPDFDocument project={project} />}

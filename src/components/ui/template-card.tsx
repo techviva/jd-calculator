@@ -29,6 +29,7 @@ export default function TemplateCard({ template }: { template: Template }) {
       // Add timestamp and format data for Firestore
       const projectData = {
         ...data,
+        materials: template.materials,
         createdAt: serverTimestamp(),
         status: 'in progress',
       }

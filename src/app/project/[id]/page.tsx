@@ -8,8 +8,23 @@ import { db } from '@/lib/firebase'
 import { Project } from '@/types'
 import { DataListItem, DataListRoot } from '@/components/ui'
 import ProjectDetailsSkeleton from '@/components/ui/project-details-skeleton'
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { PDFDownloadLink } from '@react-pdf/renderer'
 import { ProjectPDFDocument } from '@/components/pdf'
+
+// Define the ProjectData interface
+interface ProjectData {
+  name?: string
+  materials?: {
+    id: string
+    quantity: number
+    price: number
+    name: string
+  }[]
+  totalCost?: number
+  netProfit?: number
+  clientAmount?: number
+  profitMargin?: number
+}
 
 export default function ProjectDetails() {
   const router = useRouter()
@@ -24,6 +39,7 @@ export default function ProjectDetails() {
       try {
         const docRef = doc(db, 'projects', id)
         const docSnap = await getDoc(docRef)
+        console.log('🚀 ~ page.tsx:42 ~ docSnap:', docSnap.data())
 
         if (docSnap.exists()) {
           setProject({ id: docSnap.id, ...docSnap.data() } as Project)
@@ -42,9 +58,7 @@ export default function ProjectDetails() {
   }, [id])
 
   if (loading) {
-    return (
-      <ProjectDetailsSkeleton />
-    )
+    return <ProjectDetailsSkeleton />
   }
 
   if (error) {
@@ -65,6 +79,16 @@ export default function ProjectDetails() {
     return new Date(dateString).toLocaleDateString()
   }
 
+  // Format currency for display
+  const formatCurrency = (amount?: number) => {
+    if (amount === undefined) return '$0.00'
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
+  }
+
+  // Calculate subtotal from materials
+  const subtotal =
+    project?.materials?.reduce((sum, item) => sum + item.quantity * item.price, 0) || 0
+
   return (
     <VStack
       alignItems="center"
@@ -75,7 +99,6 @@ export default function ProjectDetails() {
       alignSelf="stretch"
       gap={6}
     >
-
       <VStack alignItems="center">
         <Heading as="h1" fontWeight="bold" fontSize="larger">
           Project Details
@@ -87,17 +110,30 @@ export default function ProjectDetails() {
               document={<ProjectPDFDocument project={project} />}
               fileName={`${project?.clientName}_Project_Details.pdf`}
             >
-              {({ loading }) =>
-                loading ? 'Loading document...' : 'Export to PDF'
-              }
+              {({ loading }) => (loading ? 'Loading document...' : 'Export to PDF')}
             </PDFDownloadLink>
           </Button>
-          <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={() => window.alert('Feature coming soon!')}>Make this a Template</Button>
-          <Button fontSize="small" onClick={() => router.push(`/project/${id}/update`)}>Update Materials</Button>
+          <Button
+            fontSize="small"
+            borderRadius="lg"
+            colorPalette="default"
+            onClick={() => window.alert('Feature coming soon!')}
+          >
+            Make this a Template
+          </Button>
+          <Button fontSize="small" onClick={() => router.push(`/project/${id}/update`)}>
+            Update Materials
+          </Button>
         </Flex>
-
       </VStack>
-      <HStack width="100%" justifyContent="space-between" wrap="wrap" alignItems="flex-start" rowGap={2} pr={10}>
+      <HStack
+        width="100%"
+        justifyContent="space-between"
+        wrap="wrap"
+        alignItems="flex-start"
+        rowGap={2}
+        pr={10}
+      >
         <DataListRoot>
           <DataListItem label="Name" value={project?.clientName} />
         </DataListRoot>
@@ -115,28 +151,83 @@ export default function ProjectDetails() {
       <VStack width="100%" border="1.5px solid" borderColor="border.muted" borderRadius="md">
         <Table.Root size="sm" variant="line">
           <Table.Header>
-            <Table.Row >
-              <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="70%">Material</Table.ColumnHeader>
-              <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="10%">Qty</Table.ColumnHeader>
-              <Table.ColumnHeader color="fg.subtle" fontSize="small">Rate</Table.ColumnHeader>
-              <Table.ColumnHeader color="fg.subtle" fontSize="small" textAlign="end" pr={4}>Total Price</Table.ColumnHeader>
+            <Table.Row>
+              <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="70%">
+                Material
+              </Table.ColumnHeader>
+              <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="10%">
+                Qty
+              </Table.ColumnHeader>
+              <Table.ColumnHeader color="fg.subtle" fontSize="small">
+                Rate
+              </Table.ColumnHeader>
+              <Table.ColumnHeader color="fg.subtle" fontSize="small" textAlign="end" pr={4}>
+                Total Price
+              </Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {Array.from({ length: 10 }).map((_, index) => (
-              <Table.Row key={index} p={4}>
-                <Table.Cell>Cost for trees including delivery</Table.Cell>
-                <Table.Cell>1</Table.Cell>
-                <Table.Cell >$316.00</Table.Cell>
-                <Table.Cell textAlign="end" pr={4}>$316.00</Table.Cell>
+            {project?.materials && project.materials.length > 0 ? (
+              project.materials.map(material => (
+                <Table.Row key={material.id} p={4}>
+                  <Table.Cell>{material.name}</Table.Cell>
+                  <Table.Cell>{material.quantity}</Table.Cell>
+                  <Table.Cell>{formatCurrency(material.price)}</Table.Cell>
+                  <Table.Cell textAlign="end" pr={4}>
+                    {formatCurrency(material.quantity * material.price)}
+                  </Table.Cell>
+                </Table.Row>
+              ))
+            ) : (
+              <Table.Row>
+                <Table.Cell colSpan={4} textAlign="center">
+                  No materials found
+                </Table.Cell>
               </Table.Row>
-            ))}
+            )}
           </Table.Body>
         </Table.Root>
-        <HStack p={4} justifyContent="space-between" width="100%">
-          <Text fontWeight="bold" textTransform="uppercase" fontSize="small">Subtotal</Text>
-          <Text fontWeight="bold" textTransform="uppercase" fontSize="small">$316.00</Text>
-        </HStack>
+        <VStack p={4} spacing={2} width="100%">
+          <HStack justifyContent="space-between" width="100%">
+            <Text fontWeight="bold" textTransform="uppercase" fontSize="small">
+              Subtotal
+            </Text>
+            <Text fontWeight="bold" textTransform="uppercase" fontSize="small">
+              {formatCurrency(subtotal)}
+            </Text>
+          </HStack>
+
+          {project?.profitMargin && (
+            <HStack justifyContent="space-between" width="100%">
+              <Text fontSize="small">Profit Margin ({project.profitMargin}%)</Text>
+              <Text fontSize="small">
+                {formatCurrency((project.profitMargin / 100) * subtotal)}
+              </Text>
+            </HStack>
+          )}
+
+          {project?.clientAmount && (
+            <HStack justifyContent="space-between" width="100%">
+              <Text fontWeight="bold" fontSize="small">
+                Client Total
+              </Text>
+              <Text fontWeight="bold" fontSize="small">
+                {formatCurrency(project.clientAmount)}
+              </Text>
+            </HStack>
+          )}
+
+          {project?.netProfit !== undefined && (
+            <HStack justifyContent="space-between" width="100%">
+              <Text fontSize="small" color="green.500">
+                Net Profit
+              </Text>
+              <Text fontSize="small" color="green.500">
+                {formatCurrency(project.netProfit)}
+              </Text>
+            </HStack>
+          )}
+        </VStack>
       </VStack>
     </VStack>
   )

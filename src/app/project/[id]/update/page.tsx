@@ -19,14 +19,15 @@ import Select from 'react-select'
 import { useState, useEffect } from 'react'
 import { collection, getDocs, getDoc, doc, updateDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { CostItem } from '@/app/cost-management/page'
+import { toaster } from '@/components/ui/toaster'
+import { MaterialOption } from '@/types'
 
-interface MaterialOption {
-  value: string
-  label: string
-  price: number
-  quantity: string
+// Add an interface for project details
+interface ProjectDetails {
+  title: string
+  clientName: string
 }
 
 export default function UpdateProject() {
@@ -36,11 +37,24 @@ export default function UpdateProject() {
   const [netProfit, setNetProfit] = useState(0)
   const [clientAmount, setClientAmount] = useState(0)
   const [profitMargin, setProfitMargin] = useState(20) // Default 20% profit margin
-  const [formUpdateTrigger, setFormUpdateTrigger] = useState(0) // Add trigger state
+  const [formUpdateTrigger, setFormUpdateTrigger] = useState(0)
+  // Add project details state
+  const [projectDetails, setProjectDetails] = useState<ProjectDetails>({
+    title: 'N/A',
+    clientName: 'N/A',
+  })
   const params = useParams()
   const projectId = params.id as string
+  const router = useRouter()
 
-  const { control, handleSubmit, watch } = useForm({
+  // Form will be initialized with empty values first
+  const {
+    control,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { isSubmitting },
+  } = useForm({
     defaultValues: {
       materials: [{ value: '', label: '', quantity: '', price: '' }],
     },
@@ -53,6 +67,20 @@ export default function UpdateProject() {
 
   // Watch all material inputs to calculate totals
   const watchMaterials = watch('materials')
+
+  // Filter out already selected materials from options
+  const getAvailableMaterialOptions = (currentIndex: number) => {
+    // Get all selected material values except the current one
+    const selectedValues = watchMaterials
+      .map((material, idx) => (idx !== currentIndex ? material.value : null))
+      .filter(value => value) // Filter out null/empty values
+
+    // Return only materials that aren't selected in other fields
+    return materials.filter(material => !selectedValues.includes(material.value))
+  }
+
+  // Check if all materials are used
+  const allMaterialsSelected = watchMaterials.length >= materials.length
 
   // Fetch materials from Firestore
   useEffect(() => {
@@ -74,14 +102,16 @@ export default function UpdateProject() {
         })
 
         setMaterials(materialOptions)
-        setIsLoading(false)
       } catch (error) {
         console.error('Error fetching materials:', error)
-        setIsLoading(false)
       }
     }
 
-    // Fetch existing project data if available
+    fetchMaterials()
+  }, [])
+
+  // Fetch existing project data if available
+  useEffect(() => {
     const fetchProjectData = async () => {
       try {
         const projectRef = doc(db, 'projects', projectId)
@@ -89,16 +119,58 @@ export default function UpdateProject() {
 
         if (projectSnapshot.exists()) {
           const projectData = projectSnapshot.data()
-          // TODO: Add logic to populate form with existing project data
+
+          // Update project details
+          setProjectDetails({
+            title: projectData.title || 'N/A',
+            clientName: projectData.clientName || 'N/A',
+          })
+
+          // Update profit margin
+          if (projectData.profitMargin) {
+            setProfitMargin(projectData.profitMargin)
+          }
+
+          // Update totals
+          if (projectData.totalCost) setTotalCost(projectData.totalCost)
+          if (projectData.netProfit) setNetProfit(projectData.netProfit)
+          if (projectData.clientAmount) setClientAmount(projectData.clientAmount)
+
+          // If there are materials in the project, format them for the form
+          if (projectData.materials && projectData.materials.length > 0) {
+            const formattedMaterials = projectData.materials.map((material: any) => {
+              // Find the corresponding material in our materials list
+              const materialOption = materials.find(m => m.value === material.id) || {
+                value: material.id,
+                label: material.name,
+                price: material.price / (parseFloat(material.quantity) || 1),
+                quantity: '',
+              }
+
+              return {
+                value: material.id,
+                label: material.name,
+                quantity: material.quantity.toString(),
+                price: material.price.toString(),
+              }
+            })
+
+            // Reset form with these values
+            reset({ materials: formattedMaterials })
+          }
         }
+        setIsLoading(false)
       } catch (error) {
         console.error('Error fetching project data:', error)
+        setIsLoading(false)
       }
     }
 
-    fetchMaterials()
-    fetchProjectData()
-  }, [projectId])
+    // Only fetch project data once materials are loaded
+    if (materials.length > 0) {
+      fetchProjectData()
+    }
+  }, [projectId, materials, reset])
 
   // Calculate totals whenever materials change or profit margin changes
   useEffect(() => {
@@ -150,9 +222,21 @@ export default function UpdateProject() {
 
       console.log('Project updated successfully')
       // Navigate or show success message
+      toaster.create({
+        title: 'Project updated',
+        description: `Project ${projectDetails.title} has been updated successfully`,
+        type: 'success',
+      })
+      // Optionally, navigate to the project details page
+      router.push(`/project/${projectId}`)
     } catch (error) {
       console.error('Error updating project:', error)
       // Show error message
+      toaster.create({
+        title: 'Error updating project',
+        description: 'Failed to update project details',
+        type: 'error',
+      })
     }
   }
 
@@ -187,12 +271,26 @@ export default function UpdateProject() {
           style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}
           onChange={() => setFormUpdateTrigger(prev => prev + 1)} // Add form-level change handler
         >
-          <Heading as="h1" fontWeight="bold" fontSize="larger">
+          <Heading as="h1" fontWeight="bold" mb={4}>
             Update Project Details
           </Heading>
-          <Text color="fg.muted" fontWeight="semibold" mt={1} fontSize="small">
+          <Text color="gray.500" fontWeight="medium" mb={2} fontSize="md">
             Enter the details of the materials
           </Text>
+          <Box mb={4} p={2} borderWidth="1px" borderRadius="lg" borderColor="gray.200" bg="gray.50">
+            <Text color="gray.700" fontWeight="semibold" fontSize="md">
+              Project Title:{' '}
+              <Text as="span" fontWeight="normal">
+                {projectDetails.title}
+              </Text>
+            </Text>
+            <Text color="gray.700" fontWeight="semibold" fontSize="md" mt={2}>
+              Client Name:{' '}
+              <Text as="span" fontWeight="normal">
+                {projectDetails.clientName}
+              </Text>
+            </Text>
+          </Box>
           <VStack
             alignItems="flex-start"
             border="1.5px solid"
@@ -223,7 +321,7 @@ export default function UpdateProject() {
                         render={({ field }) => (
                           <Select
                             {...field}
-                            options={materials}
+                            options={getAvailableMaterialOptions(index)}
                             placeholder="Select material"
                             onChange={val => {
                               field.onChange(val)
@@ -349,7 +447,8 @@ export default function UpdateProject() {
               mt={3}
               ml={2}
               mb={2}
-              onClick={() => append({ value: '', quantity: '', price: '', label: '' })} // Append a new empty material
+              onClick={() => append({ value: '', quantity: '', price: '', label: '' })}
+              disabled={allMaterialsSelected || materials.length === 0}
             >
               Add a material
             </Button>
@@ -369,6 +468,7 @@ export default function UpdateProject() {
               borderRadius="lg"
               type="submit"
               minWidth="150px"
+              loading={isSubmitting}
             >
               Submit
             </Button>
@@ -383,7 +483,7 @@ export default function UpdateProject() {
         ml={{ base: 2, lg: 4 }}
         pt={{ base: 10, lg: 5 }}
         pl={1}
-        spacing={4}
+        gap={4}
       >
         <Box width="100%">
           <Text fontWeight="light" fontSize="xx-small">

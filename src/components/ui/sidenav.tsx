@@ -60,8 +60,6 @@ export const Sidenav = () => {
     }
   }, [])
 
-  console.log('currentPath', currentPath)
-
   return (
     <VStack
       as="nav"

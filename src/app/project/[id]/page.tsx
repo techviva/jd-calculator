@@ -187,7 +187,7 @@ export default function ProjectDetails() {
             )}
           </Table.Body>
         </Table.Root>
-        <VStack p={4} spacing={2} width="100%">
+        <VStack p={4} gap={2} width="100%">
           <HStack justifyContent="space-between" width="100%">
             <Text fontWeight="bold" textTransform="uppercase" fontSize="small">
               Subtotal

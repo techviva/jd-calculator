@@ -14,6 +14,14 @@ export default function TemplateCard({ template }: { template: Template }) {
   const { open, setOpen } = useDisclosure()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const defaultValues = {
+    clientName: '',
+    title: template.title || '',
+    description: template.description || '',
+    startDate: '',
+    dueDate: '',
+  }
+
   const handleSubmit = async (data: ProjectFormData) => {
     try {
       setIsSubmitting(true)
@@ -57,6 +65,7 @@ export default function TemplateCard({ template }: { template: Template }) {
       submitting={isSubmitting}
       mode="create"
       onSubmit={handleSubmit}
+      defaultValues={defaultValues}
     >
       <Card.Root
         borderRadius="3xl"

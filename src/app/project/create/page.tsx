@@ -118,7 +118,7 @@ export default function CreateProject() {
       {isLoadingTemplates ? (
         <Spinner mt={4} />
       ) : templates.length > 0 ? (
-        <HStack wrap="wrap" gap={4} mt={4} justifyContent="center">
+        <HStack wrap="wrap" gap={4} mt={4} width="100%" justifyContent="center">
           {templates.map(template => (
             <TemplateCard template={template} key={template.id} />
           ))}

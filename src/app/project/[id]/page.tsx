@@ -1,9 +1,21 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { Heading, Text, VStack, HStack, Flex, Table } from '@chakra-ui/react'
+import {
+  Heading,
+  Text,
+  VStack,
+  HStack,
+  Flex,
+  Table,
+  useDisclosure,
+  Input,
+  Dialog,
+  Field,
+  Textarea,
+} from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, collection } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { Project } from '@/types'
 import { DataListItem, DataListRoot } from '@/components/ui'
@@ -18,6 +30,10 @@ export default function ProjectDetails() {
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [templateName, setTemplateName] = useState('')
+  const [templateDescription, setTemplateDescription] = useState('')
+  const [saveTemplateLoading, setSaveTemplateLoading] = useState(false)
+  const { open, onOpen, onClose } = useDisclosure()
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -41,6 +57,44 @@ export default function ProjectDetails() {
 
     fetchProject()
   }, [id])
+
+  const saveAsTemplate = async () => {
+    if (!project || !templateName.trim()) return
+
+    setSaveTemplateLoading(true)
+    try {
+      // Prepare the template data
+      const templateData = {
+        ...project,
+        title: templateName.trim(), // Changed from templateName to title
+        name: templateName.trim(), // Including name for backward compatibility
+        description: templateDescription.trim(),
+        createdAt: new Date().toISOString(),
+        originalProjectId: project.id,
+      }
+
+      // Remove the id, status, title, clientName, and dueDate from the original project to avoid overwriting them
+      delete templateData.id
+      delete templateData.status
+      delete templateData.clientName
+      delete templateData.dueDate
+
+      // Save to templates collection with a new document ID
+      const templateRef = doc(collection(db, 'templates'))
+      await setDoc(templateRef, templateData)
+
+      // Close the dialog and reset the form
+      onClose()
+      setTemplateName('')
+      setTemplateDescription('')
+      window.alert('Template saved successfully!')
+    } catch (err) {
+      console.error('Error saving template:', err)
+      window.alert('Failed to save template. Please try again.')
+    } finally {
+      setSaveTemplateLoading(false)
+    }
+  }
 
   if (loading) {
     return <ProjectDetailsSkeleton />
@@ -98,12 +152,7 @@ export default function ProjectDetails() {
               {({ loading }) => (loading ? 'Loading document...' : 'Export to PDF')}
             </PDFDownloadLink>
           </Button>
-          <Button
-            fontSize="small"
-            borderRadius="lg"
-            colorPalette="default"
-            onClick={() => window.alert('Feature coming soon!')}
-          >
+          <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={onOpen}>
             Make this a Template
           </Button>
           <Button fontSize="small" onClick={() => router.push(`/project/${id}/update`)}>
@@ -111,6 +160,58 @@ export default function ProjectDetails() {
           </Button>
         </Flex>
       </VStack>
+
+      {/* Template Name Dialog */}
+      <Dialog.Root open={open}>
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content>
+            <Dialog.Header>
+              <Dialog.Title>Save as Template</Dialog.Title>
+              <Dialog.CloseTrigger />
+            </Dialog.Header>
+            <Dialog.Body>
+              <VStack spacing={4} align="stretch">
+                <Field.Root>
+                  <Field.Label>Template Name</Field.Label>
+                  <Input
+                    value={templateName}
+                    onChange={e => setTemplateName(e.target.value)}
+                    placeholder="Enter a name for this template"
+                  />
+                  <Field.HelperText>
+                    This name will help you identify the template later.
+                  </Field.HelperText>
+                </Field.Root>
+
+                <Field.Root>
+                  <Field.Label>Template Description</Field.Label>
+                  <Textarea
+                    value={templateDescription}
+                    onChange={e => setTemplateDescription(e.target.value)}
+                    placeholder="Enter a description for this template"
+                    rows={3}
+                  />
+                </Field.Root>
+              </VStack>
+            </Dialog.Body>
+            <Dialog.Footer>
+              <Button colorScheme="gray" mr={3} onClick={onClose}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme="blue"
+                onClick={saveAsTemplate}
+                loading={saveTemplateLoading}
+                disabled={!templateName.trim()}
+              >
+                Save Template
+              </Button>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Dialog.Root>
+
       <HStack
         width="100%"
         justifyContent="space-between"

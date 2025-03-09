@@ -49,6 +49,8 @@ export default function CreateProject() {
     fetchTemplates()
   }, [])
 
+  console.log(templates)
+
   interface ProjectFormData {
     clientName: string
     title: string

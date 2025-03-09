@@ -11,21 +11,6 @@ import ProjectDetailsSkeleton from '@/components/ui/project-details-skeleton'
 import { PDFDownloadLink } from '@react-pdf/renderer'
 import { ProjectPDFDocument } from '@/components/pdf'
 
-// Define the ProjectData interface
-interface ProjectData {
-  name?: string
-  materials?: {
-    id: string
-    quantity: number
-    price: number
-    name: string
-  }[]
-  totalCost?: number
-  netProfit?: number
-  clientAmount?: number
-  profitMargin?: number
-}
-
 export default function ProjectDetails() {
   const router = useRouter()
   const params = useParams()

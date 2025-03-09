@@ -19,6 +19,10 @@ export interface Project {
   dueDate?: string
   description?: string
   status: 'completed' | 'in progress' | 'deleted'
+  totalCost?: number
+  netProfit?: number
+  clientAmount?: number
+  profitMargin?: number
   materials: Material[]
   // Add other project properties as needed
 }

@@ -138,14 +138,8 @@ export default function UpdateProject() {
 
           // If there are materials in the project, format them for the form
           if (projectData.materials && projectData.materials.length > 0) {
-            const formattedMaterials = projectData.materials.map((material: any) => {
+            const formattedMaterials = projectData.materials.map(material => {
               // Find the corresponding material in our materials list
-              const materialOption = materials.find(m => m.value === material.id) || {
-                value: material.id,
-                label: material.name,
-                price: material.price / (parseFloat(material.quantity) || 1),
-                quantity: '',
-              }
 
               return {
                 value: material.id,

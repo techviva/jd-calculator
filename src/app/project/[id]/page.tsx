@@ -20,8 +20,13 @@ import { doc, getDoc, setDoc, collection, deleteDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { Project, ProjectFormData } from '@/types'
 import {
-  CreateProjectModal, DataListItem, DataListRoot, DialogRoot,
-  DialogBody, DialogContent, DialogTitle,
+  CreateProjectModal,
+  DataListItem,
+  DataListRoot,
+  DialogRoot,
+  DialogBody,
+  DialogContent,
+  DialogTitle,
   DialogActionTrigger,
 } from '@/components/ui'
 import ProjectDetailsSkeleton from '@/components/ui/project-details-skeleton'
@@ -51,7 +56,6 @@ export default function ProjectDetails() {
     try {
       const docRef = doc(db, 'projects', id)
       const docSnap = await getDoc(docRef)
-      console.log('🚀 ~ page.tsx:42 ~ docSnap:', docSnap.data())
 
       if (docSnap.exists()) {
         setProject({ id: docSnap.id, ...docSnap.data() } as Project)
@@ -89,7 +93,7 @@ export default function ProjectDetails() {
     } finally {
       setIsSubmitting(false)
       setEditModalOpen(false)
-      fetchProject();
+      fetchProject()
     }
   }
 
@@ -105,7 +109,6 @@ export default function ProjectDetails() {
       setIsDeleting(false)
     }
   }
-
 
   const saveAsTemplate = async () => {
     if (!project || !templateName.trim()) return
@@ -172,7 +175,6 @@ export default function ProjectDetails() {
     )
   }
 
-
   // Format currency for display
   const formatCurrency = (amount?: number) => {
     if (amount === undefined) return '$0.00'
@@ -193,15 +195,21 @@ export default function ProjectDetails() {
       alignSelf="stretch"
       gap={6}
     >
-
       <VStack alignItems="flex-start" width="100%" gap={4}>
         <HStack width="100%" justifyContent="space-between">
           <Heading as="h1" fontWeight="bold" fontSize="larger">
             {project?.title || 'Unnamed Project'}
           </Heading>
           <Flex gap={0} p={0} m={0}>
-            { /* wrap edit button in CreateProjectModal component to trigger modal */}
-            <CreateProjectModal defaultValues={defaultValues} onSubmit={onSubmit} submitting={isSubmitting} mode="edit" open={editModalOpen} setOpen={setEditModalOpen}>
+            {/* wrap edit button in CreateProjectModal component to trigger modal */}
+            <CreateProjectModal
+              defaultValues={defaultValues}
+              onSubmit={onSubmit}
+              submitting={isSubmitting}
+              mode="edit"
+              open={editModalOpen}
+              setOpen={setEditModalOpen}
+            >
               <Button fontSize="small" variant="ghost" p={1} colorPalette="transparent">
                 <EditIcon width="18px" height="18px" />
               </Button>
@@ -284,7 +292,7 @@ export default function ProjectDetails() {
                   <Field.Label>Template Name</Field.Label>
                   <Input
                     value={templateName}
-                    onChange={(e) => setTemplateName(e.target.value)}
+                    onChange={e => setTemplateName(e.target.value)}
                     placeholder="Enter a name for this template"
                   />
                   <Field.HelperText>
@@ -320,14 +328,7 @@ export default function ProjectDetails() {
         </Dialog.Positioner>
       </Dialog.Root>
 
-      <HStack
-        width="100%"
-        gap={60}
-        wrap="wrap"
-        alignItems="flex-start"
-        rowGap={2}
-        pr={10}
-      >
+      <HStack width="100%" gap={60} wrap="wrap" alignItems="flex-start" rowGap={2} pr={10}>
         <DataListRoot>
           <DataListItem label="Name" value={project?.clientName} />
         </DataListRoot>

@@ -12,14 +12,13 @@ import { Template } from '@/types'
 import { CreateProjectModal } from '@/components/ui'
 
 export default function CreateProject() {
-  const router = useRouter();
+  const router = useRouter()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [templates, setTemplates] = useState<Template[]>([])
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(true)
 
   const [openModal, setOpenModal] = useState(false)
-
 
   // Fetch templates from Firestore
   useEffect(() => {
@@ -109,7 +108,13 @@ export default function CreateProject() {
       <Text color="fg.muted" fontWeight="light" width="fit-content" fontSize="small">
         You can start afresh with a blank project
       </Text>
-      <CreateProjectModal onSubmit={onSubmit} submitting={isSubmitting} mode="create" open={openModal} setOpen={setOpenModal}>
+      <CreateProjectModal
+        onSubmit={onSubmit}
+        submitting={isSubmitting}
+        mode="create"
+        open={openModal}
+        setOpen={setOpenModal}
+      >
         <Button fontSize="small" p={2} py={0} mt={3}>
           Create Blank Project
         </Button>

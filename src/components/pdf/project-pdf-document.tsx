@@ -101,7 +101,7 @@ export const ProjectPDFDocument: React.FC<{ project: DownloadedProject | null }>
           <View style={styles.tableRow} key={index}>
             <Text style={styles.tableCol}>{material.name}</Text>
             <Text style={styles.tableCol}>{material.quantity}</Text>
-            <Text style={styles.tableCol}>{`$${material.rate.toFixed(2)}`}</Text>
+            <Text style={styles.tableCol}>{`$${material.rate?.toFixed(2)}`}</Text>
             <Text style={styles.tableCol}>{`$${calculateTotalPrice(material.quantity, material.rate).toFixed(2)}`}</Text>
           </View>
         ))}

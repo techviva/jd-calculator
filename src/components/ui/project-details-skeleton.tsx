@@ -1,57 +1,78 @@
-import React from 'react';
-import { VStack, HStack, Flex } from '@chakra-ui/react';
-import { Skeleton } from './skeleton';
+import { VStack, HStack, Flex, Box, } from '@chakra-ui/react'
+import { Skeleton, SkeletonText } from './skeleton'
 
-const ProjectDetailsSkeleton = () => {
+export default function ProjectDetailsSkeleton() {
     return (
         <VStack
-            justifyContent="center"
             alignItems="center"
-            alignSelf="stretch"
-            gap={4}
             width="100%"
+            borderRadius="4xl"
+            bg="bg"
+            p={5}
+            alignSelf="stretch"
+            gap={6}
         >
-            <VStack
-                alignItems="center"
-                width="100%"
-                borderRadius="4xl"
-                bg="bg"
-                p={5}
-                alignSelf="stretch"
-                gap={6}
-            >
-                <VStack alignItems="center">
-                    <Skeleton height="30px" width="60%" />
-                    <Flex width="fit-content" gap={2} alignItems="center">
-                        <Skeleton height="30px" width="100px" />
-                        <Skeleton height="30px" width="150px" />
-                        <Skeleton height="30px" width="150px" />
+            {/* Header section with project title and action buttons */}
+            <VStack alignItems="flex-start" width="100%" gap={4}>
+                <HStack width="100%" justifyContent="space-between">
+                    <Skeleton height="28px" width="200px" />
+                    <Flex gap={1}>
+                        <Skeleton height="24px" width="24px" borderRadius="md" />
+                        <Skeleton height="24px" width="24px" borderRadius="md" />
                     </Flex>
-                </VStack>
-                <HStack width="100%" justifyContent="space-between" wrap="wrap" alignItems="flex-start" rowGap={2} pr={10}>
-                    <Skeleton height="20px" width="30%" />
-                    <Skeleton height="20px" width="30%" />
-                    <Skeleton height="20px" width="30%" />
-                    <Skeleton height="20px" width="30%" />
                 </HStack>
-                <VStack width="100%" border="1.5px solid" borderColor="border.muted" borderRadius="md" p={4}>
-                    <Skeleton height="40px" width="100%" />
-                    {Array.from({ length: 5 }).map((_, index) => (
-                        <HStack key={index} p={4} width="100%" justifyContent="space-between" pr={10}>
-                            <Skeleton height="20px" width="60%" />
-                            <Skeleton height="20px" width="10%" />
-                            <Skeleton height="20px" width="10%" />
-                            <Skeleton height="20px" width="10%" />
-                        </HStack>
-                    ))}
-                    <HStack p={4} justifyContent="space-between" width="100%">
-                        <Skeleton height="20px" width="30%" />
-                        <Skeleton height="20px" width="30%" />
+
+                {/* Action buttons row */}
+                <Flex width="fit-content" gap={2} alignItems="center">
+                    <Skeleton height="34px" width="120px" borderRadius="md" />
+                    <Skeleton height="34px" width="150px" borderRadius="md" />
+                    <Skeleton height="34px" width="140px" borderRadius="md" />
+                </Flex>
+            </VStack>
+
+            {/* Project details section */}
+            <HStack width="100%" justifyContent="flex-start" wrap="wrap" alignItems="flex-start" gap={60} rowGap={2} pr={10}>
+                <Box width="150px">
+                    <SkeletonText mt='4' noOfLines={2} gap={2} height={3} />
+                </Box>
+                <Box width="150px">
+                    <SkeletonText mt='4' noOfLines={2} gap={2} height={3} />
+                </Box>
+                <Box width="200px">
+                    <SkeletonText mt='4' noOfLines={2} gap={2} height={3} />
+                </Box>
+            </HStack>
+
+            {/* Materials table section */}
+            <VStack width="100%" border="1.5px solid" borderColor="border.muted" borderRadius="md">
+                {/* Table header */}
+                <Box width="100%" p={3} bg="bg">
+                    <HStack>
+                        <Skeleton height="18px" width="70%" />
+                        <Skeleton height="18px" width="10%" />
+                        <Skeleton height="18px" width="10%" />
+                        <Skeleton height="18px" width="10%" />
                     </HStack>
-                </VStack>
+                </Box>
+
+                {/* Table rows */}
+                {Array.from({ length: 5 }).map((_, index) => (
+                    <Box key={index} width="100%" p={3}>
+                        <HStack>
+                            <Skeleton height="16px" width="70%" />
+                            <Skeleton height="16px" width="10%" />
+                            <Skeleton height="16px" width="10%" />
+                            <Skeleton height="16px" width="10%" />
+                        </HStack>
+                    </Box>
+                ))}
+
+                {/* Table footer */}
+                <HStack p={4} justifyContent="space-between" width="100%">
+                    <Skeleton height="20px" width="80px" />
+                    <Skeleton height="20px" width="80px" />
+                </HStack>
             </VStack>
         </VStack>
-    );
-};
-
-export default ProjectDetailsSkeleton;
+    )
+}

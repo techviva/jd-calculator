@@ -58,7 +58,6 @@ export function useProjectStats() {
       const monthKey = `${date.getFullYear()}-${date.getMonth().toString().padStart(2, '0')}`
 
       if (monthlyStats[monthKey]) {
-        console.log('🚀 ~ useProjectStats.ts:57 ~ project:', project)
         monthlyStats[monthKey].revenue += project.clientAmount ?? 0
         monthlyStats[monthKey].profit += project.netProfit ?? 0
         monthlyStats[monthKey].costs += project.totalCost ?? 0

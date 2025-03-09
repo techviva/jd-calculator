@@ -26,3 +26,17 @@ export interface Project {
   materials: Material[]
   // Add other project properties as needed
 }
+
+export interface Template {
+  id: string
+  description: string
+  originalProjectId: string
+  totalCost: number
+  title: string
+  status: 'completed' | 'in progress' | 'deleted'
+  templateName: string
+  profitMargin: number
+  clientAmount: number
+  netProfit: number
+  materials: Material[]
+}

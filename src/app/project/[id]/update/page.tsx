@@ -56,7 +56,7 @@ export default function UpdateProject() {
     formState: { isSubmitting },
   } = useForm({
     defaultValues: {
-      materials: [{ value: '', label: '', quantity: '', price: 0.00 }],
+      materials: [{ value: '', label: '', quantity: '', price: 0.0 }],
     },
   })
 
@@ -76,7 +76,9 @@ export default function UpdateProject() {
       .filter(value => value) // Filter out null/empty values
 
     // Return only materials that aren't selected in other fields
-    return materials.filter(material => !selectedValues.includes(material.value)) as MaterialOption[]
+    return materials.filter(
+      material => !selectedValues.includes(material.value)
+    ) as MaterialOption[]
   }
 
   // Check if all materials are used
@@ -389,7 +391,7 @@ export default function UpdateProject() {
                           const quantity = parseFloat(material.quantity) || 0
                           const price = selectedMaterial
                             ? (selectedMaterial.price * quantity).toFixed(2)
-                            : 0.00
+                            : 0.0
 
                           return (
                             <Group attached>
@@ -436,7 +438,7 @@ export default function UpdateProject() {
               mt={3}
               ml={2}
               mb={2}
-              onClick={() => append({ value: '', quantity: '', price: 0.00, label: '' })}
+              onClick={() => append({ value: '', quantity: '', price: 0.0, label: '' })}
               disabled={allMaterialsSelected || materials.length === 0}
             >
               Add a material

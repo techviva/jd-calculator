@@ -340,6 +340,31 @@ export default function ProjectDetails() {
         </DataListRoot>
       </HStack>
 
+      <VStack width="100%" border="1.5px solid" borderColor="border.muted" borderRadius="md" mb={4}>
+        <HStack width="100%" justifyContent="space-between" p={4} bg="bg.subtle" borderRadius="md">
+          <VStack alignItems="flex-start" gap={1}>
+            <Text fontSize="sm" color="fg.subtle">
+              Total Cost
+            </Text>
+            <Text fontWeight="bold">{formatCurrency(subtotal)}</Text>
+          </VStack>
+          <VStack alignItems="flex-start" gap={1}>
+            <Text fontSize="sm" color="fg.subtle">
+              Net Profit
+            </Text>
+            <Text fontWeight="bold" color="green.500">
+              {formatCurrency(project?.netProfit)}
+            </Text>
+          </VStack>
+          <VStack alignItems="flex-start" gap={1}>
+            <Text fontSize="sm" color="fg.subtle">
+              Amount for Clients
+            </Text>
+            <Text fontWeight="bold">{formatCurrency(project?.clientAmount)}</Text>
+          </VStack>
+        </HStack>
+      </VStack>
+
       <VStack width="100%" border="1.5px solid" borderColor="border.muted" borderRadius="md">
         <Table.Root size="sm" variant="line">
           <Table.Header>

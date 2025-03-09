@@ -58,7 +58,7 @@ export default function Home() {
   // Stats configuration based on real data
   const statsConfig = [
     {
-      title: 'Total Jobs',
+      title: 'Total Projects',
       stats: stats.total,
       iconColor: 'stale',
       iconBg: 'total',

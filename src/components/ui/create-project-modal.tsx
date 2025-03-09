@@ -36,7 +36,7 @@ export function CreateProjectModal({ defaultValues = {
     } = useForm({
         defaultValues: {
             ...defaultValues,
-            status: 'active',
+            status: 'in progress',
         }
     })
 

@@ -23,7 +23,8 @@ import { db } from '@/lib/firebase'
 import { toaster } from '@/components/ui/toaster'
 import { parseError } from '@/utils/errorParser'
 
-interface CostItem {
+
+export interface CostItem {
     id: string
     category: string
     description: string

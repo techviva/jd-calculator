@@ -1,7 +1,5 @@
 'use client'
 
-
-
 import { Bar } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
@@ -12,33 +10,64 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
-import { Box, Flex, Heading, HStack, Text } from '@chakra-ui/react'
-
+import ChartDataLabels from 'chartjs-plugin-datalabels'
+import { Box, Flex, Heading, HStack, Spinner, Text } from '@chakra-ui/react'
+import { useProjectStats } from '@/hooks/useProjectStats'
 
 export function BarChart() {
-  const labels = ['DEC', 'JAN', 'FEB', 'MAR', 'APR']
+  const { projectData, isLoading, error } = useProjectStats()
+  // Extract last 5 months from the current month
+  const currentMonth = new Date().getMonth()
+  const monthNames = [
+    'JAN',
+    'FEB',
+    'MAR',
+    'APR',
+    'MAY',
+    'JUN',
+    'JUL',
+    'AUG',
+    'SEP',
+    'OCT',
+    'NOV',
+    'DEC',
+  ]
+  // Calculate month labels for last 5 months (including current month)
+  const labels = Array.from({ length: 5 }, (_, i) => {
+    // Start from (current month - 4) and go up to current month
+    const monthIndex = (currentMonth - 4 + i + 12) % 12
+    return monthNames[monthIndex]
+  })
+
+  // Filter data for the last 5 months from current month
+  const filteredData = labels.map(month => {
+    const monthData = projectData.find(item => item.month === month) || { revenue: 0, profit: 0 }
+    return monthData
+  })
 
   const data = {
     labels,
     datasets: [
       {
-        label: ' ',
-        data: [1, 2, 3, 4],
-        backgroundColor: '#598C61',
+        label: 'Revenue',
+        data: filteredData.map(item => item.revenue),
+        backgroundColor: '#9AA0F8', // Revenue color
         borderRadius: 10,
         borderSkipped: false,
         barPercentage: 0.6,
       },
       {
-        label: ' ',
-        data: [4, 3, 2, 1],
-        backgroundColor: '#9AA0F8',
+        label: 'Profit',
+        data: filteredData.map(item => item.profit),
+        backgroundColor: '#598C61', // Profit color
         borderRadius: 10,
         borderSkipped: false,
         barPercentage: 0.6,
       },
     ],
   }
+  const maxYValue =
+    Math.max(...filteredData.map(item => Math.max(item.revenue, item.profit))) * 1.25
 
   const config = {
     type: 'bar',
@@ -54,9 +83,15 @@ export function BarChart() {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             label: function (context: any) {
               const value = context.raw
-              return value + 'M'
+              return value
             },
           },
+        },
+        datalabels: {
+          display: true,
+          align: 'top' as const,
+          anchor: 'end' as const,
+          formatter: (value: number) => (value !== 0 ? value.toLocaleString() : ''),
         },
       },
       scales: {
@@ -69,18 +104,20 @@ export function BarChart() {
           border: {
             dash: [5, 5],
             display: false,
-            displayOffset: 5,
+            displayOffset: 10,
           },
           suggestedMin: 1,
+          suggestedMax: maxYValue,
           ticks: {
             stepSize: 1,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             callback: function (value: any) {
-              return value + 'M'
+              return value
             },
           },
+
           grid: {
-            display: true,
+            display: false,
             drawBorder: false,
             color: '#c0bcbc',
           },
@@ -89,7 +126,7 @@ export function BarChart() {
     },
   }
 
-  ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+  ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels)
 
   return (
     <Box width="100%" p={6} borderRadius="3xl" bg="bg">
@@ -97,7 +134,7 @@ export function BarChart() {
         pb={4}
         borderBottom="2px solid"
         borderColor="gray.subtle"
-        mb={2}
+        mb={5}
         justifyContent="space-between"
       >
         <Box width="fit-content">
@@ -123,8 +160,17 @@ export function BarChart() {
           </Flex>
         </Box>
       </HStack>
-      <Bar options={config.options} data={config.data} />
+      {isLoading ? (
+        <Flex justifyContent="center" alignItems="center" height="300px">
+          <Spinner size="xl" />
+        </Flex>
+      ) : error ? (
+        <Flex justifyContent="center" alignItems="center" height="300px">
+          <Text color="red.500">Failed to load chart data</Text>
+        </Flex>
+      ) : (
+        <Bar options={config.options} data={config.data} />
+      )}
     </Box>
   )
 }
-

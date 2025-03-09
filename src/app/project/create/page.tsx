@@ -1,47 +1,61 @@
 'use client'
 import { Button } from '@/components/ui/button'
 import TemplateCard from '@/components/ui/template-card'
-import { Heading, HStack, Text, VStack } from '@chakra-ui/react'
-import {
-  CreateProjectModal,
-} from '@/components/ui'
-import { useState } from 'react'
-import { ProjectFormData } from '@/types'
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
+import { Heading, HStack, Text, VStack, Spinner } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
+import { collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore'
+import { useState, useEffect } from 'react'
 import { db } from '@/lib/firebase'
 import { toaster } from '@/components/ui/toaster'
 import { parseError } from '@/utils/errorParser'
-import { useRouter } from 'next/navigation'
-
-const dummyTemplates = [
-  {
-    id: 1,
-    name: 'Standard Paver Blocks',
-  },
-  {
-    id: 2,
-    name: 'Standard Paver Blocks Deluxe',
-  },
-  {
-    id: 3,
-    name: 'Double Paver Blocks Standard',
-  },
-  {
-    id: 4,
-    name: 'Double Paver Blocks Deluxe',
-  },
-  {
-    id: 5,
-    name: 'Double Paver Blocks Deluxe',
-  },
-]
+import { Template } from '@/types'
+import { CreateProjectModal } from '@/components/ui'
 
 export default function CreateProject() {
   const router = useRouter();
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [templates, setTemplates] = useState<Template[]>([])
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(true)
 
   const [openModal, setOpenModal] = useState(false)
+
+
+  // Fetch templates from Firestore
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        const templatesCollection = collection(db, 'templates')
+        const templatesSnapshot = await getDocs(templatesCollection)
+        const templatesList = templatesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          title: doc.data().title,
+          ...doc.data(),
+        })) as Template[]
+
+        setTemplates(templatesList)
+      } catch (error) {
+        console.error('Error fetching templates:', error)
+        toaster.create({
+          title: 'Error fetching templates',
+          description: parseError(error),
+          type: 'error',
+        })
+      } finally {
+        setIsLoadingTemplates(false)
+      }
+    }
+
+    fetchTemplates()
+  }, [])
+
+  interface ProjectFormData {
+    clientName: string
+    title: string
+    description: string
+    startDate: string
+    dueDate: string
+  }
 
   const onSubmit = async (data: ProjectFormData) => {
     try {
@@ -101,11 +115,19 @@ export default function CreateProject() {
       <Text color="fg.muted" fontWeight="light" mt={2} width="fit-content" fontSize="small">
         or pick a template from one of these
       </Text>
-      <HStack wrap="wrap" gap={4} mt={4} justifyContent="center">
-        {dummyTemplates.map(({ id, name }) => (
-          <TemplateCard name={name} key={id} />
-        ))}
-      </HStack>
+      {isLoadingTemplates ? (
+        <Spinner mt={4} />
+      ) : templates.length > 0 ? (
+        <HStack wrap="wrap" gap={4} mt={4} justifyContent="center">
+          {templates.map(template => (
+            <TemplateCard template={template} key={template.id} />
+          ))}
+        </HStack>
+      ) : (
+        <Text color="fg.muted" mt={4}>
+          No templates available
+        </Text>
+      )}
     </VStack>
   )
 }

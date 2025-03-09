@@ -21,10 +21,10 @@ const customTheme = createSystem(defaultConfig, {
         spot: {
           value: { base: '{colors.green.50}', _dark: '{colors.green.900}' },
         },
-        revenue: {
+        profit: {
           value: { base: '#598C61', _dark: '#1DA768' },
         },
-        profit: {
+        revenue: {
           value: { base: '#9AA0F8', _dark: '#B0B6FF' },
         },
         stale: {

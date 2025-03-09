@@ -1,6 +1,6 @@
-import React from 'react';
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { Project } from '@/types';
+import React from 'react'
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+import { Material, Project } from '@/types'
 
 const styles = StyleSheet.create({
   page: {
@@ -60,22 +60,16 @@ const styles = StyleSheet.create({
     color: '#E50050',
     marginTop: 10,
   },
-});
+})
 
-interface Material {
-  name: string;
-  quantity: number;
-  rate: number;
-}
+const calculateTotalPrice = (quantity: number, rate: number) => quantity * rate
+const calculateSubtotal = (materials: Material[] | undefined) =>
+  materials?.reduce(
+    (subtotal, material) => subtotal + calculateTotalPrice(material.quantity, material.price),
+    0
+  )
 
-interface DownloadedProject extends Project {
-  materials?: Material[];
-}
-
-const calculateTotalPrice = (quantity: number, rate: number) => quantity * rate;
-const calculateSubtotal = (materials: Material[] | undefined) => materials?.reduce((subtotal, material) => subtotal + calculateTotalPrice(material.quantity, material.rate), 0);
-
-export const ProjectPDFDocument: React.FC<{ project: DownloadedProject | null }> = ({ project }) => (
+export const ProjectPDFDocument: React.FC<{ project: Project | null }> = ({ project }) => (
   <Document>
     <Page style={styles.page}>
       <View style={styles.header}>
@@ -101,12 +95,16 @@ export const ProjectPDFDocument: React.FC<{ project: DownloadedProject | null }>
           <View style={styles.tableRow} key={index}>
             <Text style={styles.tableCol}>{material.name}</Text>
             <Text style={styles.tableCol}>{material.quantity}</Text>
-            <Text style={styles.tableCol}>{`$${material.rate?.toFixed(2)}`}</Text>
-            <Text style={styles.tableCol}>{`$${calculateTotalPrice(material.quantity, material.rate).toFixed(2)}`}</Text>
+            <Text style={styles.tableCol}>{`$${material.price.toFixed(2)}`}</Text>
+            <Text
+              style={styles.tableCol}
+            >{`$${calculateTotalPrice(material.quantity, material.price).toFixed(2)}`}</Text>
           </View>
         ))}
       </View>
-      <Text style={styles.subtotal}>Subtotal: ${calculateSubtotal(project?.materials)?.toFixed(2)}</Text>
+      <Text style={styles.subtotal}>
+        Subtotal: ${calculateSubtotal(project?.materials)?.toFixed(2)}
+      </Text>
     </Page>
   </Document>
-);
+)

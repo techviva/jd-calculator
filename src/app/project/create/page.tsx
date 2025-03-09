@@ -10,8 +10,8 @@ import { ProjectFormData } from '@/types'
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { toaster } from '@/components/ui/toaster'
-import { useRouter } from 'next/router'
 import { parseError } from '@/utils/errorParser'
+import { useRouter } from 'next/navigation'
 
 const dummyTemplates = [
   {

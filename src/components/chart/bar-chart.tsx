@@ -66,6 +66,9 @@ export function BarChart() {
       },
     ],
   }
+  const maxYValue =
+    Math.max(...filteredData.map(item => Math.max(item.revenue, item.profit))) * 1.25
+
   const config = {
     type: 'bar',
     data,
@@ -86,7 +89,7 @@ export function BarChart() {
         },
         datalabels: {
           display: true,
-          align: 'end',
+          align: 'top',
           anchor: 'end',
           formatter: (value: number) => (value !== 0 ? value.toLocaleString() : ''),
         },
@@ -101,9 +104,10 @@ export function BarChart() {
           border: {
             dash: [5, 5],
             display: false,
-            displayOffset: 5,
+            displayOffset: 10,
           },
           suggestedMin: 1,
+          suggestedMax: maxYValue,
           ticks: {
             stepSize: 1,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -111,6 +115,7 @@ export function BarChart() {
               return value
             },
           },
+
           grid: {
             display: false,
             drawBorder: false,

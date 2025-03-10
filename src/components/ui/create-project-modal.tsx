@@ -121,7 +121,6 @@ export function CreateProjectModal({ defaultValues = {
                                     type="submit"
                                     form="project-form"
                                     loading={submitting}
-                                    loadingText={`${currentMode}ing...`}
                                     fontSize="small"
                                 >
                                     {currentMode} Project

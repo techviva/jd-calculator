@@ -266,7 +266,7 @@ export default function CostManagement() {
                                                     setDeleteModalOpen(true)
                                                 }}
                                             >
-                                                <DeleteIcon width="18px" height="18px" color="red" />
+                                                <DeleteIcon width="18px" height="18px" color="red.emphasized" />
                                             </Button>
                                         </Flex>
                                     </Table.Cell>

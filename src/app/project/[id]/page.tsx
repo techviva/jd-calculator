@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { doc, getDoc, setDoc, collection, deleteDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, collection, deleteDoc, query, where, getDocs } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { Project, ProjectFormData } from '@/types'
 import {
@@ -44,13 +44,15 @@ export default function ProjectDetails() {
   const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isRemovingTemplate, setIsRemovingTemplate] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [templateName, setTemplateName] = useState('')
   const [templateDescription, setTemplateDescription] = useState('')
   const [saveTemplateLoading, setSaveTemplateLoading] = useState(false)
-  const { open, onOpen, onClose } = useDisclosure()
+  const [isTemplate, setIsTemplate] = useState(false)
+  const { open, onOpen, onClose, setOpen } = useDisclosure()
 
   const fetchProject = useCallback(async () => {
     try {
@@ -151,6 +153,51 @@ export default function ProjectDetails() {
     }
   }
 
+  const handleRemoveTemplate = async () => {
+    try {
+      setIsRemovingTemplate(true)
+      const templatesRef = collection(db, 'templates')
+      const q = query(templatesRef, where('originalProjectId', '==', project?.id))
+      const querySnapshot = await getDocs(q)
+      querySnapshot.forEach(async doc => {
+        await deleteDoc(doc.ref)
+      })
+      toaster.create({
+        title: 'Template removed',
+        description: 'Template removed successfully',
+        type: 'success',
+      })
+    } catch (error) {
+      console.error('Error removing template:', error)
+    } finally {
+      setIsTemplate(false)
+      setIsRemovingTemplate(false)
+    }
+  }
+
+  const checkIfProjectIsTemplate = useCallback(async () => {
+    try {
+      if (!project?.id) return
+
+      const templatesRef = collection(db, 'templates')
+      const q = query(templatesRef, where('originalProjectId', '==', project.id))
+      const querySnapshot = await getDocs(q)
+
+      setIsTemplate(!querySnapshot.empty)
+    } catch (error) {
+      console.error('Error checking if project is template:', error)
+    }
+  }, [project?.id])
+
+
+  // Add this new useEffect
+  useEffect(() => {
+    if (project) {
+      checkIfProjectIsTemplate()
+    }
+  }, [project, checkIfProjectIsTemplate])
+
+
   if (loading) {
     return <ProjectDetailsSkeleton />
   }
@@ -222,7 +269,7 @@ export default function ProjectDetails() {
               colorPalette="transparent"
               onClick={() => setDeleteModalOpen(true)}
             >
-              <DeleteIcon width="18px" height="18px" color="red" />
+              <DeleteIcon width="18px" height="18px" color="red.emphasized" />
             </Button>
             <DialogRoot
               placement="center"
@@ -268,9 +315,11 @@ export default function ProjectDetails() {
               {({ loading }) => (loading ? 'Loading document...' : 'Export to PDF')}
             </PDFDownloadLink>
           </Button>
-          <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={onOpen}>
+          {isTemplate ? <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={handleRemoveTemplate} loading={isRemovingTemplate}>
+            Remove as a Template
+          </Button> : <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={onOpen}>
             Make this a Template
-          </Button>
+          </Button>}
           <Button fontSize="small" onClick={() => router.push(`/project/${id}/update`)}>
             Update Materials
           </Button>
@@ -278,7 +327,7 @@ export default function ProjectDetails() {
       </VStack>
 
       {/* Template Name Dialog */}
-      <Dialog.Root open={open}>
+      <Dialog.Root open={open} placement="center" onOpenChange={() => setOpen(!open)}>
         <Dialog.Backdrop />
         <Dialog.Positioner>
           <Dialog.Content>
@@ -312,11 +361,12 @@ export default function ProjectDetails() {
               </VStack>
             </Dialog.Body>
             <Dialog.Footer>
-              <Button colorScheme="gray" mr={3} onClick={onClose}>
+              <Button colorPalette="gray" fontSize="small" mr={3} onClick={onClose}>
                 Cancel
               </Button>
               <Button
-                colorScheme="blue"
+                colorPalette="green"
+                fontSize="small"
                 onClick={saveAsTemplate}
                 loading={saveTemplateLoading}
                 disabled={!templateName.trim()}

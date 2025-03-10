@@ -222,7 +222,7 @@ export default function ProjectDetails() {
               colorPalette="transparent"
               onClick={() => setDeleteModalOpen(true)}
             >
-              <DeleteIcon width="18px" height="18px" />
+              <DeleteIcon width="18px" height="18px" color="red" />
             </Button>
             <DialogRoot
               placement="center"

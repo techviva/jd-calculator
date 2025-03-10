@@ -310,7 +310,6 @@ export default function CostManagement() {
                                         ml={1}
                                         as={BsChevronUp}
                                         boxSize={3}
-                                        opacity={sortField !== 'description' ? 0.3 : 1}
                                         transform={sortField === 'description' && sortDirection === 'desc' ? 'rotate(180deg)' : 'rotate(0)'}
                                         transition="transform 0.2s ease"
                                     />

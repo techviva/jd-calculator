@@ -361,7 +361,7 @@ export default function ProjectDetails() {
               </VStack>
             </Dialog.Body>
             <Dialog.Footer>
-              <Button colorPalette="gray" fontSize="small" mr={3} onClick={onClose}>
+              <Button colorPalette="gray" fontSize="small" mr={2} onClick={onClose}>
                 Cancel
               </Button>
               <Button

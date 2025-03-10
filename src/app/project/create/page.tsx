@@ -4,7 +4,7 @@ import TemplateCard from '@/components/ui/template-card'
 import { Heading, HStack, Text, VStack, Spinner } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { db } from '@/lib/firebase'
 import { toaster } from '@/components/ui/toaster'
 import { parseError } from '@/utils/errorParser'
@@ -20,35 +20,40 @@ export default function CreateProject() {
 
   const [openModal, setOpenModal] = useState(false)
 
-  // Fetch templates from Firestore
-  useEffect(() => {
-    const fetchTemplates = async () => {
-      try {
-        const templatesCollection = collection(db, 'templates')
-        const templatesSnapshot = await getDocs(templatesCollection)
-        const templatesList = templatesSnapshot.docs.map(doc => ({
-          id: doc.id,
-          title: doc.data().title,
-          ...doc.data(),
-        })) as Template[]
+  // Create fetchTemplates as a callback function so it can be reused
+  const fetchTemplates = useCallback(async () => {
+    try {
+      setIsLoadingTemplates(true)
+      const templatesCollection = collection(db, 'templates')
+      const templatesSnapshot = await getDocs(templatesCollection)
+      const templatesList = templatesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        title: doc.data().title,
+        ...doc.data(),
+      })) as Template[]
 
-        setTemplates(templatesList)
-      } catch (error) {
-        console.error('Error fetching templates:', error)
-        toaster.create({
-          title: 'Error fetching templates',
-          description: parseError(error),
-          type: 'error',
-        })
-      } finally {
-        setIsLoadingTemplates(false)
-      }
+      setTemplates(templatesList)
+    } catch (error) {
+      console.error('Error fetching templates:', error)
+      toaster.create({
+        title: 'Error fetching templates',
+        description: parseError(error),
+        type: 'error',
+      })
+    } finally {
+      setIsLoadingTemplates(false)
     }
-
-    fetchTemplates()
   }, [])
 
-  console.log(templates)
+  // Fetch templates on initial load
+  useEffect(() => {
+    fetchTemplates()
+  }, [fetchTemplates])
+
+  // Function to pass to TemplateCard for refetching after deletion
+  const handleTemplateDeleted = () => {
+    fetchTemplates()
+  }
 
   interface ProjectFormData {
     clientName: string
@@ -127,7 +132,11 @@ export default function CreateProject() {
       ) : templates.length > 0 ? (
         <HStack wrap="wrap" gap={4} mt={4} width="100%" justifyContent="center">
           {templates.map(template => (
-            <TemplateCard template={template} key={template.id} />
+            <TemplateCard
+              template={template}
+              key={template.id}
+              onDeleteSuccess={handleTemplateDeleted}
+            />
           ))}
         </HStack>
       ) : (

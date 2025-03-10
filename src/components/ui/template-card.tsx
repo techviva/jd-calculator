@@ -1,18 +1,24 @@
 'use client'
 import { ProjectFormData, Template } from '@/types'
-import { Box, Card, Flex, Text, useDisclosure } from '@chakra-ui/react'
+import { Box, Card, Flex, Text } from '@chakra-ui/react'
 import { useState } from 'react'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { toaster } from '@/components/ui/toaster'
 import { parseError } from '@/utils/errorParser'
 import { useRouter } from 'next/navigation'
 import { CreateProjectModal } from './create-project-modal'
 
-export default function TemplateCard({ template }: { template: Template }) {
+interface TemplateCardProps {
+  template: Template
+  onDeleteSuccess?: () => void
+}
+
+export default function TemplateCard({ template, onDeleteSuccess }: TemplateCardProps) {
   const router = useRouter()
-  const { open, setOpen } = useDisclosure()
+  const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const defaultValues = {
     clientName: '',
@@ -59,6 +65,49 @@ export default function TemplateCard({ template }: { template: Template }) {
     }
   }
 
+  const handleDeleteTemplate = async () => {
+    if (!template.id) {
+      toaster.create({
+        title: 'Error deleting template',
+        description: 'Template ID is missing',
+        type: 'error',
+      })
+      return
+    }
+
+    try {
+      setIsDeleting(true)
+
+      // Get reference to the template document using its ID
+      const templateRef = doc(db, 'templates', template.id)
+
+      // Delete the document
+      await deleteDoc(templateRef)
+
+      toaster.create({
+        title: 'Template deleted',
+        description: 'Template has been deleted successfully',
+        type: 'success',
+      })
+
+      setOpen(false)
+
+      // Call the callback to notify parent component about successful deletion
+      if (onDeleteSuccess) {
+        onDeleteSuccess()
+      }
+    } catch (error) {
+      console.error('Error deleting template:', error)
+      toaster.create({
+        title: 'Error deleting template',
+        description: parseError(error),
+        type: 'error',
+      })
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   return (
     <CreateProjectModal
       open={open}
@@ -67,6 +116,8 @@ export default function TemplateCard({ template }: { template: Template }) {
       mode="create"
       onSubmit={handleSubmit}
       defaultValues={defaultValues}
+      removeTemplate={handleDeleteTemplate}
+      isDeleting={isDeleting}
     >
       <Card.Root
         borderRadius="3xl"

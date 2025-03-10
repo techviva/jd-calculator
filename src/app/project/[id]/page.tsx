@@ -45,7 +45,6 @@ export default function ProjectDetails() {
   const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [isRemovingTemplate, setIsRemovingTemplate] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -151,30 +150,10 @@ export default function ProjectDetails() {
       console.error('Error saving template:', err)
     } finally {
       setSaveTemplateLoading(false)
+      fetchProject()
     }
   }
 
-  const handleRemoveTemplate = async () => {
-    try {
-      setIsRemovingTemplate(true)
-      const templatesRef = collection(db, 'templates')
-      const q = query(templatesRef, where('originalProjectId', '==', project?.id))
-      const querySnapshot = await getDocs(q)
-      querySnapshot.forEach(async doc => {
-        await deleteDoc(doc.ref)
-      })
-      toaster.create({
-        title: 'Template removed',
-        description: 'Template removed successfully',
-        type: 'success',
-      })
-    } catch (error) {
-      console.error('Error removing template:', error)
-    } finally {
-      setIsTemplate(false)
-      setIsRemovingTemplate(false)
-    }
-  }
 
   const checkIfProjectIsTemplate = useCallback(async () => {
     try {
@@ -248,7 +227,7 @@ export default function ProjectDetails() {
           <Heading as="h1" fontWeight="bold" fontSize="larger">
             {project?.title || 'Unnamed Project'}
           </Heading>
-          <Flex gap={0} p={0} m={0}>
+          <Flex gap={2} p={0} m={0}>
             {/* wrap edit button in CreateProjectModal component to trigger modal */}
             <CreateProjectModal
               defaultValues={defaultValues}
@@ -317,9 +296,7 @@ export default function ProjectDetails() {
               Export to PDF
             </PDFDownloadLink>
           </Button>
-          {isTemplate ? <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={handleRemoveTemplate} loading={isRemovingTemplate}>
-            Remove as a Template
-          </Button> : <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={onOpen}>
+          {!isTemplate && <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={onOpen}>
             Make this a Template
           </Button>}
           <Button fontSize="small" onClick={() => router.push(`/project/${id}/update`)}>

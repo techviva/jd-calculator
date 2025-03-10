@@ -1,5 +1,12 @@
 'use client'
-import { Button, CostItemModal, CostManagementSkeleton, DialogActionTrigger } from '@/components/ui'
+import { Button, CostItemModal, CostManagementSkeleton, DialogActionTrigger, NativeSelectField, NativeSelectRoot } from '@/components/ui'
+import {
+    PaginationItems,
+    PaginationNextTrigger,
+    PaginationPageText,
+    PaginationPrevTrigger,
+    PaginationRoot,
+} from "@/components/ui"
 import {
     Box,
     DialogTitle,
@@ -11,6 +18,7 @@ import {
     Text,
     useDisclosure,
     VStack,
+    Icon,
 } from '@chakra-ui/react'
 import { DialogBody, DialogContent, DialogRoot } from '@/components/ui'
 import { useState, useEffect } from 'react'
@@ -20,9 +28,7 @@ import { db } from '@/lib/firebase'
 import { toaster } from '@/components/ui/toaster'
 import { parseError } from '@/utils/errorParser'
 import { CostFormData, CostItem } from '@/types'
-
-
-
+import { BsChevronUp } from 'react-icons/bs'
 
 export default function CostManagement() {
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -33,8 +39,15 @@ export default function CostManagement() {
     const [itemToDelete, setItemToDelete] = useState<string | null>(null)
     const [itemToEdit, setItemToEdit] = useState<string | null>(null)
 
-    const { open, onClose, setOpen } = useDisclosure()
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1)
+    const [pageSize, setPageSize] = useState(10)
 
+    // Sorting state
+    const [sortField, setSortField] = useState<keyof CostItem>('category')
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+
+    const { open, onClose, setOpen } = useDisclosure()
 
     // Fetch cost data from Firestore
     const fetchCostData = async () => {
@@ -158,12 +171,80 @@ export default function CostManagement() {
         return `$${parsedRate.toFixed(2)}${unit}`
     }
 
+    // Improved sort function with better type handling and debugging
+    const sortedData = [...costData].sort((a, b) => {
+        try {
+            // Make sure we have the field
+            if (!(sortField in a) || !(sortField in b)) {
+                console.warn(`Sort field "${sortField}" not found in one or both items`);
+                return 0;
+            }
+
+            if (sortField === 'rate') {
+                // Handle rate as number
+                const aValue = typeof a[sortField] === 'number'
+                    ? a[sortField] as number
+                    : parseFloat(String(a[sortField] || 0));
+
+                const bValue = typeof b[sortField] === 'number'
+                    ? b[sortField] as number
+                    : parseFloat(String(b[sortField] || 0));
+
+                return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+            } else {
+                // Handle string fields more carefully
+                const aValue = String(a[sortField] || '').toLowerCase();
+                const bValue = String(b[sortField] || '').toLowerCase();
+
+                // Use proper string comparison with locale
+                return sortDirection === 'asc'
+                    ? aValue.localeCompare(bValue, undefined, { numeric: true })
+                    : bValue.localeCompare(aValue, undefined, { numeric: true });
+            }
+        } catch (error) {
+            console.error("Error during sort:", error);
+            return 0;
+        }
+    });
+
+    // Handle sorting when a column header is clicked
+    const handleSort = (field: keyof CostItem) => {
+        if (sortField === field) {
+            // Toggle direction if clicking the same field
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+        } else {
+            // For new field, set the field but also toggle from default
+            // This makes the first click immediately change the sort direction
+            setSortField(field)
+            setSortDirection('desc') // Start with descending for a new field
+        }
+        // Reset to first page when sorting changes
+        setCurrentPage(1)
+    }
+
+    // Handle changing the number of rows per page
+    const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newPageSize = parseInt(e.target.value)
+        setPageSize(newPageSize)
+        setCurrentPage(1) // Reset to first page when changing page size
+    }
+
     const costItemsCategories = costData.map(item => item.category)
 
+    // Get current page items from sorted data
+    const startIndex = (currentPage - 1) * pageSize
+    const endIndex = startIndex + pageSize
+    const currentCostItems = sortedData.slice(startIndex, endIndex)
+
+    // Handle page change
+    const handlePageChange = (details: { page: number }) => {
+        setCurrentPage(details.page)
+    }
 
     if (isLoading) {
         return <CostManagementSkeleton />
     }
+
     return (
         <VStack
             alignItems="flex-start"
@@ -200,24 +281,60 @@ export default function CostManagement() {
                                 fontSize="xs"
                                 htmlWidth="35%"
                                 fontWeight="medium"
+                                cursor="pointer"
+                                onClick={() => handleSort('category')}
                             >
-                                Category
+                                <Flex align="center">
+                                    <Box>Category</Box>
+                                    <Icon
+                                        ml={1}
+                                        as={BsChevronUp}
+                                        boxSize={3}
+                                        opacity={sortField !== 'category' ? 0.3 : 1}
+                                        transform={sortField === 'category' && sortDirection === 'desc' ? 'rotate(180deg)' : 'rotate(0)'}
+                                        transition="transform 0.2s ease"
+                                    />
+                                </Flex>
                             </Table.ColumnHeader>
                             <Table.ColumnHeader
                                 color="fg.subtle"
                                 fontSize="xs"
                                 htmlWidth="35%"
                                 fontWeight="medium"
+                                cursor="pointer"
+                                onClick={() => handleSort('description')}
                             >
-                                Description
+                                <Flex align="center">
+                                    <Box>Description</Box>
+                                    <Icon
+                                        ml={1}
+                                        as={BsChevronUp}
+                                        boxSize={3}
+                                        opacity={sortField !== 'description' ? 0.3 : 1}
+                                        transform={sortField === 'description' && sortDirection === 'desc' ? 'rotate(180deg)' : 'rotate(0)'}
+                                        transition="transform 0.2s ease"
+                                    />
+                                </Flex>
                             </Table.ColumnHeader>
                             <Table.ColumnHeader
                                 color="fg.subtle"
                                 fontSize="xs"
                                 htmlWidth="25%"
                                 fontWeight="medium"
+                                cursor="pointer"
+                                onClick={() => handleSort('rate')}
                             >
-                                Rate
+                                <Flex align="center">
+                                    <Box>Rate</Box>
+                                    <Icon
+                                        ml={1}
+                                        as={BsChevronUp}
+                                        boxSize={3}
+                                        opacity={sortField !== 'rate' ? 0.3 : 1}
+                                        transform={sortField === 'rate' && sortDirection === 'desc' ? 'rotate(180deg)' : 'rotate(0)'}
+                                        transition="transform 0.2s ease"
+                                    />
+                                </Flex>
                             </Table.ColumnHeader>
                             <Table.ColumnHeader htmlWidth="5%"></Table.ColumnHeader>
                         </Table.Row>
@@ -229,14 +346,14 @@ export default function CostManagement() {
                                     Loading...
                                 </Table.Cell>
                             </Table.Row>
-                        ) : costData.length === 0 ? (
+                        ) : currentCostItems.length === 0 ? (
                             <Table.Row>
                                 <Table.Cell colSpan={4} textAlign="center">
                                     No cost items available
                                 </Table.Cell>
                             </Table.Row>
                         ) : (
-                            costData.map(item => (
+                            currentCostItems.map(item => (
                                 <Table.Row key={item.id}>
                                     <Table.Cell py={0}>{item.category}</Table.Cell>
                                     <Table.Cell py={0}>{item.description}</Table.Cell>
@@ -277,6 +394,43 @@ export default function CostManagement() {
                         )}
                     </Table.Body>
                 </Table.Root>
+
+                {costData.length > 0 && (
+                    <Box width="100%" display="flex" justifyContent="flex-end" alignItems="center" p={4}>
+                        <HStack width="fit-content" gap={2}>
+                            <Text fontSize="xs">Rows per page:</Text>
+                            <Box position="relative">
+                                <NativeSelectRoot>
+                                    <NativeSelectField
+                                        width="70px"
+                                        value={pageSize}
+                                        onChange={handlePageSizeChange}
+                                        borderRadius="md"
+                                        items={["10", "20", "50", "100"]}
+                                        id="rows-per-page"
+                                    />
+                                </NativeSelectRoot>
+                            </Box>
+                        </HStack>
+
+                        {costData.length > pageSize && (
+                            <PaginationRoot
+                                count={costData.length}
+                                pageSize={pageSize}
+                                page={currentPage}
+                                onPageChange={handlePageChange}
+                                siblingCount={1}
+                            >
+                                <HStack gap={2}>
+                                    <PaginationPrevTrigger />
+                                    <PaginationItems />
+                                    <PaginationPageText fontSize="small" />
+                                    <PaginationNextTrigger />
+                                </HStack>
+                            </PaginationRoot>
+                        )}
+                    </Box>
+                )}
             </VStack>
 
             <DialogRoot

@@ -106,7 +106,7 @@ export const ProjectPDFDocument: React.FC<{ project: Project | null }> = ({ proj
             src='/images/viva-logo.png'
           />
         </View>
-        <View style={{ marginRight: 10, textAlign: 'right', width: '50%' }}>
+        <View style={{ marginRight: 5, textAlign: 'right', width: '50%' }}>
           <Text style={{ fontWeight: 300 }}>Glendale, AZ</Text>
           <Text style={{ fontWeight: 300 }}>United States, Arizona</Text>
           <Text style={{ fontWeight: 300 }}>+1 623-221-3825</Text>

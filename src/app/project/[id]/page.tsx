@@ -312,7 +312,7 @@ export default function ProjectDetails() {
               document={<ProjectPDFDocument project={project} />}
               fileName={`${project?.clientName}_Project_Details.pdf`}
             >
-              {({ loading }) => (loading ? 'Loading document...' : 'Export to PDF')}
+              Export to PDF
             </PDFDownloadLink>
           </Button>
           {isTemplate ? <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={handleRemoveTemplate} loading={isRemovingTemplate}>

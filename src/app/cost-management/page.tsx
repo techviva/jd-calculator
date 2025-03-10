@@ -4,6 +4,7 @@ import {
     Box,
     DialogTitle,
     Flex,
+    Button as DefaultButton,
     Heading,
     HStack,
     Table,
@@ -256,18 +257,19 @@ export default function CostManagement() {
                                             >
                                                 <EditIcon width="18px" height="18px" />
                                             </Button>
-                                            <Button
+                                            <DefaultButton
                                                 fontSize="small"
-                                                variant="ghost"
                                                 p={1}
-                                                colorPalette="transparent"
+                                                mt={0.5}
+                                                borderRadius={10}
+                                                colorPalette="red"
                                                 onClick={() => {
                                                     setItemToDelete(item.id)
                                                     setDeleteModalOpen(true)
                                                 }}
                                             >
-                                                <DeleteIcon width="18px" height="18px" color="red.emphasized" />
-                                            </Button>
+                                                <DeleteIcon width="18px" height="18px" />
+                                            </DefaultButton>
                                         </Flex>
                                     </Table.Cell>
                                 </Table.Row>

@@ -6,6 +6,7 @@ import {
   VStack,
   HStack,
   Flex,
+  Button as DefaultButton,
   Table,
   useDisclosure,
   Input,
@@ -262,15 +263,16 @@ export default function ProjectDetails() {
               </Button>
             </CreateProjectModal>
 
-            <Button
+            <DefaultButton
               fontSize="small"
-              variant="ghost"
+              colorPalette="red"
+              borderRadius={10}
+              mt={0.5}
               p={1}
-              colorPalette="transparent"
               onClick={() => setDeleteModalOpen(true)}
             >
-              <DeleteIcon width="18px" height="18px" color="red.emphasized" />
-            </Button>
+              <DeleteIcon width="18px" height="18px" />
+            </DefaultButton>
             <DialogRoot
               placement="center"
               open={deleteModalOpen}

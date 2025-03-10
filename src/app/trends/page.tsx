@@ -40,6 +40,7 @@ export default function Trends() {
         <VStack
             alignItems="flex-start"
             width="100%"
+            height="100%"
             alignSelf="stretch"
             borderRadius="4xl"
             bg="bg"
@@ -75,7 +76,7 @@ export default function Trends() {
                 </Fieldset.Content>
                 <Fieldset.ErrorText fontSize="small">{dateError}</Fieldset.ErrorText>
             </Fieldset.Root>
-            <HStack width="100%" justifyContent="flex-start" alignItems="center" gap={4} mt="auto" >
+            <HStack width="70%" justifyContent="center" alignItems="center" gap={4} mt="auto" height="80%" alignSelf="center">
                 <BarChart startDate={startDate} endDate={endDate} />
             </HStack>
         </VStack>

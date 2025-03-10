@@ -21,6 +21,7 @@ interface CostItemModalProps {
     submitting: boolean
     mode?: 'create' | 'edit'
     defaultValues?: CostFormData
+    categories?: string[]
     children?: React.ReactNode
 }
 
@@ -36,7 +37,7 @@ type OptionType = {
     value: string;
 };
 
-export const CostItemModal = ({ open, setOpen, onSubmit, submitting, mode = 'create', children, defaultValues = {
+export const CostItemModal = ({ open, setOpen, onSubmit, submitting, mode = 'create', categories, children, defaultValues = {
     category: '',
     description: '',
     rate: 0,
@@ -52,8 +53,20 @@ export const CostItemModal = ({ open, setOpen, onSubmit, submitting, mode = 'cre
         defaultValues,
     })
 
+    const categoryOptions: SelectOptionGroup[] = [
+        {
+            label: "Group 1",
+            options: categories?.map(category => ({ label: category, value: category })) || []
+        },
+    ];
+
     return (
-        <DialogRoot placement="center" open={open} onOpenChange={() => setOpen(!open)}>
+        <DialogRoot placement="center" open={open} onOpenChange={() => {
+            if (open === false) {
+                reset()
+            }
+            setOpen(!open)
+        }}>
             <DialogTrigger asChild>
                 {children}
             </DialogTrigger>
@@ -237,18 +250,3 @@ const unitOptions = [
     { label: '/week (per week)', value: '/week' },
 ]
 
-const categoryOptions: SelectOptionGroup[] = [
-    {
-        label: "Group 1",
-        options: [
-            { label: "Fertilizante", value: "fertilizante" },
-            { label: "Travertine", value: "travertine" },
-            { label: "Lead Cost", value: "lead_cost" },
-            { label: "Sod (Natural Sod)", value: "sod_natural_sod" },
-            { label: "Pavers", value: "pavers" },
-            { label: "Artificial Turf", value: "artificial_turf" },
-            { label: "Fuel Options", value: "fuel_options" },
-            { label: "Labor Cost Daily", value: "labor_cost_daily" }
-        ]
-    },
-];

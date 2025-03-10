@@ -1,5 +1,5 @@
 'use client'
-import { Button, CostItemModal, DialogActionTrigger } from '@/components/ui'
+import { Button, CostItemModal, CostManagementSkeleton, DialogActionTrigger } from '@/components/ui'
 import {
     Box,
     DialogTitle,
@@ -157,6 +157,12 @@ export default function CostManagement() {
         return `$${parsedRate.toFixed(2)}${unit}`
     }
 
+    const costItemsCategories = costData.map(item => item.category)
+
+
+    if (isLoading) {
+        return <CostManagementSkeleton />
+    }
     return (
         <VStack
             alignItems="flex-start"
@@ -176,6 +182,7 @@ export default function CostManagement() {
                     setOpen={setOpen}
                     onSubmit={onSubmit}
                     submitting={isSubmitting}
+                    categories={costItemsCategories}
                 >
                     <Button colorPalette="green" fontSize="small">
                         Add New Cost Item
@@ -317,6 +324,7 @@ export default function CostManagement() {
                     onSubmit={handleEditItem}
                     submitting={isSubmitting}
                     defaultValues={costData.find(item => item.id === itemToEdit) || undefined}
+                    categories={costItemsCategories}
                 >
                     <span style={{ display: 'none' }}></span>
                 </CostItemModal>

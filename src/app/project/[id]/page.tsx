@@ -52,15 +52,21 @@ export default function ProjectDetails() {
   const [templateDescription, setTemplateDescription] = useState('')
   const [saveTemplateLoading, setSaveTemplateLoading] = useState(false)
   const [isTemplate, setIsTemplate] = useState(false)
+  const [isCompleted, setIsCompleted] = useState(false)
   const { open, onOpen, onClose, setOpen } = useDisclosure()
 
-  const fetchProject = useCallback(async () => {
+
+
+  const fetchProject = async () => {
     try {
       const docRef = doc(db, 'projects', id)
       const docSnap = await getDoc(docRef)
 
       if (docSnap.exists()) {
-        setProject({ id: docSnap.id, ...docSnap.data() } as Project)
+        const projectData = { id: docSnap.id, ...docSnap.data() } as Project
+        setProject(projectData)
+        // Set the initial completion status
+        setIsCompleted(projectData.status === 'completed')
       } else {
         setError('Project not found')
       }
@@ -70,11 +76,13 @@ export default function ProjectDetails() {
     } finally {
       setLoading(false)
     }
-  }, [id])
+  }
 
   useEffect(() => {
     fetchProject()
-  }, [fetchProject])
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
 
   const defaultValues = {
     clientName: project?.clientName || '',
@@ -177,6 +185,39 @@ export default function ProjectDetails() {
     }
   }, [project, checkIfProjectIsTemplate])
 
+  // Add this function to toggle the project status
+  const toggleProjectStatus = async () => {
+    if (!project) return
+
+    try {
+      setIsSubmitting(true)
+      const newStatus = isCompleted ? 'in progress' : 'completed'
+
+      // Update in Firestore
+      const docRef = doc(db, 'projects', id)
+      await setDoc(docRef, { ...project, status: newStatus }, { merge: true })
+
+      // Update local state
+      setIsCompleted(!isCompleted)
+      setProject({ ...project, status: newStatus })
+
+      // Show success message
+      toaster.create({
+        title: newStatus === 'completed' ? 'Project Completed' : 'Project Marked as In Progress',
+        description: `Project status updated successfully`,
+        type: 'success',
+      })
+    } catch (error) {
+      console.error('Error updating project status:', error)
+      toaster.create({
+        title: 'Update Failed',
+        description: 'Failed to update project status',
+        type: 'error',
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   if (loading) {
     return <ProjectDetailsSkeleton />
@@ -287,20 +328,30 @@ export default function ProjectDetails() {
           </Flex>
         </HStack>
 
-        <Flex gap={2} width="100%" alignItems="center" justifyContent="flex-start">
-          <Button fontSize="small" colorPalette="green">
-            <PDFDownloadLink
-              document={<ProjectPDFDocument project={project} />}
-              fileName={`${project?.clientName}_Project_Details.pdf`}
-            >
-              Export to PDF
-            </PDFDownloadLink>
-          </Button>
-          {!isTemplate && <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={onOpen}>
-            Make this a Template
-          </Button>}
-          <Button fontSize="small" onClick={() => router.push(`/project/${id}/update`)}>
-            Update Materials
+        <Flex gap={2} width="100%" alignItems="center" justifyContent="space-between">
+          <Flex width="fit-content" p={0} m={0} gap={3}>
+            <Button fontSize="small" colorPalette="green">
+              <PDFDownloadLink
+                document={<ProjectPDFDocument project={project} />}
+                fileName={`${project?.clientName}_Project_Details.pdf`}
+              >
+                Export to PDF
+              </PDFDownloadLink>
+            </Button>
+            {!isTemplate && <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={onOpen}>
+              Make this a Template
+            </Button>}
+            <Button fontSize="small" onClick={() => router.push(`/project/${id}/update`)}>
+              Update Materials
+            </Button>
+          </Flex>
+          <Button
+            fontSize="small"
+            onClick={toggleProjectStatus}
+            colorPalette={isCompleted ? "teal" : "green"}
+            loading={isSubmitting}
+          >
+            {isCompleted ? "Mark as In Progress" : "Mark as Completed"}
           </Button>
         </Flex>
       </VStack>

@@ -4,10 +4,7 @@ import { JobsIcon } from '../icons'
 import { ProgressCircle } from './progress-circle'
 import { useRouter } from 'next/navigation'
 import { Checkbox } from './checkbox'
-import React, { useState } from 'react'
-import { doc, updateDoc } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
-import { toaster } from './toaster'
+import React from 'react'
 
 
 interface JobCardProps {
@@ -21,7 +18,7 @@ interface JobCardProps {
 }
 export const JobCard = ({ projectId, title, clientName, description, status, startDate, dueDate }: JobCardProps) => {
 
-  const [completed, setCompleted] = useState(status === 'completed');
+  const completed = status === 'completed';
 
   const router = useRouter();
   const getRemainingDays = (dueDate: string | undefined) => {
@@ -82,30 +79,6 @@ export const JobCard = ({ projectId, title, clientName, description, status, sta
     }
   }
 
-  const handleCheckboxClick = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-
-    const newStatus = !completed;
-    try {
-      const statusString = newStatus ? 'completed' : 'in progress';
-
-      // Update Firebase
-      const docRef = doc(db, 'projects', projectId.toString());
-      await updateDoc(docRef, {
-        status: statusString,
-      });
-
-      setCompleted(newStatus);
-      // Update local state
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      toaster.create({
-        title: 'Error updating project status',
-        description: errorMessage,
-        type: 'error',
-      })
-    }
-  }
 
 
   return (
@@ -138,7 +111,7 @@ export const JobCard = ({ projectId, title, clientName, description, status, sta
           >
             <JobsIcon width="14px" height="14px" color="stale" />
           </Flex>
-          <Checkbox checked={completed} colorPalette="green" onClick={handleCheckboxClick} cursor="pointer" />
+          <Checkbox checked={true} colorPalette={completed ? "green" : "gray"} cursor="pointer" disabled={!completed} />
         </HStack>
         <Card.Title fontSize="medium">
           {title}

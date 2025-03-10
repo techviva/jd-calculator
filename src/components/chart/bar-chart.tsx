@@ -50,7 +50,7 @@ export function BarChart() {
     datasets: [
       {
         label: 'Revenue',
-        data: filteredData.map(item => item.revenue),
+        data: filteredData.map(item => item.revenue.toFixed(2)),
         backgroundColor: '#9AA0F8', // Revenue color
         borderRadius: 10,
         borderSkipped: false,
@@ -58,7 +58,7 @@ export function BarChart() {
       },
       {
         label: 'Profit',
-        data: filteredData.map(item => item.profit),
+        data: filteredData.map(item => item.profit.toFixed(2)),
         backgroundColor: '#598C61', // Profit color
         borderRadius: 10,
         borderSkipped: false,

@@ -196,7 +196,7 @@ export default function UpdateProject() {
       const materialsToSave = data.materials.map(item => {
         const selectedMaterial = materials.find(m => m.value === item.value)
         const quantity = parseFloat(item.quantity) || 0
-        const price = selectedMaterial ? selectedMaterial.price * quantity : 0
+        const price = selectedMaterial ? selectedMaterial.price : 0
 
         return {
           id: item.value,

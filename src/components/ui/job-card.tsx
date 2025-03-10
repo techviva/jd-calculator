@@ -1,19 +1,27 @@
 'use client'
-import { Card, Flex, Text } from '@chakra-ui/react'
+import { Card, Flex, HStack, Text } from '@chakra-ui/react'
 import { JobsIcon } from '../icons'
 import { ProgressCircle } from './progress-circle'
 import { useRouter } from 'next/navigation'
+import { Checkbox } from './checkbox'
+import React, { useState } from 'react'
+import { doc, updateDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+import { toaster } from './toaster'
 
 
 interface JobCardProps {
   projectId: string | number;
   title: string;
   clientName: string;
+  status?: string;
   description?: string;
   startDate?: string;
   dueDate?: string;
 }
-export const JobCard = ({ projectId, title, clientName, description, startDate, dueDate }: JobCardProps) => {
+export const JobCard = ({ projectId, title, clientName, description, status, startDate, dueDate }: JobCardProps) => {
+
+  const [completed, setCompleted] = useState(status === 'completed');
 
   const router = useRouter();
   const getRemainingDays = (dueDate: string | undefined) => {
@@ -74,6 +82,31 @@ export const JobCard = ({ projectId, title, clientName, description, startDate, 
     }
   }
 
+  const handleCheckboxClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const newStatus = !completed;
+    try {
+      const statusString = newStatus ? 'completed' : 'in progress';
+
+      // Update Firebase
+      const docRef = doc(db, 'projects', projectId.toString());
+      await updateDoc(docRef, {
+        status: statusString,
+      });
+
+      setCompleted(newStatus);
+      // Update local state
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      toaster.create({
+        title: 'Error updating project status',
+        description: errorMessage,
+        type: 'error',
+      })
+    }
+  }
+
 
   return (
     <Card.Root
@@ -94,16 +127,19 @@ export const JobCard = ({ projectId, title, clientName, description, startDate, 
       }}
     >
       <Card.Body gap="1" pb={1}>
-        <Flex
-          p={2}
-          borderRadius="full"
-          bg="total"
-          align="center"
-          justify="center"
-          width="fit-content"
-        >
-          <JobsIcon width="14px" height="14px" color="stale" />
-        </Flex>
+        <HStack width="100" justifyContent="space-between">
+          <Flex
+            p={2}
+            borderRadius="full"
+            bg="total"
+            align="center"
+            justify="center"
+            width="fit-content"
+          >
+            <JobsIcon width="14px" height="14px" color="stale" />
+          </Flex>
+          <Checkbox checked={completed} colorPalette="green" onClick={handleCheckboxClick} cursor="pointer" />
+        </HStack>
         <Card.Title fontSize="medium">
           {title}
         </Card.Title>

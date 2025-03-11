@@ -1,6 +1,7 @@
 import React from 'react'
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer'
 import { Material, Project } from '@/types'
+import { formatDate } from '@/utils/functions'
 
 const styles = StyleSheet.create({
   page: {
@@ -121,8 +122,8 @@ export const ProjectPDFDocument: React.FC<{ project: Project | null }> = ({ proj
               <Text style={{ ...styles.text, fontWeight: 300 }}>Landscaping for the Virtual Office</Text>
             </View>
             <View style={{ textAlign: 'right', width: '50%' }}>
-              <Text style={styles.text}>Submitted On: February 25, 2025</Text>
-              <Text style={styles.text}>Due Date: {project?.dueDate}</Text>
+              <Text style={styles.text}>Submitted On: {formatDate(project?.startDate)}</Text>
+              <Text style={styles.text}>Due Date: {formatDate(project?.dueDate)}</Text>
             </View>
           </View>
         </View>

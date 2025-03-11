@@ -52,7 +52,7 @@ export default function ProjectDetails() {
   const [templateDescription, setTemplateDescription] = useState('')
   const [saveTemplateLoading, setSaveTemplateLoading] = useState(false)
   const [isTemplate, setIsTemplate] = useState(false)
-  const [isCompleted, setIsCompleted] = useState(false)
+  const [projectStatus, setProjectStatus] = useState<string>('not started')
   const { open, onOpen, onClose, setOpen } = useDisclosure()
   const [isArchiving, setIsArchiving] = useState(false)
   const [isArchived, setIsArchived] = useState(false)
@@ -65,8 +65,8 @@ export default function ProjectDetails() {
       if (docSnap.exists()) {
         const projectData = { id: docSnap.id, ...docSnap.data() } as Project
         setProject(projectData)
-        // Set the initial completion and archive status
-        setIsCompleted(projectData.status === 'completed')
+        // Set the status states
+        setProjectStatus(projectData.status || 'not started')
         setIsArchived(projectData.status === 'archived')
       } else {
         setError('Project not found')
@@ -186,26 +186,52 @@ export default function ProjectDetails() {
     }
   }, [project, checkIfProjectIsTemplate])
 
-  // Add this function to toggle the project status
+  // Update the toggleProjectStatus function to handle all three states
   const toggleProjectStatus = async () => {
     if (!project) return
 
     try {
       setIsSubmitting(true)
-      const newStatus = isCompleted ? 'in progress' : 'completed'
+
+      // Determine the next status based on current status
+      let newStatus: Project['status'];
+      let statusMessage: string;
+
+      switch (projectStatus) {
+        case 'archived':
+          newStatus = 'not started';
+          statusMessage = 'Project removed from archives';
+          break;
+        case 'not started':
+          newStatus = 'in progress';
+          statusMessage = 'Project marked as in progress';
+          break;
+        case 'in progress':
+          newStatus = 'completed';
+          statusMessage = 'Project marked as completed';
+          break;
+        case 'completed':
+          newStatus = 'not started';
+          statusMessage = 'Project status reset to not started';
+          break;
+        default:
+          newStatus = 'not started';
+          statusMessage = 'Project status updated';
+      }
 
       // Update in Firestore
       const docRef = doc(db, 'projects', id)
       await setDoc(docRef, { ...project, status: newStatus }, { merge: true })
 
       // Update local state
-      setIsCompleted(!isCompleted)
+      setProjectStatus(newStatus)
       setProject({ ...project, status: newStatus })
+      setIsArchived((newStatus as string) === 'archived')
 
       // Show success message
       toaster.create({
-        title: newStatus === 'completed' ? 'Project Completed' : 'Project Marked as In Progress',
-        description: `Project status updated successfully`,
+        title: 'Status Updated',
+        description: statusMessage,
         type: 'success',
       })
     } catch (error) {
@@ -283,6 +309,33 @@ export default function ProjectDetails() {
   // Calculate subtotal from materials
   const subtotal =
     project?.materials?.reduce((sum, item) => sum + item.quantity * item.price, 0) || 0
+
+  // In the JSX, update the button display
+  const getStatusButtonProps = () => {
+    if (projectStatus === 'archived') {
+      return {
+        text: "Remove from Archive",
+        colorPalette: "teal" as const
+      };
+    } else if (projectStatus === 'not started') {
+      return {
+        text: "Mark as In Progress",
+        colorPalette: "blue" as const
+      };
+    } else if (projectStatus === 'in progress') {
+      return {
+        text: "Mark as Completed",
+        colorPalette: "green" as const
+      };
+    } else {
+      return {
+        text: "Reset Status",
+        colorPalette: "gray" as const
+      };
+    }
+  };
+
+  const statusButtonProps = getStatusButtonProps();
 
   return (
     <VStack
@@ -390,10 +443,10 @@ export default function ProjectDetails() {
           <Button
             fontSize="small"
             onClick={toggleProjectStatus}
-            colorPalette={isCompleted ? "teal" : "green"}
+            colorPalette={statusButtonProps.colorPalette}
             loading={isSubmitting}
           >
-            {isCompleted ? "Mark as In Progress" : "Mark as Completed"}
+            {statusButtonProps.text}
           </Button>
         </Flex>
       </VStack>

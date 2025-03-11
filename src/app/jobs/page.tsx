@@ -1,5 +1,5 @@
 'use client'
-import { JobCard, JobPageSkeleton } from '@/components/ui'
+import { JobCard, JobPageSkeleton, NativeSelectField, NativeSelectRoot } from '@/components/ui'
 import {
     PaginationItems,
     PaginationNextTrigger,
@@ -18,6 +18,7 @@ export default function Jobs() {
     const [projects, setProjects] = useState<Project[]>([])
     const [loading, setLoading] = useState(true)
     const [currentPage, setCurrentPage] = useState(1)
+    const [selectedStatus, setSelectedStatus] = useState('All')
     const pageSize = 15
     const { searchTerm } = useSearch()
 
@@ -42,11 +43,20 @@ export default function Jobs() {
         fetchProjects()
     }, [])
 
-    const filteredProjects = projects.filter(project =>
-        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.description?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedStatus(e.target.value)
+        setCurrentPage(1) // Reset to first page when status changes
+    }
+
+    const filteredProjects = projects.filter(project => {
+        const matchesSearchTerm = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            project.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            project.description?.toLowerCase().includes(searchTerm.toLowerCase())
+        const matchesStatus = selectedStatus === 'All' ||
+            project.status?.toLowerCase() === selectedStatus.toLowerCase()
+
+        return matchesSearchTerm && matchesStatus
+    })
 
     // Get current page's projects
     const startIndex = (currentPage - 1) * pageSize
@@ -75,9 +85,20 @@ export default function Jobs() {
                     Projects
                 </Heading>
             </Box>
-            <Text color="fg.muted" fontSize="xs" textAlign="center">
-                Here you can find all the projects you have created or are working on.
-            </Text>
+            <HStack width="100%" gap={4} alignItems="center">
+                <Text color="fg.muted" fontSize="xs" textAlign="center" mx="auto">
+                    Here you can find all the projects you have created or are working on.
+                </Text>
+                <NativeSelectRoot width="fit-content">
+                    <NativeSelectField width="180px" ml="auto" value={selectedStatus} onChange={handleStatusChange} borderRadius="3xl" bg="bg" color="fg" fontSize="small" textAlign="center">
+                        <option value="All" >All</option>
+                        <option value="not started" >Not Started</option>
+                        <option value="in progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="archived">Archived</option>
+                    </NativeSelectField>
+                </NativeSelectRoot>
+            </HStack>
             {loading ? (
                 <JobPageSkeleton />
             ) : (
@@ -97,7 +118,6 @@ export default function Jobs() {
                                 />
                             ))
                         ) : (
-
                             <Text color="fg.muted" textAlign="center" fontSize="small" width="100%" mt={3}>No projects found</Text>
                         )}
                     </HStack>

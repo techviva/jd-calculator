@@ -158,7 +158,7 @@ export default function Home() {
                 clientName={project.clientName || 'Unnamed Client'}
                 description={project.description}
                 status={project.status}
-                startDate={'2025-02-24'}
+                startDate={project.startDate}
                 dueDate={project.dueDate}
               />
             ))

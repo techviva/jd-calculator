@@ -98,7 +98,7 @@ export default function Jobs() {
                             ))
                         ) : (
 
-                            <Text color="fg.muted" textAlign="center" fontSize="small" width="100%">No projects found</Text>
+                            <Text color="fg.muted" textAlign="center" fontSize="small" width="100%" mt={3}>No projects found</Text>
                         )}
                     </HStack>
 

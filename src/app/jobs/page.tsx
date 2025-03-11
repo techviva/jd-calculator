@@ -145,7 +145,7 @@ export default function Jobs() {
                                     clientName={project.clientName || 'Unnamed Client'}
                                     status={project.status}
                                     description={project.description}
-                                    startDate={'2025-02-24'}
+                                    startDate={project.startDate}
                                     dueDate={project.dueDate}
                                 />
                             ))

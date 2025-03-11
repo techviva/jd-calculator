@@ -54,8 +54,8 @@ export default function ProjectDetails() {
   const [isTemplate, setIsTemplate] = useState(false)
   const [isCompleted, setIsCompleted] = useState(false)
   const { open, onOpen, onClose, setOpen } = useDisclosure()
-
-
+  const [isArchiving, setIsArchiving] = useState(false)
+  const [isArchived, setIsArchived] = useState(false)
 
   const fetchProject = async () => {
     try {
@@ -65,8 +65,9 @@ export default function ProjectDetails() {
       if (docSnap.exists()) {
         const projectData = { id: docSnap.id, ...docSnap.data() } as Project
         setProject(projectData)
-        // Set the initial completion status
+        // Set the initial completion and archive status
         setIsCompleted(projectData.status === 'completed')
+        setIsArchived(projectData.status === 'archived')
       } else {
         setError('Project not found')
       }
@@ -88,7 +89,7 @@ export default function ProjectDetails() {
     clientName: project?.clientName || '',
     title: project?.title || '',
     description: project?.description || '',
-    startDate: '2025-02-24',
+    startDate: project?.startDate || '',
     dueDate: project?.dueDate || '',
   }
 
@@ -219,6 +220,36 @@ export default function ProjectDetails() {
     }
   }
 
+  // Add this new function to archive the project
+  const handleArchive = async () => {
+    try {
+      setIsArchiving(true)
+      const docRef = doc(db, 'projects', id)
+
+      // Update the project status to 'archived' instead of deleting it
+      await setDoc(docRef, { status: 'archived' }, { merge: true })
+
+      toaster.create({
+        title: 'Project Archived',
+        description: 'Project has been moved to archives',
+        type: 'success',
+      })
+
+      // Redirect to the jobs page
+      router.push('/jobs')
+    } catch (error) {
+      console.error('Error archiving project:', error)
+      toaster.create({
+        title: 'Archive Failed',
+        description: 'Failed to archive the project',
+        type: 'error',
+      })
+    } finally {
+      setIsArchiving(false)
+      setDeleteModalOpen(false)
+    }
+  }
+
   if (loading) {
     return <ProjectDetailsSkeleton />
   }
@@ -312,6 +343,17 @@ export default function ProjectDetails() {
                       </DialogActionTrigger>
                     </Box>
                     <Box width="fit-content" p={0} m={0}>
+                      {!isArchived && (
+                        <Button
+                          colorPalette="green"
+                          mr={2}
+                          fontSize="small"
+                          loading={isArchiving}
+                          onClick={handleArchive}
+                        >
+                          Archive Instead
+                        </Button>
+                      )}
                       <Button
                         colorPalette="red"
                         fontSize="small"

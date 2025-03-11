@@ -19,7 +19,7 @@ export interface Project {
   startDate?: string
   dueDate?: string
   description?: string
-  status: 'completed' | 'in progress' | 'deleted'
+  status: 'not started' | 'completed' | 'in progress' | 'deleted' | 'archived'
   totalCost?: number
   netProfit?: number
   clientAmount?: number

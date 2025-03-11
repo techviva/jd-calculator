@@ -41,7 +41,7 @@ export interface Template {
   originalProjectId: string
   totalCost: number
   title: string
-  status: 'completed' | 'in progress' | 'deleted'
+  status: 'completed' | 'in progress' | 'deleted' | 'archived' | 'not started'
   templateName: string
   profitMargin: number
   clientAmount: number

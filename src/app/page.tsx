@@ -157,6 +157,7 @@ export default function Home() {
                 title={project.title || 'Unnamed Project'}
                 clientName={project.clientName || 'Unnamed Client'}
                 description={project.description}
+                status={project.status}
                 startDate={'2025-02-24'}
                 dueDate={project.dueDate}
               />

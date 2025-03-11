@@ -14,43 +14,66 @@ import ChartDataLabels from 'chartjs-plugin-datalabels'
 import { Box, Flex, Heading, HStack, Spinner, Text } from '@chakra-ui/react'
 import { useProjectStats } from '@/hooks/useProjectStats'
 
-export function BarChart() {
+export function BarChart({ startDate, endDate }: { startDate?: string, endDate?: string }) {
   const { projectData, isLoading, error } = useProjectStats()
-  // Extract last 5 months from the current month
-  const currentMonth = new Date().getMonth()
-  const monthNames = [
-    'JAN',
-    'FEB',
-    'MAR',
-    'APR',
-    'MAY',
-    'JUN',
-    'JUL',
-    'AUG',
-    'SEP',
-    'OCT',
-    'NOV',
-    'DEC',
-  ]
-  // Calculate month labels for last 5 months (including current month)
-  const labels = Array.from({ length: 5 }, (_, i) => {
-    // Start from (current month - 4) and go up to current month
-    const monthIndex = (currentMonth - 4 + i + 12) % 12
-    return monthNames[monthIndex]
-  })
 
-  // Filter data for the last 5 months from current month
-  const filteredData = labels.map(month => {
-    const monthData = projectData.find(item => item.month === month) || { revenue: 0, profit: 0 }
-    return monthData
-  })
+  const monthNames = [
+    'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+    'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
+  ]
+
+  const today = new Date();
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(today.getMonth() - 3);
+
+  // Format dates to YYYY-MM-DD string format
+  const formatDateString = (date: Date): string => {
+    return date.toISOString().split('T')[0];
+  };
+
+  const startDateObj = new Date(startDate || formatDateString(threeMonthsAgo));
+  const endDateObj = new Date(endDate || formatDateString(today));
+
+  // Generate all months between start and end date
+  // const labels: string[] = [];
+  const monthYearPairs: { month: string, year: number }[] = [];
+
+  const tempDate = new Date(startDateObj);
+
+  while (tempDate <= endDateObj) {
+    const monthIndex = tempDate.getMonth();
+    const month = monthNames[monthIndex];
+    const year = tempDate.getFullYear();
+
+    monthYearPairs.push({ month, year });
+
+    // Move to next month
+    tempDate.setMonth(tempDate.getMonth() + 1);
+  }
+
+  // Check if we have duplicate months across years
+  const monthCounts = monthYearPairs.reduce((acc, { month }) => {
+    acc[month] = (acc[month] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Create labels, adding year for duplicates
+  const finalLabels = monthYearPairs.map(({ month, year }) => {
+    return monthCounts[month] > 1 ? `${month} ${year}` : month;
+  });
+
+  // Filter data for the selected months
+  const filteredData = monthYearPairs.map(({ month }) => {
+    const monthData = projectData.find(item => item.month === month) || { revenue: 0, profit: 0 };
+    return monthData;
+  });
 
   const data = {
-    labels,
+    labels: finalLabels,
     datasets: [
       {
         label: 'Revenue',
-        data: filteredData.map(item => item.revenue.toFixed(2)),
+        data: filteredData.map(item => item.revenue <= 0 ? item.revenue : item.revenue.toFixed(2)),
         backgroundColor: '#9AA0F8', // Revenue color
         borderRadius: 10,
         borderSkipped: false,
@@ -58,7 +81,7 @@ export function BarChart() {
       },
       {
         label: 'Profit',
-        data: filteredData.map(item => item.profit.toFixed(2)),
+        data: filteredData.map(item => item.profit <= 0 ? item.profit : item.profit.toFixed(2)),
         backgroundColor: '#598C61', // Profit color
         borderRadius: 10,
         borderSkipped: false,

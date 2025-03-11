@@ -6,6 +6,7 @@ import {
   VStack,
   HStack,
   Flex,
+  Button as DefaultButton,
   Table,
   useDisclosure,
   Input,
@@ -16,7 +17,7 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { doc, getDoc, setDoc, collection, deleteDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, collection, deleteDoc, query, where, getDocs } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { Project, ProjectFormData } from '@/types'
 import {
@@ -50,15 +51,22 @@ export default function ProjectDetails() {
   const [templateName, setTemplateName] = useState('')
   const [templateDescription, setTemplateDescription] = useState('')
   const [saveTemplateLoading, setSaveTemplateLoading] = useState(false)
-  const { open, onOpen, onClose } = useDisclosure()
+  const [isTemplate, setIsTemplate] = useState(false)
+  const [isCompleted, setIsCompleted] = useState(false)
+  const { open, onOpen, onClose, setOpen } = useDisclosure()
 
-  const fetchProject = useCallback(async () => {
+
+
+  const fetchProject = async () => {
     try {
       const docRef = doc(db, 'projects', id)
       const docSnap = await getDoc(docRef)
 
       if (docSnap.exists()) {
-        setProject({ id: docSnap.id, ...docSnap.data() } as Project)
+        const projectData = { id: docSnap.id, ...docSnap.data() } as Project
+        setProject(projectData)
+        // Set the initial completion status
+        setIsCompleted(projectData.status === 'completed')
       } else {
         setError('Project not found')
       }
@@ -68,11 +76,13 @@ export default function ProjectDetails() {
     } finally {
       setLoading(false)
     }
-  }, [id])
+  }
 
   useEffect(() => {
     fetchProject()
-  }, [fetchProject])
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
 
   const defaultValues = {
     clientName: project?.clientName || '',
@@ -148,6 +158,64 @@ export default function ProjectDetails() {
       console.error('Error saving template:', err)
     } finally {
       setSaveTemplateLoading(false)
+      fetchProject()
+    }
+  }
+
+
+  const checkIfProjectIsTemplate = useCallback(async () => {
+    try {
+      if (!project?.id) return
+
+      const templatesRef = collection(db, 'templates')
+      const q = query(templatesRef, where('originalProjectId', '==', project.id))
+      const querySnapshot = await getDocs(q)
+
+      setIsTemplate(!querySnapshot.empty)
+    } catch (error) {
+      console.error('Error checking if project is template:', error)
+    }
+  }, [project?.id])
+
+
+  // Add this new useEffect
+  useEffect(() => {
+    if (project) {
+      checkIfProjectIsTemplate()
+    }
+  }, [project, checkIfProjectIsTemplate])
+
+  // Add this function to toggle the project status
+  const toggleProjectStatus = async () => {
+    if (!project) return
+
+    try {
+      setIsSubmitting(true)
+      const newStatus = isCompleted ? 'in progress' : 'completed'
+
+      // Update in Firestore
+      const docRef = doc(db, 'projects', id)
+      await setDoc(docRef, { ...project, status: newStatus }, { merge: true })
+
+      // Update local state
+      setIsCompleted(!isCompleted)
+      setProject({ ...project, status: newStatus })
+
+      // Show success message
+      toaster.create({
+        title: newStatus === 'completed' ? 'Project Completed' : 'Project Marked as In Progress',
+        description: `Project status updated successfully`,
+        type: 'success',
+      })
+    } catch (error) {
+      console.error('Error updating project status:', error)
+      toaster.create({
+        title: 'Update Failed',
+        description: 'Failed to update project status',
+        type: 'error',
+      })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -200,7 +268,7 @@ export default function ProjectDetails() {
           <Heading as="h1" fontWeight="bold" fontSize="larger">
             {project?.title || 'Unnamed Project'}
           </Heading>
-          <Flex gap={0} p={0} m={0}>
+          <Flex gap={2} p={0} m={0}>
             {/* wrap edit button in CreateProjectModal component to trigger modal */}
             <CreateProjectModal
               defaultValues={defaultValues}
@@ -215,15 +283,16 @@ export default function ProjectDetails() {
               </Button>
             </CreateProjectModal>
 
-            <Button
+            <DefaultButton
               fontSize="small"
-              variant="ghost"
+              colorPalette="red"
+              borderRadius={10}
+              mt={0.5}
               p={1}
-              colorPalette="transparent"
               onClick={() => setDeleteModalOpen(true)}
             >
               <DeleteIcon width="18px" height="18px" />
-            </Button>
+            </DefaultButton>
             <DialogRoot
               placement="center"
               open={deleteModalOpen}
@@ -259,26 +328,36 @@ export default function ProjectDetails() {
           </Flex>
         </HStack>
 
-        <Flex gap={2} width="100%" alignItems="center" justifyContent="flex-start">
-          <Button fontSize="small" colorPalette="green">
-            <PDFDownloadLink
-              document={<ProjectPDFDocument project={project} />}
-              fileName={`${project?.clientName}_Project_Details.pdf`}
-            >
-              {({ loading }) => (loading ? 'Loading document...' : 'Export to PDF')}
-            </PDFDownloadLink>
-          </Button>
-          <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={onOpen}>
-            Make this a Template
-          </Button>
-          <Button fontSize="small" onClick={() => router.push(`/project/${id}/update`)}>
-            Update Materials
+        <Flex gap={2} width="100%" alignItems="center" justifyContent="space-between">
+          <Flex width="fit-content" p={0} m={0} gap={3}>
+            <Button fontSize="small" colorPalette="green">
+              <PDFDownloadLink
+                document={<ProjectPDFDocument project={project} />}
+                fileName={`${project?.clientName}_Project_Details.pdf`}
+              >
+                Export to PDF
+              </PDFDownloadLink>
+            </Button>
+            {!isTemplate && <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={onOpen}>
+              Make this a Template
+            </Button>}
+            <Button fontSize="small" onClick={() => router.push(`/project/${id}/update`)}>
+              Update Materials
+            </Button>
+          </Flex>
+          <Button
+            fontSize="small"
+            onClick={toggleProjectStatus}
+            colorPalette={isCompleted ? "teal" : "green"}
+            loading={isSubmitting}
+          >
+            {isCompleted ? "Mark as In Progress" : "Mark as Completed"}
           </Button>
         </Flex>
       </VStack>
 
       {/* Template Name Dialog */}
-      <Dialog.Root open={open}>
+      <Dialog.Root open={open} placement="center" onOpenChange={() => setOpen(!open)}>
         <Dialog.Backdrop />
         <Dialog.Positioner>
           <Dialog.Content>
@@ -312,11 +391,12 @@ export default function ProjectDetails() {
               </VStack>
             </Dialog.Body>
             <Dialog.Footer>
-              <Button colorScheme="gray" mr={3} onClick={onClose}>
+              <Button colorPalette="gray" fontSize="small" mr={2} onClick={onClose}>
                 Cancel
               </Button>
               <Button
-                colorScheme="blue"
+                colorPalette="green"
+                fontSize="small"
                 onClick={saveAsTemplate}
                 loading={saveTemplateLoading}
                 disabled={!templateName.trim()}

@@ -1,19 +1,24 @@
 'use client'
-import { Card, Flex, Text } from '@chakra-ui/react'
+import { Card, Flex, HStack, Text } from '@chakra-ui/react'
 import { JobsIcon } from '../icons'
 import { ProgressCircle } from './progress-circle'
 import { useRouter } from 'next/navigation'
+import { Checkbox } from './checkbox'
+import React from 'react'
 
 
 interface JobCardProps {
   projectId: string | number;
   title: string;
   clientName: string;
+  status?: string;
   description?: string;
   startDate?: string;
   dueDate?: string;
 }
-export const JobCard = ({ projectId, title, clientName, description, startDate, dueDate }: JobCardProps) => {
+export const JobCard = ({ projectId, title, clientName, description, status, startDate, dueDate }: JobCardProps) => {
+
+  const completed = status === 'completed';
 
   const router = useRouter();
   const getRemainingDays = (dueDate: string | undefined) => {
@@ -75,6 +80,7 @@ export const JobCard = ({ projectId, title, clientName, description, startDate, 
   }
 
 
+
   return (
     <Card.Root
       borderRadius="3xl"
@@ -94,16 +100,19 @@ export const JobCard = ({ projectId, title, clientName, description, startDate, 
       }}
     >
       <Card.Body gap="1" pb={1}>
-        <Flex
-          p={2}
-          borderRadius="full"
-          bg="total"
-          align="center"
-          justify="center"
-          width="fit-content"
-        >
-          <JobsIcon width="14px" height="14px" color="stale" />
-        </Flex>
+        <HStack width="100" justifyContent="space-between">
+          <Flex
+            p={2}
+            borderRadius="full"
+            bg="total"
+            align="center"
+            justify="center"
+            width="fit-content"
+          >
+            <JobsIcon width="14px" height="14px" color="stale" />
+          </Flex>
+          <Checkbox checked={true} colorPalette={completed ? "green" : "gray"} cursor="pointer" disabled={!completed} />
+        </HStack>
         <Card.Title fontSize="medium">
           {title}
         </Card.Title>

@@ -23,10 +23,10 @@ export default function ProjectDetailsSkeleton() {
                 </HStack>
 
                 {/* Action buttons row */}
-                <Flex width="fit-content" gap={2} alignItems="center">
+                <Flex width="100%" gap={3} alignItems="center" >
                     <Skeleton height="34px" width="120px" borderRadius="md" />
                     <Skeleton height="34px" width="150px" borderRadius="md" />
-                    <Skeleton height="34px" width="140px" borderRadius="md" />
+                    <Skeleton height="34px" width="140px" borderRadius="md" ml="auto" />
                 </Flex>
             </VStack>
 
@@ -49,7 +49,7 @@ export default function ProjectDetailsSkeleton() {
                 <Box width="100%" p={3} bg="bg">
                     <HStack>
                         <Skeleton height="18px" width="70%" />
-                        <Skeleton height="18px" width="10%" />
+                        <Skeleton height="18px" width="5%" />
                         <Skeleton height="18px" width="10%" />
                         <Skeleton height="18px" width="10%" />
                     </HStack>
@@ -58,9 +58,9 @@ export default function ProjectDetailsSkeleton() {
                 {/* Table rows */}
                 {Array.from({ length: 5 }).map((_, index) => (
                     <Box key={index} width="100%" p={3}>
-                        <HStack>
+                        <HStack width="100%">
                             <Skeleton height="16px" width="70%" />
-                            <Skeleton height="16px" width="10%" />
+                            <Skeleton height="16px" width="5%" />
                             <Skeleton height="16px" width="10%" />
                             <Skeleton height="16px" width="10%" />
                         </HStack>

@@ -88,7 +88,7 @@ export default function ProjectDetails() {
     clientName: project?.clientName || '',
     title: project?.title || '',
     description: project?.description || '',
-    startDate: '2025-02-24',
+    startDate: project?.startDate || '',
     dueDate: project?.dueDate || '',
   }
 

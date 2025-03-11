@@ -26,22 +26,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui'
+import { usePathname } from 'next/navigation'
+import { useSearch } from '@/contexts/SearchContext'
 
 export function Header() {
   const [searchValue, setSearchValue] = useState('')
   const debouncedTerm = useDebounce(searchValue, 1000)
   const { logout } = useAuth()
+  const pathname = usePathname()
+  const { setSearchTerm } = useSearch()
 
   const handleSearchTermChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value)
   }
 
-  // cleanup useEffect code: for demo purposes
   useEffect(() => {
-    if (debouncedTerm) {
-      window.alert('You searched for: ' + debouncedTerm)
-    }
-  }, [debouncedTerm])
+    setSearchTerm(debouncedTerm)
+  }, [debouncedTerm, setSearchTerm])
+
+  const showSearchBar = pathname === '/jobs' || pathname === '/cost-management'
 
   return (
     <HStack
@@ -55,12 +58,14 @@ export function Header() {
       <Heading as="h1" fontWeight="bold">
         Viva Landscape Design
       </Heading>
-      <SearchBar
-        onChange={e => handleSearchTermChange(e as React.ChangeEvent<HTMLInputElement>)}
-        value={searchValue}
-        minWidth="350px"
-        display={{ base: 'none', lg: 'flex' }}
-      />
+      {showSearchBar && (
+        <SearchBar
+          onChange={e => handleSearchTermChange(e as React.ChangeEvent<HTMLInputElement>)}
+          value={searchValue}
+          minWidth="350px"
+          display={{ base: 'none', lg: 'flex' }}
+        />
+      )}
       <HStack gap={2}>
         <Flex
           borderRadius="full"

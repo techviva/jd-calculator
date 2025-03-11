@@ -29,6 +29,7 @@ import { toaster } from '@/components/ui/toaster'
 import { parseError } from '@/utils/errorParser'
 import { CostFormData, CostItem } from '@/types'
 import { BsChevronUp } from 'react-icons/bs'
+import { useSearch } from '@/contexts/SearchContext'
 
 export default function CostManagement() {
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -46,6 +47,8 @@ export default function CostManagement() {
     // Sorting state
     const [sortField, setSortField] = useState<keyof CostItem>('category')
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+
+    const { searchTerm } = useSearch()
 
     const { open, onClose, setOpen } = useDisclosure()
 
@@ -138,7 +141,6 @@ export default function CostManagement() {
             setIsSubmitting(false)
         }
     }
-
 
     // Handle deleting cost item
     const handleDeleteItem = async (id: string) => {
@@ -234,7 +236,12 @@ export default function CostManagement() {
     // Get current page items from sorted data
     const startIndex = (currentPage - 1) * pageSize
     const endIndex = startIndex + pageSize
-    const currentCostItems = sortedData.slice(startIndex, endIndex)
+    const filteredCostData = sortedData.filter(cost =>
+        cost.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cost.rate.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cost.description.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    const currentCostItems = filteredCostData.slice(startIndex, endIndex)
 
     // Handle page change
     const handlePageChange = (details: { page: number }) => {
@@ -346,7 +353,7 @@ export default function CostManagement() {
                             </Table.Row>
                         ) : currentCostItems.length === 0 ? (
                             <Table.Row>
-                                <Table.Cell colSpan={4} textAlign="center">
+                                <Table.Cell colSpan={4} textAlign="center" color="fg.muted" fontSize="small">
                                     No cost items available
                                 </Table.Cell>
                             </Table.Row>

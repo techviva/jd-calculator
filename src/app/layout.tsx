@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { SearchProvider } from '@/contexts/SearchContext'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -25,13 +26,15 @@ export default function RootLayout(props: { children: React.ReactNode }) {
           <AuthProvider>
             <ProtectedRoute>
               <Provider>
-                <Container maxW="100%" p={6}>
-                  <Header />
-                  <HStack paddingTop="14px" height="90%" alignItems="flex-start">
-                    <Sidenav />
-                    {children}
-                  </HStack>
-                </Container>
+                <SearchProvider>
+                  <Container maxW="100%" p={6}>
+                    <Header />
+                    <HStack paddingTop="14px" height="90%" alignItems="flex-start">
+                      <Sidenav />
+                      {children}
+                    </HStack>
+                  </Container>
+                </SearchProvider>
               </Provider>
             </ProtectedRoute>
           </AuthProvider>

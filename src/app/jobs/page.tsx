@@ -12,12 +12,14 @@ import { Project } from '@/types'
 import { Box, Heading, HStack, Text, VStack } from '@chakra-ui/react'
 import { collection, getDocs } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
+import { useSearch } from '@/contexts/SearchContext'
 
 export default function Jobs() {
     const [projects, setProjects] = useState<Project[]>([])
     const [loading, setLoading] = useState(true)
     const [currentPage, setCurrentPage] = useState(1)
     const pageSize = 15
+    const { searchTerm } = useSearch()
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -40,11 +42,16 @@ export default function Jobs() {
         fetchProjects()
     }, [])
 
+    const filteredProjects = projects.filter(project =>
+        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
 
     // Get current page's projects
     const startIndex = (currentPage - 1) * pageSize
     const endIndex = startIndex + pageSize
-    const currentProjects = projects.slice(startIndex, endIndex)
+    const currentProjects = filteredProjects.slice(startIndex, endIndex)
 
     // Handle page change
     const handlePageChange = (details: { page: number }) => {
@@ -90,14 +97,15 @@ export default function Jobs() {
                                 />
                             ))
                         ) : (
-                            <Text color="fg.muted">No projects found</Text>
+
+                            <Text color="fg.muted" textAlign="center" fontSize="small" width="100%">No projects found</Text>
                         )}
                     </HStack>
 
-                    {projects.length > pageSize && (
+                    {filteredProjects.length > pageSize && (
                         <Box width="100%" display="flex" justifyContent="center" pt={4} mt="auto">
                             <PaginationRoot
-                                count={projects.length}
+                                count={filteredProjects.length}
                                 pageSize={pageSize}
                                 page={currentPage}
                                 onPageChange={handlePageChange}

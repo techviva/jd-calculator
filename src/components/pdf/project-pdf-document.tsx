@@ -3,6 +3,12 @@ import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/
 import { Material, Project } from '@/types'
 import { formatDate } from '@/utils/functions'
 
+// Simple interface for company info
+interface CompanyInfo {
+  createdBy: string;
+  otherInfo?: string;
+}
+
 const styles = StyleSheet.create({
   page: {
     padding: 40,
@@ -103,17 +109,22 @@ const calculateSubtotal = (materials: Material[] | undefined) =>
     0
   )
 
-export const ProjectPDFDocument: React.FC<{ project: Project | null }> = ({ project }) => (
+export const ProjectPDFDocument: React.FC<{
+  project: Project | null;
+  companyInfo: CompanyInfo;
+}> = ({ project, companyInfo }) => (
   <Document>
     <Page style={styles.page}>
       <View style={styles.header}>
         <View style={styles.logoContainer}>
           <Image style={styles.logo} src="/images/viva-logo.png" />
         </View>
-        <View style={{ marginRight: 5, textAlign: 'right', width: '50%' }}>
-          <Text style={{ fontWeight: 300 }}>Glendale, AZ</Text>
-          <Text style={{ fontWeight: 300 }}>United States, Arizona</Text>
-          <Text style={{ fontWeight: 300 }}>+1 623-221-3825</Text>
+        <View style={{ marginRight: 5, textAlign: 'right', width: '30%' }}>
+          <Text style={{ fontWeight: 600, fontSize: 14 }}>Created By</Text>
+          <Text style={{ fontWeight: 300 }}>{companyInfo.createdBy}</Text>
+          {companyInfo.otherInfo && (
+            <Text style={{ fontWeight: 300, fontSize: 11, }}>{companyInfo.otherInfo}</Text>
+          )}
         </View>
       </View>
       <View style={styles.clientDetails}>

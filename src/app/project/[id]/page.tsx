@@ -182,14 +182,22 @@ export default function ProjectDetails() {
     }
   }, [project?.id])
 
-
-  // Add this new useEffect
   useEffect(() => {
     if (project) {
       checkIfProjectIsTemplate()
     }
   }, [project, checkIfProjectIsTemplate])
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!pdfDialogOpen) {
+        setCreatedBy('');
+        setOtherInfo('');
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer)
+  }, [pdfDialogOpen]);
   // Update the toggleProjectStatus function to handle all three states
   const toggleProjectStatus = async () => {
     if (!project) return
@@ -540,7 +548,9 @@ export default function ProjectDetails() {
               </VStack>
             </Dialog.Body>
             <Dialog.Footer>
-              <Button colorPalette="gray" fontSize="small" mr={2} onClick={() => setPdfDialogOpen(false)}>
+              <Button colorPalette="gray" fontSize="small" mr={2} onClick={() => {
+                setPdfDialogOpen(false)
+              }}>
                 Cancel
               </Button>
 
@@ -550,22 +560,26 @@ export default function ProjectDetails() {
                   project={project}
                   companyInfo={{
                     createdBy: createdBy,
-                    otherInfo: otherInfo || undefined
+                    otherInfo: otherInfo
                   }}
                 />
               }>
-                {({ url }) => (
-                  <Link href={url || "#"} target='_blank' download={`${project?.title || 'project'}.pdf`}>
-                    <Button
-                      colorPalette="green"
-                      fontSize="small"
-                      disabled={!createdBy.trim()}
-                      onClick={() => setPdfDialogOpen(false)}
-                    >
+                {({ url, loading, error }) => (
+                  <Button
+                    colorPalette="green"
+                    fontSize="small"
+                    disabled={!createdBy.trim() || loading}
+                    onClick={() => {
+                      if (error) return
+                      setPdfDialogOpen(false)
+                    }}
+                  >
+                    <Link href={url || "#"} target='_blank' download={`${project?.title || 'project'}.pdf`}>
 
-                      Download PDF
-                    </Button>
-                  </Link>
+                      {error ? "Error generating PDF" : "Download PDF"}
+                    </Link>
+                  </Button>
+
                 )}
               </BlobProvider>
             </Dialog.Footer>

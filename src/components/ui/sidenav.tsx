@@ -98,34 +98,25 @@ export const Sidenav = () => {
         </Tooltip>
       ))}
 
-      <Flex
-        direction={isExtended ? 'row' : 'column-reverse'}
-        alignItems={isExtended ? 'center' : 'flex-start'}
-        justifyContent={isExtended ? 'space-between' : 'center'}
-        width="100%"
+      <Button
+        p={1}
+        ml={1}
         mt="auto"
-        gap={3}
         mr="auto"
-        mb="50px"
+        onClick={() => setIsExtended(!isExtended)}
+        minWidth="24px"
+        height="32px"
+        borderRadius="md"
       >
-        <Button
-          p={1}
-          ml={1}
-          onClick={() => setIsExtended(!isExtended)}
-          minWidth="24px"
-          height="32px"
-          borderRadius="md"
+        <Box
+          width="fit-content"
+          transform={isExtended ? 'rotate(0deg)' : ' rotate(180deg)'}
+          transition="transform 0.3s ease-in-out"
+          p={0}
         >
-          <Box
-            width="fit-content"
-            transform={isExtended ? 'rotate(0deg)' : ' rotate(180deg)'}
-            transition="transform 0.3s ease-in-out"
-            p={0}
-          >
-            <MdKeyboardDoubleArrowLeft style={{ padding: '0px' }} />
-          </Box>
-        </Button>
-      </Flex>
+          <MdKeyboardDoubleArrowLeft style={{ padding: '0px' }} />
+        </Box>
+      </Button>
     </VStack>
   )
 }

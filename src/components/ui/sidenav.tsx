@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Flex, VStack } from '@chakra-ui/react'
+import { Box, VStack } from '@chakra-ui/react'
 import { CreateProjectIcon, HomeIcon, JobsIcon, ManagementIcon, TrendsIcon } from '../icons'
 import NavItem from './nav-item'
 

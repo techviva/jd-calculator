@@ -28,10 +28,18 @@ export default function Home() {
       try {
         const projectsCollection = collection(db, 'projects')
         const projectSnapshot = await getDocs(projectsCollection)
-        const projectList = projectSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Project[]
+        const projectList = projectSnapshot.docs
+          .map(
+            doc =>
+              ({
+                id: doc.id,
+                ...doc.data(),
+              }) as Project
+          )
+          // Filter out archived projects
+          .filter(project => project.status !== 'archived')
+          .sort((a, b) => b.createdAt?.toMillis() - a.createdAt?.toMillis() || 0)
+          .slice(0, 10) as Project[]
 
         // Calculate stats from projects
         const total = projectList.length
@@ -148,20 +156,15 @@ export default function Home() {
           </Button>
         </Flex>
         {projects.length > 0 ? (
-          projects
-            .slice(0, 5)
-            .map(project => (
-              <JobCard
-                key={project.id}
-                projectId={project.id}
-                title={project.title || 'Unnamed Project'}
-                clientName={project.clientName || 'Unnamed Client'}
-                description={project.description}
-                status={project.status}
-                startDate={project.startDate}
-                dueDate={project.dueDate}
-              />
-            ))
+          projects.map(project => (
+            <JobCard
+              key={project.id}
+              project={{
+                ...project,
+                startDate: project.startDate || '2025-02-24', // Ensure startDate exists
+              }}
+            />
+          ))
         ) : (
           <Text color="fg.muted">No projects found</Text>
         )}

@@ -6,28 +6,36 @@ import { useRouter } from 'next/navigation'
 import React from 'react'
 import { FaCheckCircle, FaClock, FaArrowRight, FaArchive } from 'react-icons/fa'
 
-interface JobCardProps {
-  projectId: string | number
+interface ProjectType {
+  id: string | number
   title: string
   clientName: string
   status?: 'not started' | 'in progress' | 'completed' | 'archived' | string
   description?: string
   startDate?: string
   dueDate?: string
-  shouldDisplay?: boolean // New prop to control visibility
+  createdAt?: any // Could be a Firestore timestamp or string
+  [key: string]: any // For any additional properties
 }
 
-export const JobCard = ({
-  projectId,
-  title,
-  clientName,
-  description,
-  status = 'not started',
-  startDate,
-  dueDate,
-  shouldDisplay = true, // Default to showing the card
-}: JobCardProps) => {
+interface JobCardProps {
+  project: ProjectType
+  shouldDisplay?: boolean
+}
+
+export const JobCard = ({ project, shouldDisplay = true }: JobCardProps) => {
   const router = useRouter()
+
+  const {
+    id: projectId,
+    title,
+    clientName,
+    description,
+    status = 'not started',
+    startDate,
+    dueDate,
+    createdAt,
+  } = project
 
   // If shouldDisplay is false, don't render the component
   if (!shouldDisplay) {
@@ -135,6 +143,24 @@ export const JobCard = ({
     }
   }
 
+  const formatCreatedDate = (createdAt: any) => {
+    if (!createdAt) return ''
+
+    // Handle Firestore timestamp objects
+    if (createdAt && typeof createdAt.toDate === 'function') {
+      const date = createdAt.toDate()
+      return `Created on ${date.getDate()} ${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`
+    }
+
+    // Handle date strings
+    if (typeof createdAt === 'string') {
+      const date = new Date(createdAt)
+      return `Created on ${date.getDate()} ${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`
+    }
+
+    return ''
+  }
+
   return (
     <Card.Root
       borderRadius="3xl"
@@ -203,6 +229,11 @@ export const JobCard = ({
             />
             {daysToDisplay()}{' '}
           </>
+        )}
+        {createdAt && (
+          <Text ml="auto" color="stale" fontSize="xs">
+            {formatCreatedDate(createdAt)}
+          </Text>
         )}
       </Card.Footer>
     </Card.Root>

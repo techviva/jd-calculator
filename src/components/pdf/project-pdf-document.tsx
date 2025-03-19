@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
   page: {
     padding: 40,
     fontSize: 12,
-    backgroundColor: "#F8F8F8",
+    backgroundColor: '#F8F8F8',
   },
   text: {
     fontSize: 11,
@@ -38,8 +38,8 @@ const styles = StyleSheet.create({
   },
   companyDetails: {
     display: 'flex',
-    width: "100%",
-    justifyContent: "space-between",
+    width: '100%',
+    justifyContent: 'space-between',
     marginLeft: 10,
     fontSize: 10,
     color: '#666',
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 20,
     padding: 10,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 10,
   },
   table: {
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     width: '25%',
     padding: 10,
     fontWeight: 300,
-    paddingBottom: 20
+    paddingBottom: 20,
   },
   tableCol: {
     width: '25%',
@@ -102,10 +102,7 @@ export const ProjectPDFDocument: React.FC<{ project: Project | null }> = ({ proj
     <Page style={styles.page}>
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          <Image
-            style={styles.logo}
-            src='/images/viva-logo.png'
-          />
+          <Image style={styles.logo} src="/images/viva-logo.png" />
         </View>
         <View style={{ marginRight: 5, textAlign: 'right', width: '50%' }}>
           <Text style={{ fontWeight: 300 }}>Glendale, AZ</Text>
@@ -119,7 +116,9 @@ export const ProjectPDFDocument: React.FC<{ project: Project | null }> = ({ proj
           <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
             <View>
               <Text style={{ ...styles.text, fontWeight: 300 }}>{project?.clientName}</Text>
-              <Text style={{ ...styles.text, fontWeight: 300 }}>Landscaping for the Virtual Office</Text>
+              <Text style={{ ...styles.text, fontWeight: 300 }}>
+                Landscaping for the Virtual Office
+              </Text>
             </View>
             <View style={{ textAlign: 'right', width: '50%' }}>
               <Text style={styles.text}>Submitted On: {formatDate(project?.startDate)}</Text>
@@ -130,11 +129,11 @@ export const ProjectPDFDocument: React.FC<{ project: Project | null }> = ({ proj
       </View>
       <View style={styles.section}>
         <View style={styles.table}>
-          <View style={{ ...styles.tableRow, borderBottom: "1px solid #DDD" }}>
+          <View style={{ ...styles.tableRow, borderBottom: '1px solid #DDD' }}>
             <Text style={styles.tableColHeader}>Material</Text>
             <Text style={styles.tableColHeader}>Qty</Text>
             <Text style={styles.tableColHeader}>Rate</Text>
-            <Text style={{ ...styles.tableColHeader, textAlign: "right" }}>Total Price</Text>
+            <Text style={{ ...styles.tableColHeader, textAlign: 'right' }}>Total Price</Text>
           </View>
           {project?.materials?.map((material, index) => (
             <View style={styles.tableRow} key={index}>
@@ -142,19 +141,16 @@ export const ProjectPDFDocument: React.FC<{ project: Project | null }> = ({ proj
               <Text style={styles.tableCol}>{material.quantity}</Text>
               <Text style={styles.tableCol}>{`$${material.price.toFixed(2)}`}</Text>
               <Text
-                style={{ ...styles.tableCol, textAlign: "right" }}
+                style={{ ...styles.tableCol, textAlign: 'right' }}
               >{`$${calculateTotalPrice(material.quantity, material.price).toFixed(2)}`}</Text>
             </View>
           ))}
         </View>
         <View style={styles.footer}>
-          <Text style={styles.subtotal}>
-            SUBTOTAL
-          </Text>
+          <Text style={styles.subtotal}>SUBTOTAL</Text>
           <Text style={styles.subtotal}>${calculateSubtotal(project?.materials)?.toFixed(2)}</Text>
         </View>
       </View>
     </Page>
   </Document>
 )
-

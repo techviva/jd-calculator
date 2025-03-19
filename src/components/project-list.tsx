@@ -2,16 +2,7 @@
 import React, { useState } from 'react'
 import { JobCard } from './ui/job-card'
 import { Box, Flex, Text, SimpleGrid, NativeSelect } from '@chakra-ui/react'
-
-interface Project {
-  id: string | number
-  title: string
-  clientName: string
-  status: string
-  description?: string
-  startDate?: string
-  dueDate?: string
-}
+import { Project } from '@/types'
 
 interface ProjectListProps {
   projects: Project[]

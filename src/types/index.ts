@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore'
+
 export interface MaterialOption {
   value: string
   label: string
@@ -25,7 +27,7 @@ export interface Project {
   clientAmount?: number
   profitMargin?: number
   materials: Material[]
-  createdAt: FirebaseFirestore.Timestamp
+  createdAt: Timestamp
   // Add other project properties as needed
 }
 

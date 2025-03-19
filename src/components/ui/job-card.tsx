@@ -5,21 +5,11 @@ import { ProgressCircle } from './progress-circle'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { FaCheckCircle, FaClock, FaArrowRight, FaArchive } from 'react-icons/fa'
-
-interface ProjectType {
-  id: string | number
-  title: string
-  clientName: string
-  status?: 'not started' | 'in progress' | 'completed' | 'archived' | string
-  description?: string
-  startDate?: string
-  dueDate?: string
-  createdAt?: any // Could be a Firestore timestamp or string
-  [key: string]: any // For any additional properties
-}
+import { Timestamp } from 'firebase/firestore'
+import { Project } from '@/types'
 
 interface JobCardProps {
-  project: ProjectType
+  project: Project
   shouldDisplay?: boolean
 }
 
@@ -143,7 +133,7 @@ export const JobCard = ({ project, shouldDisplay = true }: JobCardProps) => {
     }
   }
 
-  const formatCreatedDate = (createdAt: any) => {
+  const formatCreatedDate = (createdAt: Timestamp) => {
     if (!createdAt) return ''
 
     // Handle Firestore timestamp objects

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer'
+import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer'
 import { Material, Project } from '@/types'
 import { formatDate } from '@/utils/functions'
 
@@ -67,13 +67,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   tableColHeader: {
-    width: '25%',
+    width: '15%',
     padding: 10,
     fontWeight: 300,
     paddingBottom: 20,
   },
   tableCol: {
-    width: '25%',
+    width: '15%',
     padding: 10,
   },
   footer: {
@@ -90,7 +90,13 @@ const styles = StyleSheet.create({
   },
 })
 
-const calculateTotalPrice = (quantity: number, rate: number) => quantity * rate
+
+Font.registerEmojiSource({
+  format: 'png',
+  url: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/',
+});
+
+const calculateTotalPrice = (quantity: number, rate: number) => Number(quantity) * Number(rate)
 const calculateSubtotal = (materials: Material[] | undefined) =>
   materials?.reduce(
     (subtotal, material) => subtotal + calculateTotalPrice(material.quantity, material.price),
@@ -130,18 +136,18 @@ export const ProjectPDFDocument: React.FC<{ project: Project | null }> = ({ proj
       <View style={styles.section}>
         <View style={styles.table}>
           <View style={{ ...styles.tableRow, borderBottom: '1px solid #DDD' }}>
-            <Text style={styles.tableColHeader}>Material</Text>
+            <Text style={{ ...styles.tableColHeader, width: '50%' }}>Material</Text>
             <Text style={styles.tableColHeader}>Qty</Text>
             <Text style={styles.tableColHeader}>Rate</Text>
-            <Text style={{ ...styles.tableColHeader, textAlign: 'right' }}>Total Price</Text>
+            <Text style={{ ...styles.tableColHeader, textAlign: 'right', width: '20%' }}>Total Price</Text>
           </View>
           {project?.materials?.map((material, index) => (
             <View style={styles.tableRow} key={index}>
-              <Text style={styles.tableCol}>{material.name}</Text>
+              <Text style={{ ...styles.tableCol, width: '50%' }}>{material.name}</Text>
               <Text style={styles.tableCol}>{material.quantity}</Text>
-              <Text style={styles.tableCol}>{`$${material.price.toFixed(2)}`}</Text>
+              <Text style={styles.tableCol}>{`$${Number(material.price).toFixed(2)}`}</Text>
               <Text
-                style={{ ...styles.tableCol, textAlign: 'right' }}
+                style={{ ...styles.tableCol, textAlign: 'right', width: '20%' }}
               >{`$${calculateTotalPrice(material.quantity, material.price).toFixed(2)}`}</Text>
             </View>
           ))}

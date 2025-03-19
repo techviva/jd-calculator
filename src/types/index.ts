@@ -25,6 +25,7 @@ export interface Project {
   clientAmount?: number
   profitMargin?: number
   materials: Material[]
+  createdAt: FirebaseFirestore.Timestamp
   // Add other project properties as needed
 }
 

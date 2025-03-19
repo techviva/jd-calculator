@@ -65,16 +65,7 @@ export const ProjectList = ({ projects }: ProjectListProps) => {
 
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
         {displayedProjects.map(project => (
-          <JobCard
-            key={project.id}
-            projectId={project.id}
-            title={project.title}
-            clientName={project.clientName}
-            status={project.status}
-            description={project.description}
-            startDate={project.startDate}
-            dueDate={project.dueDate}
-          />
+          <JobCard key={project.id} project={project} />
         ))}
       </SimpleGrid>
 

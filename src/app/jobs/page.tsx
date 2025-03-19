@@ -28,10 +28,18 @@ export default function Jobs() {
       try {
         const projectsCollection = collection(db, 'projects')
         const projectSnapshot = await getDocs(projectsCollection)
-        const projectList = projectSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Project[]
+        const projectList = projectSnapshot.docs
+          .map(
+            doc =>
+              ({
+                id: doc.id,
+                ...doc.data(),
+              }) as Project
+          )
+          // Filter out archived projects
+          .filter(project => project.status !== 'archived')
+          .sort((a, b) => b.createdAt?.toMillis() - a.createdAt?.toMillis() || 0)
+
         setProjects(projectList)
       } catch (error) {
         console.error('Error fetching projects:', error)
@@ -140,13 +148,10 @@ export default function Jobs() {
               currentProjects.map(project => (
                 <JobCard
                   key={project.id}
-                  projectId={project.id}
-                  title={project.title || 'Unnamed Project'}
-                  clientName={project.clientName || 'Unnamed Client'}
-                  status={project.status}
-                  description={project.description}
-                  startDate={'2025-02-24'}
-                  dueDate={project.dueDate}
+                  project={{
+                    ...project,
+                    startDate: project.startDate || '2025-02-24', // Ensure startDate exists
+                  }}
                 />
               ))
             ) : (

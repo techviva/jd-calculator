@@ -31,11 +31,12 @@ import {
   DialogActionTrigger,
 } from '@/components/ui'
 import ProjectDetailsSkeleton from '@/components/ui/project-details-skeleton'
-import { PDFDownloadLink } from '@react-pdf/renderer'
+import { BlobProvider } from '@react-pdf/renderer'
 import { ProjectPDFDocument } from '@/components/pdf'
 import { DeleteIcon, EditIcon } from '@/components/icons'
 import { formatDate } from '@/utils/functions'
 import { toaster } from '@/components/ui/toaster'
+import Link from 'next/link'
 
 export default function ProjectDetails() {
   const router = useRouter()
@@ -56,6 +57,9 @@ export default function ProjectDetails() {
   const { open, onOpen, onClose, setOpen } = useDisclosure()
   const [isArchiving, setIsArchiving] = useState(false)
   const [isArchived, setIsArchived] = useState(false)
+  const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
+  const [createdBy, setCreatedBy] = useState('');
+  const [otherInfo, setOtherInfo] = useState('');
 
   const fetchProject = async () => {
     try {
@@ -178,14 +182,22 @@ export default function ProjectDetails() {
     }
   }, [project?.id])
 
-
-  // Add this new useEffect
   useEffect(() => {
     if (project) {
       checkIfProjectIsTemplate()
     }
   }, [project, checkIfProjectIsTemplate])
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!pdfDialogOpen) {
+        setCreatedBy('');
+        setOtherInfo('');
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer)
+  }, [pdfDialogOpen]);
   // Update the toggleProjectStatus function to handle all three states
   const toggleProjectStatus = async () => {
     if (!project) return
@@ -274,6 +286,11 @@ export default function ProjectDetails() {
       setIsArchiving(false)
       setDeleteModalOpen(false)
     }
+  }
+
+  // Function to handle PDF export button click
+  const handleExportPDF = () => {
+    setPdfDialogOpen(true);
   }
 
   if (loading) {
@@ -425,13 +442,9 @@ export default function ProjectDetails() {
 
         <Flex gap={2} width="100%" alignItems="center" justifyContent="space-between">
           <Flex width="fit-content" p={0} m={0} gap={3}>
-            <Button fontSize="small" colorPalette="green">
-              <PDFDownloadLink
-                document={<ProjectPDFDocument project={project} />}
-                fileName={`${project?.clientName}_Project_Details.pdf`}
-              >
-                Export to PDF
-              </PDFDownloadLink>
+            {/* Replace the PDFDownloadLink with a button that opens the dialog */}
+            <Button fontSize="small" colorPalette="green" onClick={handleExportPDF}>
+              Export to PDF
             </Button>
             {!isTemplate && <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={onOpen}>
               Make this a Template
@@ -503,6 +516,77 @@ export default function ProjectDetails() {
         </Dialog.Positioner>
       </Dialog.Root>
 
+      {/* PDF Export Dialog */}
+      <Dialog.Root open={pdfDialogOpen} placement="center" onOpenChange={() => setPdfDialogOpen(!pdfDialogOpen)}>
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content>
+            <Dialog.Header>
+              <Dialog.Title>Export to PDF</Dialog.Title>
+              <Dialog.CloseTrigger />
+            </Dialog.Header>
+            <Dialog.Body>
+              <VStack gap={4} align="stretch">
+                <Field.Root>
+                  <Field.Label>Created By</Field.Label>
+                  <Input
+                    value={createdBy}
+                    required
+                    onChange={e => setCreatedBy(e.target.value)}
+                    placeholder="Enter your name or company name"
+                  />
+                </Field.Root>
+
+                <Field.Root>
+                  <Field.Label>Other Info</Field.Label>
+                  <Input
+                    value={otherInfo}
+                    onChange={e => setOtherInfo(e.target.value)}
+                    placeholder="Additional information (optional)"
+                  />
+                </Field.Root>
+              </VStack>
+            </Dialog.Body>
+            <Dialog.Footer>
+              <Button colorPalette="gray" fontSize="small" mr={2} onClick={() => {
+                setPdfDialogOpen(false)
+              }}>
+                Cancel
+              </Button>
+
+              {/* Use BlobProvider to generate the PDF on demand with company info */}
+              <BlobProvider document={
+                <ProjectPDFDocument
+                  project={project}
+                  companyInfo={{
+                    createdBy: createdBy,
+                    otherInfo: otherInfo
+                  }}
+                />
+              }>
+                {({ url, loading, error }) => (
+                  <Button
+                    colorPalette="green"
+                    fontSize="small"
+                    disabled={!createdBy.trim() || loading}
+                    onClick={() => {
+                      if (error) return
+                      setPdfDialogOpen(false)
+                    }}
+                  >
+                    <Link href={url || "#"} target='_blank' download={`${project?.title || 'project'}.pdf`}>
+
+                      {error ? "Error generating PDF" : "Download PDF"}
+                    </Link>
+                  </Button>
+
+                )}
+              </BlobProvider>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Dialog.Root>
+
       <HStack width="100%" gap={60} wrap="wrap" alignItems="flex-start" rowGap={2} pr={10}>
         <DataListRoot>
           <DataListItem label="Name" value={project?.clientName} />
@@ -544,16 +628,16 @@ export default function ProjectDetails() {
         <Table.Root size="sm" variant="line">
           <Table.Header>
             <Table.Row>
-              <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="70%">
+              <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="65%">
                 Material
               </Table.ColumnHeader>
               <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="10%">
                 Qty
               </Table.ColumnHeader>
-              <Table.ColumnHeader color="fg.subtle" fontSize="small">
+              <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="10%">
                 Rate
               </Table.ColumnHeader>
-              <Table.ColumnHeader color="fg.subtle" fontSize="small" textAlign="end" pr={4}>
+              <Table.ColumnHeader color="fg.subtle" fontSize="small" textAlign="end" pr={4} htmlWidth="15%">
                 Total Price
               </Table.ColumnHeader>
             </Table.Row>

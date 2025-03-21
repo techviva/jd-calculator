@@ -14,12 +14,15 @@ import {
   Field,
   Textarea,
   Box,
+  CollapsibleRoot,
+  CollapsibleTrigger,
+  CollapsibleContent,
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { doc, getDoc, setDoc, collection, deleteDoc, query, where, getDocs } from 'firebase/firestore'
+import { doc, getDoc, setDoc, collection, deleteDoc, query, where, getDocs, orderBy, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { Project, ProjectFormData } from '@/types'
+import { NoteType, Project, ProjectFormData } from '@/types'
 import {
   CreateProjectModal,
   DataListItem,
@@ -29,6 +32,8 @@ import {
   DialogContent,
   DialogTitle,
   DialogActionTrigger,
+  Note,
+  NoteDialog,
 } from '@/components/ui'
 import ProjectDetailsSkeleton from '@/components/ui/project-details-skeleton'
 import { BlobProvider } from '@react-pdf/renderer'
@@ -37,6 +42,8 @@ import { DeleteIcon, EditIcon } from '@/components/icons'
 import { formatDate } from '@/utils/functions'
 import { toaster } from '@/components/ui/toaster'
 import Link from 'next/link'
+import { BsChevronDown } from 'react-icons/bs'
+import AddNoteIcon from '@/components/icons/add-note-icon'
 
 export default function ProjectDetails() {
   const router = useRouter()
@@ -60,6 +67,13 @@ export default function ProjectDetails() {
   const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
   const [createdBy, setCreatedBy] = useState('');
   const [otherInfo, setOtherInfo] = useState('');
+
+  const [detailsOpen, setDetailsOpen] = useState(true);
+  const [notesOpen, setNotesOpen] = useState(true);
+  const [materialsOpen, setMaterialsOpen] = useState(true);
+
+  const [notesModalOpen, setNotesModalOpen] = useState(false);
+  const [notes, setNotes] = useState<NoteType[]>([]);
 
   const fetchProject = async () => {
     try {
@@ -292,6 +306,39 @@ export default function ProjectDetails() {
   const handleExportPDF = () => {
     setPdfDialogOpen(true);
   }
+
+  const fetchNotes = useCallback(async () => {
+    if (!id) return;
+
+    try {
+      const notesQuery = query(
+        collection(db, "notes"),
+        where("projectId", "==", id),
+        orderBy("createdAt", "desc")
+      );
+
+      const unsubscribe = onSnapshot(notesQuery, (querySnapshot) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const notesList: any[] = [];
+        querySnapshot.forEach((doc) => {
+          notesList.push({ id: doc.id, ...doc.data() });
+        });
+        setNotes(notesList);
+      }, (error) => {
+        console.error("Error fetching notes:", error);
+      });
+
+      return unsubscribe;
+    } catch (error) {
+      console.error("Error setting up notes listener:", error);
+      return undefined;
+    }
+  }, [id]);
+
+  const onNotesChange = useCallback(() => {
+    fetchNotes();
+  }, [fetchNotes]);
+
 
   if (loading) {
     return <ProjectDetailsSkeleton />
@@ -587,124 +634,215 @@ export default function ProjectDetails() {
         </Dialog.Positioner>
       </Dialog.Root>
 
-      <HStack width="100%" gap={60} wrap="wrap" alignItems="flex-start" rowGap={2} pr={10}>
-        <DataListRoot>
-          <DataListItem label="Name" value={project?.clientName} />
-        </DataListRoot>
-        <DataListRoot>
-          <DataListItem label="Due Date" value={formatDate(project?.dueDate)} />
-        </DataListRoot>
-        <DataListRoot>
-          <DataListItem label="Job Description" value={project?.description} />
-        </DataListRoot>
-      </HStack>
+      <VStack width="100%" gap={4} align="stretch" position="relative" borderTop="2px solid" borderColor="border.muted" pt={4}>
+        <Text fontSize="small">
+          Job Details
+        </Text>
+        <CollapsibleRoot open={detailsOpen} onOpenChange={() => setDetailsOpen(!detailsOpen)} defaultOpen={true}>
+          <CollapsibleTrigger
+            position="absolute"
+            right={4}
+            top={5}
+            transition="transform 0.3s ease"
+            transform={detailsOpen ? "rotate(0deg)" : "rotate(180deg)"}
+            _hover={{ cursor: 'pointer', scale: 1.2 }}
+          >
+            <BsChevronDown size={10} />
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <HStack width="100%" gap={60} wrap="wrap" alignItems="flex-start" rowGap={2} pr={10} mb={4}>
+              <DataListRoot>
+                <DataListItem label="Name" value={project?.clientName} />
+              </DataListRoot>
+              <DataListRoot>
+                <DataListItem label="Due Date" value={formatDate(project?.dueDate)} />
+              </DataListRoot>
+              <DataListRoot>
+                <DataListItem label="Job Description" value={project?.description} />
+              </DataListRoot>
+            </HStack>
 
-      <VStack width="100%" border="1.5px solid" borderColor="border.muted" borderRadius="md" mb={4}>
-        <HStack width="100%" justifyContent="space-between" p={4} bg="bg.subtle" borderRadius="md">
-          <VStack alignItems="flex-start" gap={1}>
-            <Text fontSize="sm" color="fg.subtle">
-              Total Cost
-            </Text>
-            <Text fontWeight="bold">{formatCurrency(subtotal)}</Text>
-          </VStack>
-          <VStack alignItems="flex-start" gap={1}>
-            <Text fontSize="sm" color="fg.subtle">
-              Net Profit
-            </Text>
-            <Text fontWeight="bold" color="green.500">
-              {formatCurrency(project?.netProfit)}
-            </Text>
-          </VStack>
-          <VStack alignItems="flex-start" gap={1}>
-            <Text fontSize="sm" color="fg.subtle">
-              Amount for Clients
-            </Text>
-            <Text fontWeight="bold">{formatCurrency(project?.clientAmount)}</Text>
-          </VStack>
-        </HStack>
+            <VStack width="100%" border="1.5px solid" borderColor="border.muted" borderRadius="md" mb={4}>
+              <HStack width="100%" justifyContent="space-between" p={4} bg="bg.subtle" borderRadius="md">
+                <VStack alignItems="flex-start" gap={1}>
+                  <Text fontSize="sm" color="fg.subtle">
+                    Total Cost
+                  </Text>
+                  <Text fontWeight="bold">{formatCurrency(subtotal)}</Text>
+                </VStack>
+                <VStack alignItems="flex-start" gap={1}>
+                  <Text fontSize="sm" color="fg.subtle">
+                    Net Profit
+                  </Text>
+                  <Text fontWeight="bold" color="green.500">
+                    {formatCurrency(project?.netProfit)}
+                  </Text>
+                </VStack>
+                <VStack alignItems="flex-start" gap={1}>
+                  <Text fontSize="sm" color="fg.subtle">
+                    Amount for Clients
+                  </Text>
+                  <Text fontWeight="bold">{formatCurrency(project?.clientAmount)}</Text>
+                </VStack>
+              </HStack>
+            </VStack>
+          </CollapsibleContent>
+        </CollapsibleRoot>
       </VStack>
 
-      <VStack width="100%" border="1.5px solid" borderColor="border.muted" borderRadius="md">
-        <Table.Root size="sm" variant="line">
-          <Table.Header>
-            <Table.Row>
-              <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="65%">
-                Material
-              </Table.ColumnHeader>
-              <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="10%">
-                Qty
-              </Table.ColumnHeader>
-              <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="10%">
-                Rate
-              </Table.ColumnHeader>
-              <Table.ColumnHeader color="fg.subtle" fontSize="small" textAlign="end" pr={4} htmlWidth="15%">
-                Total Price
-              </Table.ColumnHeader>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {project?.materials && project.materials.length > 0 ? (
-              project.materials.map(material => (
-                <Table.Row key={material.id} p={4}>
-                  <Table.Cell>{material.name}</Table.Cell>
-                  <Table.Cell>{material.quantity}</Table.Cell>
-                  <Table.Cell>{formatCurrency(material.price)}</Table.Cell>
-                  <Table.Cell textAlign="end" pr={4}>
-                    {formatCurrency(material.quantity * material.price)}
-                  </Table.Cell>
-                </Table.Row>
-              ))
+      <VStack width="100%" gap={4} align="stretch" position="relative" borderTop="2px solid" borderColor="border.muted" pt={4}>
+        <Text fontSize="small">
+          Notes
+        </Text>
+        <CollapsibleRoot open={notesOpen} onOpenChange={() => setNotesOpen(!notesOpen)} defaultOpen={true}>
+          <CollapsibleTrigger
+            position="absolute"
+            right={4}
+            top={5}
+            transition="transform 0.3s ease"
+            transform={notesOpen ? "rotate(0deg)" : "rotate(180deg)"}
+            _hover={{ cursor: 'pointer', scale: 1.2 }}
+          >
+            <BsChevronDown size={10} />
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            {notes.length > 0 ? (
+              <VStack width="100%" gap={2} align="stretch">
+                {notes.map(note => (
+                  <Note
+                    key={note.id}
+                    note={note}
+                    projectId={id}
+                    onNotesChange={onNotesChange}
+                  />
+                ))}
+              </VStack>
             ) : (
-              <Table.Row>
-                <Table.Cell colSpan={4} textAlign="center">
-                  No materials found
-                </Table.Cell>
-              </Table.Row>
+              <Text fontSize="small" color="fg.muted" p={2}>
+                No notes yet. Add a note to track important information about this project.
+              </Text>
             )}
-          </Table.Body>
-        </Table.Root>
-        <VStack p={4} gap={2} width="100%">
-          <HStack justifyContent="space-between" width="100%">
-            <Text fontWeight="bold" textTransform="uppercase" fontSize="small">
-              Subtotal
-            </Text>
-            <Text fontWeight="bold" textTransform="uppercase" fontSize="small">
-              {formatCurrency(subtotal)}
-            </Text>
-          </HStack>
+            <Box width="100%">
+              <DefaultButton
+                colorPalette="green"
+                fontSize="small"
+                fontWeight="bold"
+                borderRadius="lg"
+                onClick={() => setNotesModalOpen(true)}
+                variant="ghost"
+                display="flex"
+                alignItems="center"
+              >
+                <AddNoteIcon color="green" width="13px" height="13px" />
+                Add Note
+              </DefaultButton>
+            </ Box>
+          </CollapsibleContent>
+        </CollapsibleRoot>
+      </VStack>
+      <NoteDialog open={notesModalOpen} onClose={() => setNotesModalOpen(false)} setOpen={setNotesModalOpen} content="" projectId={id} onNotesChange={onNotesChange} />
 
-          {project?.profitMargin && (
-            <HStack justifyContent="space-between" width="100%">
-              <Text fontSize="small">Profit Margin ({project.profitMargin}%)</Text>
-              <Text fontSize="small">
-                {formatCurrency((project.profitMargin / 100) * subtotal)}
-              </Text>
-            </HStack>
-          )}
+      <VStack width="100%" gap={4} align="stretch" position="relative" borderTop="2px solid" borderColor="border.muted" pt={4}>
+        <Text fontSize="small">
+          Materials
+        </Text>
+        <CollapsibleRoot open={materialsOpen} onOpenChange={() => setMaterialsOpen(!materialsOpen)} defaultOpen={true}>
+          <CollapsibleTrigger
+            position="absolute"
+            right={4}
+            top={5}
+            transition="transform 0.3s ease"
+            transform={materialsOpen ? "rotate(0deg)" : "rotate(180deg)"}
+            _hover={{ cursor: 'pointer', scale: 1.2 }}
+          >
+            <BsChevronDown size={10} />
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <VStack width="100%" border="1.5px solid" borderColor="border.muted" borderRadius="md">
+              <Table.Root size="sm" variant="line">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="65%">
+                      Material
+                    </Table.ColumnHeader>
+                    <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="10%">
+                      Qty
+                    </Table.ColumnHeader>
+                    <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="10%">
+                      Rate
+                    </Table.ColumnHeader>
+                    <Table.ColumnHeader color="fg.subtle" fontSize="small" textAlign="end" pr={4} htmlWidth="15%">
+                      Total Price
+                    </Table.ColumnHeader>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {project?.materials && project.materials.length > 0 ? (
+                    project.materials.map(material => (
+                      <Table.Row key={material.id} p={4}>
+                        <Table.Cell>{material.name}</Table.Cell>
+                        <Table.Cell>{material.quantity}</Table.Cell>
+                        <Table.Cell>{formatCurrency(material.price)}</Table.Cell>
+                        <Table.Cell textAlign="end" pr={4}>
+                          {formatCurrency(material.quantity * material.price)}
+                        </Table.Cell>
+                      </Table.Row>
+                    ))
+                  ) : (
+                    <Table.Row>
+                      <Table.Cell colSpan={4} textAlign="center">
+                        No materials found
+                      </Table.Cell>
+                    </Table.Row>
+                  )}
+                </Table.Body>
+              </Table.Root>
+              <VStack p={4} gap={2} width="100%">
+                <HStack justifyContent="space-between" width="100%">
+                  <Text fontWeight="bold" textTransform="uppercase" fontSize="small">
+                    Subtotal
+                  </Text>
+                  <Text fontWeight="bold" textTransform="uppercase" fontSize="small">
+                    {formatCurrency(subtotal)}
+                  </Text>
+                </HStack>
 
-          {project?.clientAmount && (
-            <HStack justifyContent="space-between" width="100%">
-              <Text fontWeight="bold" fontSize="small">
-                Client Total
-              </Text>
-              <Text fontWeight="bold" fontSize="small">
-                {formatCurrency(project.clientAmount)}
-              </Text>
-            </HStack>
-          )}
+                {project?.profitMargin && (
+                  <HStack justifyContent="space-between" width="100%">
+                    <Text fontSize="small">Profit Margin ({project.profitMargin}%)</Text>
+                    <Text fontSize="small">
+                      {formatCurrency((project.profitMargin / 100) * subtotal)}
+                    </Text>
+                  </HStack>
+                )}
 
-          {project?.netProfit !== undefined && (
-            <HStack justifyContent="space-between" width="100%">
-              <Text fontSize="small" color="green.500">
-                Net Profit
-              </Text>
-              <Text fontSize="small" color="green.500">
-                {formatCurrency(project.netProfit)}
-              </Text>
-            </HStack>
-          )}
-        </VStack>
+                {project?.clientAmount && (
+                  <HStack justifyContent="space-between" width="100%">
+                    <Text fontWeight="bold" fontSize="small">
+                      Client Total
+                    </Text>
+                    <Text fontWeight="bold" fontSize="small">
+                      {formatCurrency(project.clientAmount)}
+                    </Text>
+                  </HStack>
+                )}
+
+                {project?.netProfit !== undefined && (
+                  <HStack justifyContent="space-between" width="100%">
+                    <Text fontSize="small" color="green.500">
+                      Net Profit
+                    </Text>
+                    <Text fontSize="small" color="green.500">
+                      {formatCurrency(project.netProfit)}
+                    </Text>
+                  </HStack>
+                )}
+              </VStack>
+            </VStack>
+          </CollapsibleContent>
+        </CollapsibleRoot>
       </VStack>
     </VStack>
   )
+
 }

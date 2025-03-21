@@ -66,3 +66,12 @@ export interface CostItem {
   rate: number
   unit?: string
 }
+
+export interface NoteType {
+  id: string
+  content: string
+  createdAt: Timestamp
+  updatedAt?: Timestamp
+  projectId: string
+  createdBy: string
+}

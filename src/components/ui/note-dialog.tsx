@@ -38,7 +38,7 @@ export const NoteDialog = ({ open, onClose, setOpen, content, note, projectId, o
 
                 toaster.create({
                     title: "Note updated",
-                    description: "Your note has been updated successfully",
+                    description: "Your note has been updated",
                     type: "success"
                 });
             } else {

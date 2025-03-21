@@ -20,7 +20,7 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { doc, getDoc, setDoc, collection, deleteDoc, query, where, getDocs, orderBy, onSnapshot } from 'firebase/firestore'
+import { doc, getDoc, setDoc, collection, deleteDoc, query, where, getDocs, } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { NoteType, Project, ProjectFormData } from '@/types'
 import {
@@ -83,7 +83,7 @@ export default function ProjectDetails() {
       if (docSnap.exists()) {
         const projectData = { id: docSnap.id, ...docSnap.data() } as Project
         setProject(projectData)
-        // Set the status states
+        setNotes(projectData.notes || [])
         setProjectStatus(projectData.status || 'not started')
         setIsArchived(projectData.status === 'archived')
       } else {
@@ -307,37 +307,9 @@ export default function ProjectDetails() {
     setPdfDialogOpen(true);
   }
 
-  const fetchNotes = useCallback(async () => {
-    if (!id) return;
-
-    try {
-      const notesQuery = query(
-        collection(db, "notes"),
-        where("projectId", "==", id),
-        orderBy("createdAt", "desc")
-      );
-
-      const unsubscribe = onSnapshot(notesQuery, (querySnapshot) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const notesList: any[] = [];
-        querySnapshot.forEach((doc) => {
-          notesList.push({ id: doc.id, ...doc.data() });
-        });
-        setNotes(notesList);
-      }, (error) => {
-        console.error("Error fetching notes:", error);
-      });
-
-      return unsubscribe;
-    } catch (error) {
-      console.error("Error setting up notes listener:", error);
-      return undefined;
-    }
-  }, [id]);
-
-  const onNotesChange = useCallback(() => {
-    fetchNotes();
-  }, [fetchNotes]);
+  const onNotesChange = (() => {
+    fetchProject()
+  })
 
 
   if (loading) {
@@ -727,6 +699,7 @@ export default function ProjectDetails() {
                 colorPalette="green"
                 fontSize="small"
                 fontWeight="bold"
+                mt={2}
                 borderRadius="lg"
                 onClick={() => setNotesModalOpen(true)}
                 variant="ghost"

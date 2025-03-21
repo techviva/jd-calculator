@@ -6,7 +6,8 @@ import {
     HStack,
     Strong,
     Text,
-    useDisclosure
+    Button as DefaultButton,
+    useDisclosure,
 } from "@chakra-ui/react";
 import { DeleteIcon, EditIcon } from "../icons";
 import { useState } from "react";
@@ -18,7 +19,7 @@ import { NoteType } from "@/types";
 import { formatNoteDate } from "@/utils/functions";
 import { DialogActionTrigger, DialogBody, DialogContent, DialogRoot, DialogTitle } from "./dialog";
 import { Button } from "./button";
-import { deleteDoc, doc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 
 
@@ -36,10 +37,21 @@ export const Note = ({
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
     const deleteNote = async () => {
-
         try {
             setIsLoading(true);
-            await deleteDoc(doc(db, "notes", note.id));
+            const projectRef = doc(db, "projects", projectId);
+            const projectDoc = await getDoc(projectRef);
+
+            if (!projectDoc.exists()) {
+                throw new Error("Project not found");
+            }
+
+            const projectData = projectDoc.data();
+            const notes = projectData.notes || [];
+
+            const updatedNotes = notes.filter((n: NoteType) => n.id !== note.id);
+
+            await updateDoc(projectRef, { notes: updatedNotes });
 
             toaster.create({
                 title: "Note deleted",
@@ -89,7 +101,7 @@ export const Note = ({
                         </Flex>
                     </HStack>
                     <Card.Description lineClamp={2}>
-                        <Strong color="fg" fontSize="small">{note.createdBy} added a note</Strong>{" "}
+                        <Strong color="fg" fontSize="small">{note.createdBy} added a note:</Strong>{" "}
                         {note.content}
                     </Card.Description>
                 </Card.Body>
@@ -135,22 +147,23 @@ export const Note = ({
                                 </DialogActionTrigger>
                             </Box>
                             <Box width="fit-content" p={0} m={0}>
-                                <Button
+                                <DefaultButton
+                                    borderRadius="lg"
                                     colorPalette="red"
                                     fontSize="small"
+                                    size="lg"
                                     disabled={isLoading}
                                     onClick={() => {
                                         deleteNote();
                                     }}
                                 >
                                     {isLoading ? "Deleting..." : "Delete"}
-                                </Button>
+                                </DefaultButton>
                             </Box>
                         </HStack>
                     </DialogBody>
                 </DialogContent>
             </DialogRoot>
-
         </>
     )
 }

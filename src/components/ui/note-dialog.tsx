@@ -2,7 +2,7 @@
 import { Button, Flex, Strong, Textarea } from "@chakra-ui/react";
 import { DialogBody, DialogContent, DialogFooter, DialogHeader, DialogRoot } from "./dialog";
 import { useState } from "react";
-import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { toaster } from "./toaster";
 import { db } from "@/lib/firebase";
 import { NoteType } from "@/types";
@@ -28,13 +28,26 @@ export const NoteDialog = ({ open, onClose, setOpen, content, note, projectId, o
     const saveNote = async (content: string) => {
         try {
             setIsLoading(true);
+            const projectRef = doc(db, "projects", projectId);
+            const projectDoc = await getDoc(projectRef);
+
+            if (!projectDoc.exists()) {
+                throw new Error("Project not found");
+            }
+
+            const projectData = projectDoc.data();
+            const notes = projectData.notes || [];
 
             if (note?.id) {
-                const noteRef = doc(db, "notes", note?.id);
-                await updateDoc(noteRef, {
-                    content,
-                    updatedAt: serverTimestamp()
-                });
+                const updatedNotes = notes.map((n: NoteType) =>
+                    n.id === note.id ? {
+                        ...n,
+                        content,
+                        updatedAt: new Date().toISOString()
+                    } : n
+                );
+
+                await updateDoc(projectRef, { notes: updatedNotes });
 
                 toaster.create({
                     title: "Note updated",
@@ -42,11 +55,17 @@ export const NoteDialog = ({ open, onClose, setOpen, content, note, projectId, o
                     type: "success"
                 });
             } else {
-                await addDoc(collection(db, "notes"), {
+                // Add new note
+                const newNote = {
+                    id: crypto.randomUUID(),
                     content,
                     projectId,
-                    createdAt: serverTimestamp(),
-                    createdBy: user?.displayName
+                    createdAt: new Date(),
+                    createdBy: user?.displayName || "User"
+                };
+
+                await updateDoc(projectRef, {
+                    notes: [...notes, newNote]
                 });
 
                 toaster.create({

@@ -27,6 +27,7 @@ export interface Project {
   clientAmount?: number
   profitMargin?: number
   materials: Material[]
+  notes: NoteType[]
   createdAt: Timestamp
   // Add other project properties as needed
 }

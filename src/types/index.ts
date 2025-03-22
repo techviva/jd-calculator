@@ -5,6 +5,7 @@ export interface MaterialOption {
   label: string
   price: number
   quantity: string
+  note?: string
 }
 
 export interface Material {
@@ -12,6 +13,7 @@ export interface Material {
   name: string
   price: number
   quantity: number
+  note?: string
 }
 
 export interface Project {

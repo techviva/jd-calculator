@@ -38,12 +38,11 @@ import {
 import ProjectDetailsSkeleton from '@/components/ui/project-details-skeleton'
 import { BlobProvider } from '@react-pdf/renderer'
 import { ProjectPDFDocument } from '@/components/pdf'
-import { DeleteIcon, EditIcon } from '@/components/icons'
+import { AddNoteIcon, DeleteIcon, EditIcon } from '@/components/icons'
 import { formatDate } from '@/utils/functions'
 import { toaster } from '@/components/ui/toaster'
 import Link from 'next/link'
 import { BsChevronDown } from 'react-icons/bs'
-import AddNoteIcon from '@/components/icons/add-note-icon'
 
 export default function ProjectDetails() {
   const router = useRouter()
@@ -751,7 +750,7 @@ export default function ProjectDetails() {
                 </Table.Header>
                 <Table.Body>
                   {project?.materials && project.materials.length > 0 ? (
-                    project.materials.map(material => (
+                    project.materials.flatMap(material => [
                       <Table.Row key={material.id} p={4}>
                         <Table.Cell>{material.name}</Table.Cell>
                         <Table.Cell>{material.quantity}</Table.Cell>
@@ -759,8 +758,18 @@ export default function ProjectDetails() {
                         <Table.Cell textAlign="end" pr={4}>
                           {formatCurrency(material.quantity * material.price)}
                         </Table.Cell>
-                      </Table.Row>
-                    ))
+                      </Table.Row>,
+                      material.note ? (
+                        <Table.Row key={`${material.id}-note`} bg="bg.subtle">
+                          <Table.Cell colSpan={4} fontSize="small" pl={4} py={2} >
+                            <Text as="span" fontStyle="italic" color="fg.muted">
+                              Additional Information -
+                            </Text>{" "}
+                            {material.note}
+                          </Table.Cell>
+                        </Table.Row>
+                      ) : null
+                    ]).filter(Boolean)
                   ) : (
                     <Table.Row>
                       <Table.Cell colSpan={4} textAlign="center">

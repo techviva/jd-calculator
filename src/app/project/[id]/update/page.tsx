@@ -13,6 +13,7 @@ import {
   Box,
   Flex,
   HStack,
+  Textarea,
 } from '@chakra-ui/react'
 import { IoIosClose } from 'react-icons/io'
 import Select from 'react-select'
@@ -22,7 +23,16 @@ import { db } from '@/lib/firebase'
 import { useParams, useRouter } from 'next/navigation'
 import { toaster } from '@/components/ui/toaster'
 import { CostItem, Material, MaterialOption } from '@/types'
-import { DataListItem, DataListRoot } from '@/components/ui'
+import { DataListItem, DataListRoot, UpdateProjectSkeleton } from '@/components/ui'
+import { MaterialNoteIcon } from '@/components/icons'
+import {
+  DialogRoot,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogFooter,
+} from '@/components/ui/dialog'
 
 // Add an interface for project details
 interface ProjectDetails {
@@ -43,6 +53,10 @@ export default function UpdateProject() {
     title: 'N/A',
     clientName: 'N/A',
   })
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false)
+  const [currentMaterialIndex, setCurrentMaterialIndex] = useState<number | null>(null)
+  const [materialNote, setMaterialNote] = useState("")
+  const [materialName, setMaterialName] = useState("")
   const params = useParams()
   const projectId = params.id as string
   const router = useRouter()
@@ -56,7 +70,7 @@ export default function UpdateProject() {
     formState: { isSubmitting },
   } = useForm({
     defaultValues: {
-      materials: [{ value: '', label: '', quantity: '', price: 0.0 }],
+      materials: [{ value: '', label: '', quantity: '', price: 0.0, note: '' }],
     },
   })
 
@@ -78,7 +92,10 @@ export default function UpdateProject() {
     // Return only materials that aren't selected in other fields
     return materials.filter(
       material => !selectedValues.includes(material.value)
-    ) as MaterialOption[]
+    ).map(material => ({
+      ...material,
+      note: material.note || '' // Ensure note is always a string
+    }))
   }
 
   // Check if all materials are used
@@ -148,6 +165,7 @@ export default function UpdateProject() {
                 label: material.name,
                 quantity: material.quantity.toString(),
                 price: material.price.toString(),
+                note: material.note || '',
               }
             })
 
@@ -190,6 +208,27 @@ export default function UpdateProject() {
     setClientAmount(cost * (1 + profitRate)) // Cost + profit
   }, [watchMaterials, materials, profitMargin, formUpdateTrigger]) // Add trigger to dependencies
 
+  const openNoteDialog = (index: number) => {
+    const material = watchMaterials[index]
+    setCurrentMaterialIndex(index)
+    setMaterialName(material.label || "Material")
+    setMaterialNote(material.note || "")
+    setNoteDialogOpen(true)
+  }
+
+  const saveNote = () => {
+    if (currentMaterialIndex !== null) {
+      const updatedMaterials = [...watchMaterials]
+      updatedMaterials[currentMaterialIndex] = {
+        ...updatedMaterials[currentMaterialIndex],
+        note: materialNote
+      }
+
+      reset({ materials: updatedMaterials })
+      setNoteDialogOpen(false)
+    }
+  }
+
   const onSubmit = async (data: { materials: MaterialOption[] }) => {
     try {
       // Format data for Firestore
@@ -203,6 +242,7 @@ export default function UpdateProject() {
           quantity: quantity,
           price: price,
           name: selectedMaterial ? selectedMaterial.label : '',
+          note: item.note || '' // Add this line to include the note
         }
       })
 
@@ -213,21 +253,17 @@ export default function UpdateProject() {
         totalCost,
         netProfit,
         clientAmount,
-        profitMargin, // Save the profit margin
+        profitMargin,
       })
 
-      console.log('Project updated successfully')
-      // Navigate or show success message
       toaster.create({
         title: 'Project updated',
         description: `Project ${projectDetails.title} has been updated successfully`,
         type: 'success',
       })
-      // Optionally, navigate to the project details page
       router.push(`/project/${projectId}`)
     } catch (error) {
       console.error('Error updating project:', error)
-      // Show error message
       toaster.create({
         title: 'Error updating project',
         description: 'Failed to update project details',
@@ -237,7 +273,7 @@ export default function UpdateProject() {
   }
 
   if (isLoading) {
-    return <Text>Loading materials...</Text>
+    return <UpdateProjectSkeleton />
   }
 
   return (
@@ -411,21 +447,30 @@ export default function UpdateProject() {
                           )
                         })()}
                       </Box>
-                      <DefaultButton
-                        size="xs"
-                        variant="subtle"
-                        colorPalette="red"
-                        borderRadius="full"
-                        minWidth="fit-content"
-                        width="20px"
-                        height="20px"
-                        p={0}
-                        ml="auto"
-                        fontSize="sm"
-                        onClick={() => remove(index)}
-                      >
-                        <IoIosClose />
-                      </DefaultButton>
+                      <HStack gap={2}>
+                        <MaterialNoteIcon
+                          width="16px"
+                          height="16px"
+                          cursor="pointer"
+                          onClick={() => openNoteDialog(index)}
+                          color={watchMaterials[index].note ? 'green' : 'default'}
+                        />
+                        <DefaultButton
+                          size="xs"
+                          variant="subtle"
+                          colorPalette="red"
+                          borderRadius="full"
+                          minWidth="fit-content"
+                          width="20px"
+                          height="20px"
+                          p={0}
+                          ml="auto"
+                          fontSize="sm"
+                          onClick={() => remove(index)}
+                        >
+                          <IoIosClose />
+                        </DefaultButton>
+                      </HStack>
                     </Table.Cell>
                   </Table.Row>
                 ))}
@@ -438,7 +483,7 @@ export default function UpdateProject() {
               mt={3}
               ml={2}
               mb={2}
-              onClick={() => append({ value: '', quantity: '', price: 0.0, label: '' })}
+              onClick={() => append({ value: '', quantity: '', price: 0.0, label: '', note: '' })}
               disabled={allMaterialsSelected || materials.length === 0}
             >
               Add a material
@@ -513,6 +558,31 @@ export default function UpdateProject() {
           <Text fontSize="larger">${clientAmount.toFixed(2)}</Text>
         </Box>
       </VStack>
+      <DialogRoot open={noteDialogOpen} onOpenChange={() => setNoteDialogOpen(false)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{materialName}</DialogTitle>
+          </DialogHeader>
+          <DialogBody>
+            <Textarea
+              value={materialNote}
+              onChange={(e) => setMaterialNote(e.target.value)}
+              placeholder="Add notes about this material..."
+              minHeight="150px"
+            />
+          </DialogBody>
+          <DialogFooter>
+            <Flex width="100%" justifyContent="space-between">
+              <Button colorPalette="gray" onClick={() => setNoteDialogOpen(false)} fontSize="small">
+                Cancel
+              </Button>
+              <Button colorPalette="green" onClick={saveNote} fontSize="small">
+                Save
+              </Button>
+            </Flex>
+          </DialogFooter>
+        </DialogContent>
+      </DialogRoot>
     </Flex>
   )
 }

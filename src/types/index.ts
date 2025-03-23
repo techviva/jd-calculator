@@ -5,6 +5,7 @@ export interface MaterialOption {
   label: string
   price: number
   quantity: string
+  note?: string
 }
 
 export interface Material {
@@ -12,6 +13,7 @@ export interface Material {
   name: string
   price: number
   quantity: number
+  note?: string
 }
 
 export interface Project {
@@ -27,6 +29,7 @@ export interface Project {
   clientAmount?: number
   profitMargin?: number
   materials: Material[]
+  notes: NoteType[]
   createdAt: Timestamp
   // Add other project properties as needed
 }
@@ -65,4 +68,13 @@ export interface CostItem {
   description: string
   rate: number
   unit?: string
+}
+
+export interface NoteType {
+  id: string
+  content: string
+  createdAt: Timestamp
+  updatedAt?: Timestamp
+  projectId: string
+  createdBy: string
 }

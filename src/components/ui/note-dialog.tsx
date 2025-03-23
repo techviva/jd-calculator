@@ -61,7 +61,7 @@ export const NoteDialog = ({ open, onClose, setOpen, content, note, projectId, o
                     content,
                     projectId,
                     createdAt: new Date(),
-                    createdBy: user?.displayName || "User"
+                    createdBy: user?.email || "User"
                 };
 
                 await updateDoc(projectRef, {

@@ -301,7 +301,7 @@ export default function UpdateProject() {
         <form
           onSubmit={handleSubmit(onSubmit)}
           style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}
-          onChange={() => setFormUpdateTrigger(prev => prev + 1)} // Add form-level change handler
+          onChange={() => setFormUpdateTrigger(prev => prev + 1)}
         >
           <Heading as="h1" fontWeight="bold" mb={2}>
             Update Project Materials

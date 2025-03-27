@@ -411,7 +411,7 @@ export default function UpdateProject() {
                             fontSize="small"
                             onChange={e => {
                               field.onChange(e)
-                              setFormUpdateTrigger(prev => prev + 1) // Trigger update on quantity change
+                              setFormUpdateTrigger(prev => prev + 1)
                             }}
                           />
                         )}

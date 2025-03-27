@@ -169,16 +169,37 @@ export const ProjectPDFDocument: React.FC<{
             <Text style={styles.tableColHeader}>Rate</Text>
             <Text style={{ ...styles.tableColHeader, textAlign: 'right', width: '20%' }}>Total Price</Text>
           </View>
-          {project?.materials?.map((material, index) => (
-            <View style={styles.tableRow} key={index}>
+          {project?.materials?.flatMap((material, index) => [
+            // Regular material row
+            <View style={styles.tableRow} key={`material-${index}`}>
               <Text style={{ ...styles.tableCol, width: '50%' }}>{material.name}</Text>
               <Text style={styles.tableCol}>{material.quantity}</Text>
               <Text style={styles.tableCol}>{`$${Number(material.price).toFixed(2)}`}</Text>
               <Text
                 style={{ ...styles.tableCol, textAlign: 'right', width: '20%' }}
               >{`$${calculateTotalPrice(material.quantity, material.price).toFixed(2)}`}</Text>
-            </View>
-          ))}
+            </View>,
+
+            // Conditional note row
+            material.note ? (
+              <View
+                style={{
+                  ...styles.tableRow,
+                  backgroundColor: '#f8f8f8',
+                  paddingLeft: 20,
+                  paddingRight: 20,
+                  paddingTop: 5,
+                  paddingBottom: 5
+                }}
+                key={`note-${index}`}
+              >
+                <Text style={{ width: '100%', fontSize: 10, fontStyle: 'italic' }}>
+                  <Text style={{ color: '#666666' }}>Additional Information - </Text>
+                  {material.note}
+                </Text>
+              </View>
+            ) : null
+          ]).filter(Boolean)}
         </View>
         <View style={styles.footer}>
           <Text style={styles.subtotal}>SUBTOTAL</Text>

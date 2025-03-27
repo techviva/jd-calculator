@@ -24,7 +24,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { toaster } from '@/components/ui/toaster'
 import { CostItem, Material, MaterialOption } from '@/types'
 import { DataListItem, DataListRoot, UpdateProjectSkeleton } from '@/components/ui'
-import { MaterialNoteIcon } from '@/components/icons'
+import { CostNoteIcon, MaterialNoteIcon } from '@/components/icons'
 import {
   DialogRoot,
   DialogContent,
@@ -448,13 +448,12 @@ export default function UpdateProject() {
                         })()}
                       </Box>
                       <HStack gap={2}>
-                        <MaterialNoteIcon
+                        {watchMaterials[index].note ? <CostNoteIcon width="16px" height="16px" onClick={() => openNoteDialog(index)} /> : <MaterialNoteIcon
                           width="16px"
                           height="16px"
                           cursor="pointer"
                           onClick={() => openNoteDialog(index)}
-                          color={watchMaterials[index].note ? 'green' : 'default'}
-                        />
+                        />}
                         <DefaultButton
                           size="xs"
                           variant="subtle"

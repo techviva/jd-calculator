@@ -144,6 +144,23 @@ export const ProjectPDFDocument: React.FC<{
           </View>
         </View>
       </View>
+      {project?.notes && (
+        <View style={{ ...styles.section, backgroundColor: '#f0f9f0', marginBottom: 20 }}>
+          <Text style={styles.subtitle}>Project Notes</Text>
+          {
+            project.notes.map((note, index) => (
+              <View key={index} style={{ flexDirection: 'row', marginBottom: 4, paddingRight: 10 }}>
+                <Text style={{ ...styles.text, marginRight: 5 }}>•</Text>
+                <Text style={styles.text}>
+                  {typeof note === 'object' && note.content
+                    ? note.content
+                    : String(note)}
+                </Text>
+              </View>
+            ))}
+        </View>
+      )}
+
       <View style={styles.section}>
         <View style={styles.table}>
           <View style={{ ...styles.tableRow, borderBottom: '1px solid #DDD' }}>

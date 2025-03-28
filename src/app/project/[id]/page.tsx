@@ -114,10 +114,38 @@ export default function ProjectDetails() {
     try {
       setIsSubmitting(true)
       const docRef = doc(db, 'projects', id)
-      await setDoc(docRef, data)
+
+      const projectSnap = await getDoc(docRef)
+
+      if (!projectSnap.exists()) {
+        throw new Error("Project not found")
+      }
+
+      const existingData = projectSnap.data()
+      const updatedData = {
+        ...existingData,
+        clientName: data.clientName,
+        title: data.title,
+        description: data.description,
+        startDate: data.startDate,
+        dueDate: data.dueDate,
+      }
+      await setDoc(docRef, updatedData)
+
+      toaster.create({
+        title: 'Project updated',
+        description: 'Project has been updated successfully',
+        type: 'success',
+      })
+
       router.push(`/project/${id}`)
     } catch (error) {
       console.error('Error updating project:', error)
+      toaster.create({
+        title: 'Update failed',
+        description: 'Failed to update project details',
+        type: 'error',
+      })
     } finally {
       setIsSubmitting(false)
       setEditModalOpen(false)

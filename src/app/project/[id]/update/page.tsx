@@ -521,7 +521,7 @@ export default function UpdateProject() {
         gap={4}
       >
         <Box width="100%">
-          <Text fontWeight="light" fontSize="xx-small">
+          <Text fontWeight="light" fontSize="x-small">
             Profit Margin (%)
           </Text>
           <Input
@@ -538,23 +538,23 @@ export default function UpdateProject() {
             mb={4}
           />
         </Box>
-        <Box>
-          <Text fontWeight="light" fontSize="xx-small">
+        <Box color="red.fg" width="100%">
+          <Text fontWeight="light" fontSize="x-small">
             Total Cost
           </Text>
-          <Text fontSize="larger">${totalCost.toFixed(2)}</Text>
+          <Text fontSize="2xl" fontWeight="extrabold">${totalCost.toFixed(2)}</Text>
         </Box>
-        <Box>
-          <Text fontWeight="light" fontSize="xx-small">
+        <Box color="green.fg" width="100%">
+          <Text fontWeight="light" fontSize="x-small">
             Net Profit
           </Text>
-          <Text fontSize="larger">${netProfit.toFixed(2)}</Text>
+          <Text fontSize="2xl" fontWeight="extrabold">${netProfit.toFixed(2)}</Text>
         </Box>
-        <Box>
-          <Text fontWeight="light" fontSize="xx-small">
+        <Box color="blue.fg" width="100%">
+          <Text fontWeight="light" fontSize="x-small">
             Amount for Clients
           </Text>
-          <Text fontSize="larger">${clientAmount.toFixed(2)}</Text>
+          <Text fontSize="2xl" fontWeight="extrabold">${clientAmount.toFixed(2)}</Text>
         </Box>
       </VStack>
       <DialogRoot open={noteDialogOpen} onOpenChange={() => setNoteDialogOpen(false)}>

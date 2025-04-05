@@ -1,5 +1,6 @@
 'use client'
 import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
 import {
   Heading,
   Text,
@@ -20,7 +21,16 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { doc, getDoc, setDoc, collection, deleteDoc, query, where, getDocs, } from 'firebase/firestore'
+import {
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  deleteDoc,
+  query,
+  where,
+  getDocs,
+} from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { NoteType, Project, ProjectFormData } from '@/types'
 import {
@@ -63,16 +73,17 @@ export default function ProjectDetails() {
   const { open, onOpen, onClose, setOpen } = useDisclosure()
   const [isArchiving, setIsArchiving] = useState(false)
   const [isArchived, setIsArchived] = useState(false)
-  const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
-  const [createdBy, setCreatedBy] = useState('');
-  const [otherInfo, setOtherInfo] = useState('');
+  const [pdfDialogOpen, setPdfDialogOpen] = useState(false)
+  const [createdBy, setCreatedBy] = useState('')
+  const [otherInfo, setOtherInfo] = useState('')
+  const [includeFinancialInfo, setIncludeFinancialInfo] = useState(false)
 
-  const [detailsOpen, setDetailsOpen] = useState(true);
-  const [notesOpen, setNotesOpen] = useState(true);
-  const [materialsOpen, setMaterialsOpen] = useState(true);
+  const [detailsOpen, setDetailsOpen] = useState(true)
+  const [notesOpen, setNotesOpen] = useState(true)
+  const [materialsOpen, setMaterialsOpen] = useState(true)
 
-  const [notesModalOpen, setNotesModalOpen] = useState(false);
-  const [notes, setNotes] = useState<NoteType[]>([]);
+  const [notesModalOpen, setNotesModalOpen] = useState(false)
+  const [notes, setNotes] = useState<NoteType[]>([])
 
   const fetchProject = async () => {
     try {
@@ -118,7 +129,7 @@ export default function ProjectDetails() {
       const projectSnap = await getDoc(docRef)
 
       if (!projectSnap.exists()) {
-        throw new Error("Project not found")
+        throw new Error('Project not found')
       }
 
       const existingData = projectSnap.data()
@@ -208,7 +219,6 @@ export default function ProjectDetails() {
     }
   }
 
-
   const checkIfProjectIsTemplate = useCallback(async () => {
     try {
       if (!project?.id) return
@@ -232,13 +242,13 @@ export default function ProjectDetails() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!pdfDialogOpen) {
-        setCreatedBy('');
-        setOtherInfo('');
+        setCreatedBy('')
+        setOtherInfo('')
       }
-    }, 2000);
+    }, 2000)
 
     return () => clearTimeout(timer)
-  }, [pdfDialogOpen]);
+  }, [pdfDialogOpen])
   // Update the toggleProjectStatus function to handle all three states
   const toggleProjectStatus = async () => {
     if (!project) return
@@ -247,29 +257,29 @@ export default function ProjectDetails() {
       setIsSubmitting(true)
 
       // Determine the next status based on current status
-      let newStatus: Project['status'];
-      let statusMessage: string;
+      let newStatus: Project['status']
+      let statusMessage: string
 
       switch (projectStatus) {
         case 'archived':
-          newStatus = 'not started';
-          statusMessage = 'Project removed from archives';
-          break;
+          newStatus = 'not started'
+          statusMessage = 'Project removed from archives'
+          break
         case 'not started':
-          newStatus = 'in progress';
-          statusMessage = 'Project marked as in progress';
-          break;
+          newStatus = 'in progress'
+          statusMessage = 'Project marked as in progress'
+          break
         case 'in progress':
-          newStatus = 'completed';
-          statusMessage = 'Project marked as completed';
-          break;
+          newStatus = 'completed'
+          statusMessage = 'Project marked as completed'
+          break
         case 'completed':
-          newStatus = 'not started';
-          statusMessage = 'Project status reset to not started';
-          break;
+          newStatus = 'not started'
+          statusMessage = 'Project status reset to not started'
+          break
         default:
-          newStatus = 'not started';
-          statusMessage = 'Project status updated';
+          newStatus = 'not started'
+          statusMessage = 'Project status updated'
       }
 
       // Update in Firestore
@@ -331,13 +341,12 @@ export default function ProjectDetails() {
 
   // Function to handle PDF export button click
   const handleExportPDF = () => {
-    setPdfDialogOpen(true);
+    setPdfDialogOpen(true)
   }
 
-  const onNotesChange = (() => {
+  const onNotesChange = () => {
     fetchProject()
-  })
-
+  }
 
   if (loading) {
     return <ProjectDetailsSkeleton />
@@ -377,28 +386,28 @@ export default function ProjectDetails() {
   const getStatusButtonProps = () => {
     if (projectStatus === 'archived') {
       return {
-        text: "Remove from Archive",
-        colorPalette: "teal" as const
-      };
+        text: 'Remove from Archive',
+        colorPalette: 'teal' as const,
+      }
     } else if (projectStatus === 'not started') {
       return {
-        text: "Mark as In Progress",
-        colorPalette: "blue" as const
-      };
+        text: 'Mark as In Progress',
+        colorPalette: 'blue' as const,
+      }
     } else if (projectStatus === 'in progress') {
       return {
-        text: "Mark as Completed",
-        colorPalette: "green" as const
-      };
+        text: 'Mark as Completed',
+        colorPalette: 'green' as const,
+      }
     } else {
       return {
-        text: "Reset Status",
-        colorPalette: "gray" as const
-      };
+        text: 'Reset Status',
+        colorPalette: 'gray' as const,
+      }
     }
-  };
+  }
 
-  const statusButtonProps = getStatusButtonProps();
+  const statusButtonProps = getStatusButtonProps()
 
   return (
     <VStack
@@ -492,9 +501,11 @@ export default function ProjectDetails() {
             <Button fontSize="small" colorPalette="green" onClick={handleExportPDF}>
               Export to PDF
             </Button>
-            {!isTemplate && <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={onOpen}>
-              Make this a Template
-            </Button>}
+            {!isTemplate && (
+              <Button fontSize="small" borderRadius="lg" colorPalette="default" onClick={onOpen}>
+                Make this a Template
+              </Button>
+            )}
             <Button fontSize="small" onClick={() => router.push(`/project/${id}/update`)}>
               Update Materials
             </Button>
@@ -563,7 +574,11 @@ export default function ProjectDetails() {
       </Dialog.Root>
 
       {/* PDF Export Dialog */}
-      <Dialog.Root open={pdfDialogOpen} placement="center" onOpenChange={() => setPdfDialogOpen(!pdfDialogOpen)}>
+      <Dialog.Root
+        open={pdfDialogOpen}
+        placement="center"
+        onOpenChange={() => setPdfDialogOpen(!pdfDialogOpen)}
+      >
         <Dialog.Backdrop />
         <Dialog.Positioner>
           <Dialog.Content>
@@ -591,65 +606,120 @@ export default function ProjectDetails() {
                     placeholder="Additional information (optional)"
                   />
                 </Field.Root>
+
+                <Field.Root>
+                  <Field.Label>Include Internal Financial Info</Field.Label>
+                  <Switch
+                    checked={includeFinancialInfo}
+                    onCheckedChange={e => {
+                      setIncludeFinancialInfo(e.checked)
+                      // Force re-render of BlobProvider by toggling PDF dialog
+                      setPdfDialogOpen(false)
+                      setTimeout(() => setPdfDialogOpen(true), 10)
+                    }}
+                  >
+                    {includeFinancialInfo ? 'Yes' : 'No'}
+                  </Switch>
+                </Field.Root>
               </VStack>
             </Dialog.Body>
             <Dialog.Footer>
-              <Button colorPalette="gray" fontSize="small" mr={2} onClick={() => {
-                setPdfDialogOpen(false)
-              }}>
+              <Button
+                colorPalette="gray"
+                fontSize="small"
+                mr={2}
+                onClick={() => {
+                  setPdfDialogOpen(false)
+                }}
+              >
                 Cancel
               </Button>
 
-              {/* Use BlobProvider to generate the PDF on demand with company info */}
-              <BlobProvider document={
-                <ProjectPDFDocument
-                  project={project}
-                  companyInfo={{
-                    createdBy: createdBy,
-                    otherInfo: otherInfo
-                  }}
-                />
-              }>
-                {({ url, loading, error }) => (
-                  <Button
-                    colorPalette="green"
-                    fontSize="small"
-                    disabled={!createdBy.trim() || loading}
-                    onClick={() => {
-                      if (error) return
-                      setPdfDialogOpen(false)
+              {/* Use a key on BlobProvider to force re-render when settings change */}
+              <BlobProvider
+                key={`pdf-${includeFinancialInfo}-${createdBy}-${otherInfo}`}
+                document={
+                  <ProjectPDFDocument
+                    project={project}
+                    companyInfo={{
+                      createdBy: createdBy,
+                      otherInfo: otherInfo,
                     }}
-                  >
-                    <Link href={url || "#"} target='_blank' download={`${project?.title || 'project'}.pdf`}>
+                    includeFinancialInfo={includeFinancialInfo}
+                  />
+                }
+              >
+                {({ url, loading, error }) => {
+                  if (error) {
+                    return (
+                      <Text color="red.500" fontSize="small">
+                        Error generating PDF. Please try again.
+                      </Text>
+                    )
+                  }
 
-                      {error ? "Error generating PDF" : "Download PDF"}
+                  return (
+                    <Link
+                      href={url || '#'}
+                      target="_blank"
+                      download={`${project?.title || 'project'}_${new Date()
+                        .toISOString()
+                        .replace('T', ' ')
+                        .slice(0, 16)
+                        .replace(':', '_')}.pdf`}
+                    >
+                      <Button
+                        colorPalette="green"
+                        fontSize="small"
+                        disabled={!createdBy.trim() || loading}
+                        onClick={() => setPdfDialogOpen(false)}
+                      >
+                        {loading ? 'Generating PDF...' : 'Download PDF'}
+                      </Button>
                     </Link>
-                  </Button>
-
-                )}
+                  )
+                }}
               </BlobProvider>
             </Dialog.Footer>
           </Dialog.Content>
         </Dialog.Positioner>
       </Dialog.Root>
 
-      <VStack width="100%" gap={4} align="stretch" position="relative" borderTop="2px solid" borderColor="border.muted" pt={4}>
-        <Text fontSize="small">
-          Job Details
-        </Text>
-        <CollapsibleRoot open={detailsOpen} onOpenChange={() => setDetailsOpen(!detailsOpen)} defaultOpen={true}>
+      <VStack
+        width="100%"
+        gap={4}
+        align="stretch"
+        position="relative"
+        borderTop="2px solid"
+        borderColor="border.muted"
+        pt={4}
+      >
+        <Text fontSize="small">Job Details</Text>
+        <CollapsibleRoot
+          open={detailsOpen}
+          onOpenChange={() => setDetailsOpen(!detailsOpen)}
+          defaultOpen={true}
+        >
           <CollapsibleTrigger
             position="absolute"
             right={4}
             top={5}
             transition="transform 0.3s ease"
-            transform={detailsOpen ? "rotate(0deg)" : "rotate(180deg)"}
+            transform={detailsOpen ? 'rotate(0deg)' : 'rotate(180deg)'}
             _hover={{ cursor: 'pointer', scale: 1.2 }}
           >
             <BsChevronDown size={10} />
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <HStack width="100%" gap={60} wrap="wrap" alignItems="flex-start" rowGap={2} pr={10} mb={4}>
+            <HStack
+              width="100%"
+              gap={60}
+              wrap="wrap"
+              alignItems="flex-start"
+              rowGap={2}
+              pr={10}
+              mb={4}
+            >
               <DataListRoot>
                 <DataListItem label="Name" value={project?.clientName} />
               </DataListRoot>
@@ -661,8 +731,20 @@ export default function ProjectDetails() {
               </DataListRoot>
             </HStack>
 
-            <VStack width="100%" border="1.5px solid" borderColor="border.muted" borderRadius="md" mb={4}>
-              <HStack width="100%" justifyContent="space-between" p={4} bg="bg.subtle" borderRadius="md">
+            <VStack
+              width="100%"
+              border="1.5px solid"
+              borderColor="border.muted"
+              borderRadius="md"
+              mb={4}
+            >
+              <HStack
+                width="100%"
+                justifyContent="space-between"
+                p={4}
+                bg="bg.subtle"
+                borderRadius="md"
+              >
                 <VStack alignItems="flex-start" gap={1}>
                   <Text fontSize="sm" color="fg.subtle">
                     Total Cost
@@ -689,17 +771,27 @@ export default function ProjectDetails() {
         </CollapsibleRoot>
       </VStack>
 
-      <VStack width="100%" gap={4} align="stretch" position="relative" borderTop="2px solid" borderColor="border.muted" pt={4}>
-        <Text fontSize="small">
-          Notes
-        </Text>
-        <CollapsibleRoot open={notesOpen} onOpenChange={() => setNotesOpen(!notesOpen)} defaultOpen={true}>
+      <VStack
+        width="100%"
+        gap={4}
+        align="stretch"
+        position="relative"
+        borderTop="2px solid"
+        borderColor="border.muted"
+        pt={4}
+      >
+        <Text fontSize="small">Notes</Text>
+        <CollapsibleRoot
+          open={notesOpen}
+          onOpenChange={() => setNotesOpen(!notesOpen)}
+          defaultOpen={true}
+        >
           <CollapsibleTrigger
             position="absolute"
             right={4}
             top={5}
             transition="transform 0.3s ease"
-            transform={notesOpen ? "rotate(0deg)" : "rotate(180deg)"}
+            transform={notesOpen ? 'rotate(0deg)' : 'rotate(180deg)'}
             _hover={{ cursor: 'pointer', scale: 1.2 }}
           >
             <BsChevronDown size={10} />
@@ -708,12 +800,7 @@ export default function ProjectDetails() {
             {notes.length > 0 ? (
               <VStack width="100%" gap={2} align="stretch">
                 {notes.map(note => (
-                  <Note
-                    key={note.id}
-                    note={note}
-                    projectId={id}
-                    onNotesChange={onNotesChange}
-                  />
+                  <Note key={note.id} note={note} projectId={id} onNotesChange={onNotesChange} />
                 ))}
               </VStack>
             ) : (
@@ -736,23 +823,40 @@ export default function ProjectDetails() {
                 <AddNoteIcon color="green" width="13px" height="13px" />
                 Add Note
               </DefaultButton>
-            </ Box>
+            </Box>
           </CollapsibleContent>
         </CollapsibleRoot>
       </VStack>
-      <NoteDialog open={notesModalOpen} onClose={() => setNotesModalOpen(false)} setOpen={setNotesModalOpen} content="" projectId={id} onNotesChange={onNotesChange} />
+      <NoteDialog
+        open={notesModalOpen}
+        onClose={() => setNotesModalOpen(false)}
+        setOpen={setNotesModalOpen}
+        content=""
+        projectId={id}
+        onNotesChange={onNotesChange}
+      />
 
-      <VStack width="100%" gap={4} align="stretch" position="relative" borderTop="2px solid" borderColor="border.muted" pt={4}>
-        <Text fontSize="small">
-          Materials
-        </Text>
-        <CollapsibleRoot open={materialsOpen} onOpenChange={() => setMaterialsOpen(!materialsOpen)} defaultOpen={true}>
+      <VStack
+        width="100%"
+        gap={4}
+        align="stretch"
+        position="relative"
+        borderTop="2px solid"
+        borderColor="border.muted"
+        pt={4}
+      >
+        <Text fontSize="small">Materials</Text>
+        <CollapsibleRoot
+          open={materialsOpen}
+          onOpenChange={() => setMaterialsOpen(!materialsOpen)}
+          defaultOpen={true}
+        >
           <CollapsibleTrigger
             position="absolute"
             right={4}
             top={5}
             transition="transform 0.3s ease"
-            transform={materialsOpen ? "rotate(0deg)" : "rotate(180deg)"}
+            transform={materialsOpen ? 'rotate(0deg)' : 'rotate(180deg)'}
             _hover={{ cursor: 'pointer', scale: 1.2 }}
           >
             <BsChevronDown size={10} />
@@ -771,38 +875,48 @@ export default function ProjectDetails() {
                     <Table.ColumnHeader color="fg.subtle" fontSize="small" htmlWidth="10%">
                       Rate
                     </Table.ColumnHeader>
-                    <Table.ColumnHeader color="fg.subtle" fontSize="small" textAlign="end" pr={4} htmlWidth="15%">
+                    <Table.ColumnHeader
+                      color="fg.subtle"
+                      fontSize="small"
+                      textAlign="end"
+                      pr={4}
+                      htmlWidth="15%"
+                    >
                       Total Price
                     </Table.ColumnHeader>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
                   {project?.materials && project.materials.length > 0 ? (
-                    project.materials.flatMap((material, index) => [
-                      <Table.Row
-                        key={material.id}
-                        p={4}
-                        bg={index % 2 === 0 ? "spot" : "bg.subtle"}
-                      >
-                        <Table.Cell>{material.name}</Table.Cell>
-                        <Table.Cell>{material.quantity}</Table.Cell>
-                        <Table.Cell>{formatCurrency(material.price)}</Table.Cell>
-                        <Table.Cell textAlign="end" pr={4}>
-                          {formatCurrency(material.quantity * material.price)}
-                        </Table.Cell>
-                      </Table.Row>,
-                      material.note ? (
-                        <Table.Row key={`${material.id}-note`} bg={index % 2 === 0 ? "spot" : "bg.subtle"}
+                    project.materials
+                      .flatMap((material, index) => [
+                        <Table.Row
+                          key={material.id}
+                          p={4}
+                          bg={index % 2 === 0 ? 'spot' : 'bg.subtle'}
                         >
-                          <Table.Cell colSpan={4} fontSize="small" pl={4} py={2}>
-                            <Text as="span" fontStyle="italic" color="fg.muted">
-                              Additional Information -
-                            </Text>{" "}
-                            {material.note}
+                          <Table.Cell>{material.name}</Table.Cell>
+                          <Table.Cell>{material.quantity}</Table.Cell>
+                          <Table.Cell>{formatCurrency(material.price)}</Table.Cell>
+                          <Table.Cell textAlign="end" pr={4}>
+                            {formatCurrency(material.quantity * material.price)}
                           </Table.Cell>
-                        </Table.Row>
-                      ) : null
-                    ]).filter(Boolean)
+                        </Table.Row>,
+                        material.note ? (
+                          <Table.Row
+                            key={`${material.id}-note`}
+                            bg={index % 2 === 0 ? 'spot' : 'bg.subtle'}
+                          >
+                            <Table.Cell colSpan={4} fontSize="small" pl={4} py={2}>
+                              <Text as="span" fontStyle="italic" color="fg.muted">
+                                Additional Information -
+                              </Text>{' '}
+                              {material.note}
+                            </Table.Cell>
+                          </Table.Row>
+                        ) : null,
+                      ])
+                      .filter(Boolean)
                   ) : (
                     <Table.Row>
                       <Table.Cell colSpan={4} textAlign="center">
@@ -824,7 +938,9 @@ export default function ProjectDetails() {
 
                 {project?.profitMargin && (
                   <HStack justifyContent="space-between" width="100%">
-                    <Text fontSize="small" color="green.500">Profit Margin ({project.profitMargin}%)</Text>
+                    <Text fontSize="small" color="green.500">
+                      Profit Margin ({project.profitMargin}%)
+                    </Text>
                     <Text fontSize="small" color="green.500">
                       {formatCurrency((project.profitMargin / 100) * subtotal)}
                     </Text>
@@ -859,5 +975,4 @@ export default function ProjectDetails() {
       </VStack>
     </VStack>
   )
-
 }

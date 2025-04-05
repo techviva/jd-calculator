@@ -512,6 +512,7 @@ export default function UpdateProject() {
       </VStack>
       <VStack
         width="15%"
+        minWidth="200px"
         alignItems="flex-start"
         justifyContent="flex-start"
         height="100%"
@@ -529,7 +530,7 @@ export default function UpdateProject() {
             value={profitMargin}
             onChange={e => {
               setProfitMargin(Number(e.target.value))
-              setFormUpdateTrigger(prev => prev + 1) // Trigger update on profit margin change
+              setFormUpdateTrigger(prev => prev + 1)
             }}
             min={0}
             max={100}

@@ -778,8 +778,12 @@ export default function ProjectDetails() {
                 </Table.Header>
                 <Table.Body>
                   {project?.materials && project.materials.length > 0 ? (
-                    project.materials.flatMap(material => [
-                      <Table.Row key={material.id} p={4}>
+                    project.materials.flatMap((material, index) => [
+                      <Table.Row
+                        key={material.id}
+                        p={4}
+                        bg={index % 2 === 0 ? "spot" : "bg.subtle"}
+                      >
                         <Table.Cell>{material.name}</Table.Cell>
                         <Table.Cell>{material.quantity}</Table.Cell>
                         <Table.Cell>{formatCurrency(material.price)}</Table.Cell>
@@ -788,8 +792,9 @@ export default function ProjectDetails() {
                         </Table.Cell>
                       </Table.Row>,
                       material.note ? (
-                        <Table.Row key={`${material.id}-note`} bg="bg.subtle">
-                          <Table.Cell colSpan={4} fontSize="small" pl={4} py={2} >
+                        <Table.Row key={`${material.id}-note`} bg={index % 2 === 0 ? "spot" : "bg.subtle"}
+                        >
+                          <Table.Cell colSpan={4} fontSize="small" pl={4} py={2}>
                             <Text as="span" fontStyle="italic" color="fg.muted">
                               Additional Information -
                             </Text>{" "}
@@ -819,8 +824,8 @@ export default function ProjectDetails() {
 
                 {project?.profitMargin && (
                   <HStack justifyContent="space-between" width="100%">
-                    <Text fontSize="small">Profit Margin ({project.profitMargin}%)</Text>
-                    <Text fontSize="small">
+                    <Text fontSize="small" color="green.500">Profit Margin ({project.profitMargin}%)</Text>
+                    <Text fontSize="small" color="green.500">
                       {formatCurrency((project.profitMargin / 100) * subtotal)}
                     </Text>
                   </HStack>

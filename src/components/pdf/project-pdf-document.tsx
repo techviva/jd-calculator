@@ -3,7 +3,6 @@ import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/
 import { Material, Project } from '@/types'
 import { formatDate } from '@/utils/functions'
 
-// Simple interface for company info
 interface CompanyInfo {
   createdBy: string;
   otherInfo?: string;
@@ -112,100 +111,133 @@ const calculateSubtotal = (materials: Material[] | undefined) =>
 export const ProjectPDFDocument: React.FC<{
   project: Project | null;
   companyInfo: CompanyInfo;
-}> = ({ project, companyInfo }) => (
-  <Document>
-    <Page style={styles.page}>
-      <View style={styles.header}>
-        <View style={styles.logoContainer}>
-          <Image style={styles.logo} src="/images/viva-logo.png" />
+}> = ({ project, companyInfo }) => {
+  // Calculate subtotal for financial summary
+  const subtotal = calculateSubtotal(project?.materials) || 0;
+
+  return (
+    <Document>
+      <Page style={styles.page}>
+        <View style={styles.header}>
+          <View style={styles.logoContainer}>
+            <Image style={styles.logo} src="/images/viva-logo.png" />
+          </View>
+          <View style={{ marginRight: 5, textAlign: 'right', width: '30%' }}>
+            <Text style={{ fontWeight: 600, fontSize: 14 }}>Created By</Text>
+            <Text style={{ fontWeight: 300 }}>{companyInfo.createdBy}</Text>
+            {companyInfo.otherInfo && (
+              <Text style={{ fontWeight: 300, fontSize: 11, }}>{companyInfo.otherInfo}</Text>
+            )}
+          </View>
         </View>
-        <View style={{ marginRight: 5, textAlign: 'right', width: '30%' }}>
-          <Text style={{ fontWeight: 600, fontSize: 14 }}>Created By</Text>
-          <Text style={{ fontWeight: 300 }}>{companyInfo.createdBy}</Text>
-          {companyInfo.otherInfo && (
-            <Text style={{ fontWeight: 300, fontSize: 11, }}>{companyInfo.otherInfo}</Text>
-          )}
+        <View style={styles.clientDetails}>
+          <View>
+            <Text style={styles.subtitle}>Client Details</Text>
+            <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+              <View>
+                <Text style={{ ...styles.text, fontWeight: 300 }}>{project?.clientName}</Text>
+                <Text style={{ ...styles.text, fontWeight: 300 }}>
+                  Landscaping for the Virtual Office
+                </Text>
+              </View>
+              <View style={{ textAlign: 'right', width: '50%' }}>
+                <Text style={styles.text}>Submitted On: {formatDate(project?.startDate)}</Text>
+                <Text style={styles.text}>Due Date: {formatDate(project?.dueDate)}</Text>
+              </View>
+            </View>
+          </View>
         </View>
-      </View>
-      <View style={styles.clientDetails}>
-        <View>
-          <Text style={styles.subtitle}>Client Details</Text>
-          <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-            <View>
-              <Text style={{ ...styles.text, fontWeight: 300 }}>{project?.clientName}</Text>
-              <Text style={{ ...styles.text, fontWeight: 300 }}>
-                Landscaping for the Virtual Office
+
+        {/* Financial Summary Section */}
+        <View style={{ ...styles.section, marginBottom: 20, padding: 15 }}>
+          <Text style={styles.subtitle}>Financial Summary</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 5 }}>
+            <View style={{ width: '30%', alignItems: 'flex-start' }}>
+              <Text style={{ fontSize: 10, color: '#666666', marginBottom: 3 }}>Total Cost</Text>
+              <Text style={{ fontSize: 14, fontWeight: 'bold' }}>${subtotal.toFixed(2)}</Text>
+            </View>
+            <View style={{ width: '30%', alignItems: 'flex-start' }}>
+              <Text style={{ fontSize: 10, color: '#666666', marginBottom: 3 }}>Net Profit</Text>
+              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#38A169' }}>
+                ${(project?.netProfit || 0).toFixed(2)}
               </Text>
             </View>
-            <View style={{ textAlign: 'right', width: '50%' }}>
-              <Text style={styles.text}>Submitted On: {formatDate(project?.startDate)}</Text>
-              <Text style={styles.text}>Due Date: {formatDate(project?.dueDate)}</Text>
+            <View style={{ width: '30%', alignItems: 'flex-start' }}>
+              <Text style={{ fontSize: 10, color: '#666666', marginBottom: 3 }}>Amount for Clients</Text>
+              <Text style={{ fontSize: 14, fontWeight: 'bold' }}>
+                ${(project?.clientAmount || 0).toFixed(2)}
+              </Text>
             </View>
           </View>
         </View>
-      </View>
-      {project?.notes && (
-        <View style={{ ...styles.section, backgroundColor: '#f0f9f0', marginBottom: 20 }}>
-          <Text style={styles.subtitle}>Project Notes</Text>
-          {
-            project.notes.map((note, index) => (
-              <View key={index} style={{ flexDirection: 'row', marginBottom: 4, paddingRight: 10 }}>
-                <Text style={{ ...styles.text, marginRight: 5 }}>•</Text>
-                <Text style={styles.text}>
-                  {typeof note === 'object' && note.content
-                    ? note.content
-                    : String(note)}
-                </Text>
+
+        {project?.notes && (
+          <View style={{ ...styles.section, backgroundColor: '#f0f9f0', marginBottom: 20 }}>
+            <Text style={styles.subtitle}>Project Notes</Text>
+            {
+              project.notes.map((note, index) => (
+                <View key={index} style={{ flexDirection: 'row', marginBottom: 4, paddingRight: 10 }}>
+                  <Text style={{ ...styles.text, marginRight: 5 }}>•</Text>
+                  <Text style={styles.text}>
+                    {typeof note === 'object' && note.content
+                      ? note.content
+                      : String(note)}
+                  </Text>
+                </View>
+              ))}
+          </View>
+        )}
+
+        <View style={styles.section}>
+          <View style={styles.table}>
+            <View style={{ ...styles.tableRow, borderBottom: '1px solid #DDD' }}>
+              <Text style={{ ...styles.tableColHeader, width: '50%' }}>Material</Text>
+              <Text style={styles.tableColHeader}>Qty</Text>
+              <Text style={styles.tableColHeader}>Rate</Text>
+              <Text style={{ ...styles.tableColHeader, textAlign: 'right', width: '20%' }}>Total Price</Text>
+            </View>
+            {project?.materials?.map((material, index) => (
+              <View key={`material-group-${index}`} break={false}>
+                <View
+                  style={{
+                    ...styles.tableRow,
+                    backgroundColor: index % 2 === 0 ? '#f0f9f0' : '#f8f8f8'
+                  }}
+                >
+                  <Text style={{ ...styles.tableCol, width: '50%' }}>{material.name}</Text>
+                  <Text style={styles.tableCol}>{material.quantity}</Text>
+                  <Text style={styles.tableCol}>{`$${Number(material.price).toFixed(2)}`}</Text>
+                  <Text
+                    style={{ ...styles.tableCol, textAlign: 'right', width: '20%' }}
+                  >{`$${calculateTotalPrice(material.quantity, material.price).toFixed(2)}`}</Text>
+                </View>
+
+                {material.note && (
+                  <View
+                    style={{
+                      ...styles.tableRow,
+                      backgroundColor: index % 2 === 0 ? '#f0f9f0' : '#f8f8f8',
+                      paddingLeft: 20,
+                      paddingRight: 20,
+                      paddingTop: 5,
+                      paddingBottom: 5
+                    }}
+                  >
+                    <Text style={{ width: '100%', fontSize: 10, fontStyle: 'italic' }}>
+                      <Text style={{ color: '#666666' }}>Additional Information - </Text>
+                      {material.note}
+                    </Text>
+                  </View>
+                )}
               </View>
             ))}
-        </View>
-      )}
-
-      <View style={styles.section}>
-        <View style={styles.table}>
-          <View style={{ ...styles.tableRow, borderBottom: '1px solid #DDD' }}>
-            <Text style={{ ...styles.tableColHeader, width: '50%' }}>Material</Text>
-            <Text style={styles.tableColHeader}>Qty</Text>
-            <Text style={styles.tableColHeader}>Rate</Text>
-            <Text style={{ ...styles.tableColHeader, textAlign: 'right', width: '20%' }}>Total Price</Text>
           </View>
-          {project?.materials?.flatMap((material, index) => [
-            // Regular material row
-            <View style={styles.tableRow} key={`material-${index}`}>
-              <Text style={{ ...styles.tableCol, width: '50%' }}>{material.name}</Text>
-              <Text style={styles.tableCol}>{material.quantity}</Text>
-              <Text style={styles.tableCol}>{`$${Number(material.price).toFixed(2)}`}</Text>
-              <Text
-                style={{ ...styles.tableCol, textAlign: 'right', width: '20%' }}
-              >{`$${calculateTotalPrice(material.quantity, material.price).toFixed(2)}`}</Text>
-            </View>,
-
-            // Conditional note row
-            material.note ? (
-              <View
-                style={{
-                  ...styles.tableRow,
-                  backgroundColor: '#f8f8f8',
-                  paddingLeft: 20,
-                  paddingRight: 20,
-                  paddingTop: 5,
-                  paddingBottom: 5
-                }}
-                key={`note-${index}`}
-              >
-                <Text style={{ width: '100%', fontSize: 10, fontStyle: 'italic' }}>
-                  <Text style={{ color: '#666666' }}>Additional Information - </Text>
-                  {material.note}
-                </Text>
-              </View>
-            ) : null
-          ]).filter(Boolean)}
+          <View style={styles.footer}>
+            <Text style={styles.subtotal}>SUBTOTAL</Text>
+            <Text style={styles.subtotal}>${calculateSubtotal(project?.materials)?.toFixed(2)}</Text>
+          </View>
         </View>
-        <View style={styles.footer}>
-          <Text style={styles.subtotal}>SUBTOTAL</Text>
-          <Text style={styles.subtotal}>${calculateSubtotal(project?.materials)?.toFixed(2)}</Text>
-        </View>
-      </View>
-    </Page>
-  </Document>
-)
+      </Page>
+    </Document>
+  );
+}

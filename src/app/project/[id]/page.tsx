@@ -240,16 +240,16 @@ export default function ProjectDetails() {
     }
   }, [project, checkIfProjectIsTemplate])
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!pdfDialogOpen) {
-        setCreatedBy('')
-        setOtherInfo('')
-      }
-    }, 2000)
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     if (!pdfDialogOpen) {
+  //       setCreatedBy('')
+  //       setOtherInfo('')
+  //     }
+  //   }, 2000)
 
-    return () => clearTimeout(timer)
-  }, [pdfDialogOpen])
+  //   return () => clearTimeout(timer)
+  // }, [pdfDialogOpen])
 
   useEffect(() => {
     return () => {
@@ -309,6 +309,10 @@ export default function ProjectDetails() {
       })
     } finally {
       setIsPdfGenerating(false)
+      setPdfDialogOpen(false)
+      setCreatedBy('')
+      setOtherInfo('')
+      setIncludeFinancialInfo(false)
     }
   }
 

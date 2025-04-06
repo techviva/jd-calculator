@@ -164,7 +164,15 @@ export const ProjectPDFDocument: React.FC<{
                   </Text>
                   <Text style={{ fontSize: 14, fontWeight: 'bold' }}>${subtotal.toFixed(2)}</Text>
                 </View>
-                <View style={{ width: '20%', alignItems: 'center', textAlign: 'center', marginLeft: '50px', marginRight: 'auto' }}>
+                <View
+                  style={{
+                    width: '20%',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    marginLeft: '50px',
+                    marginRight: 'auto',
+                  }}
+                >
                   <Text style={{ fontSize: 10, color: '#666666', marginBottom: 3 }}>
                     Net Profit
                   </Text>
@@ -217,17 +225,19 @@ export const ProjectPDFDocument: React.FC<{
                     style={{
                       ...styles.tableRow,
                       backgroundColor: material.name.toLowerCase().includes('labor')
-                        ? '#FFF8E1'
+                        ? '#fde047'
                         : index % 2 === 0
                           ? '#f0f9f0'
-                          : '#f8f8f8'
+                          : '#f8f8f8',
                     }}
                   >
                     <Text
                       style={{
                         ...styles.tableCol,
                         width: '50%',
-                        fontWeight: material.name.toLowerCase().includes('labor') ? 'bold' : 'normal'
+                        fontWeight: material.name.toLowerCase().includes('labor')
+                          ? 'bold'
+                          : 'normal',
                       }}
                     >
                       {material.name}
@@ -244,7 +254,7 @@ export const ProjectPDFDocument: React.FC<{
                       style={{
                         ...styles.tableRow,
                         backgroundColor: material.name.toLowerCase().includes('labor')
-                          ? '#FFF8E1'
+                          ? '#fde047'
                           : index % 2 === 0
                             ? '#f0f9f0'
                             : '#f8f8f8',

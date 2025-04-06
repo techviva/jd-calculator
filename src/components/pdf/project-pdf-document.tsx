@@ -164,7 +164,7 @@ export const ProjectPDFDocument: React.FC<{
                   </Text>
                   <Text style={{ fontSize: 14, fontWeight: 'bold' }}>${subtotal.toFixed(2)}</Text>
                 </View>
-                <View style={{ width: '30%', alignItems: 'flex-start' }}>
+                <View style={{ width: '20%', alignItems: 'center', textAlign: 'center', marginLeft: '50px', marginRight: 'auto' }}>
                   <Text style={{ fontSize: 10, color: '#666666', marginBottom: 3 }}>
                     Net Profit
                   </Text>
@@ -172,7 +172,7 @@ export const ProjectPDFDocument: React.FC<{
                     ${(project?.netProfit || 0).toFixed(2)}
                   </Text>
                 </View>
-                <View style={{ width: '30%', alignItems: 'flex-start' }}>
+                <View style={{ width: '20%', alignItems: 'flex-end' }}>
                   <Text style={{ fontSize: 10, color: '#666666', marginBottom: 3 }}>
                     Amount for Clients
                   </Text>
@@ -216,10 +216,22 @@ export const ProjectPDFDocument: React.FC<{
                   <View
                     style={{
                       ...styles.tableRow,
-                      backgroundColor: index % 2 === 0 ? '#f0f9f0' : '#f8f8f8',
+                      backgroundColor: material.name.toLowerCase().includes('labor')
+                        ? '#FFF8E1'
+                        : index % 2 === 0
+                          ? '#f0f9f0'
+                          : '#f8f8f8'
                     }}
                   >
-                    <Text style={{ ...styles.tableCol, width: '50%' }}>{material.name}</Text>
+                    <Text
+                      style={{
+                        ...styles.tableCol,
+                        width: '50%',
+                        fontWeight: material.name.toLowerCase().includes('labor') ? 'bold' : 'normal'
+                      }}
+                    >
+                      {material.name}
+                    </Text>
                     <Text style={styles.tableCol}>{material.quantity}</Text>
                     <Text style={styles.tableCol}>{`$${Number(material.price).toFixed(2)}`}</Text>
                     <Text
@@ -231,7 +243,11 @@ export const ProjectPDFDocument: React.FC<{
                     <View
                       style={{
                         ...styles.tableRow,
-                        backgroundColor: index % 2 === 0 ? '#f0f9f0' : '#f8f8f8',
+                        backgroundColor: material.name.toLowerCase().includes('labor')
+                          ? '#FFF8E1'
+                          : index % 2 === 0
+                            ? '#f0f9f0'
+                            : '#f8f8f8',
                         paddingLeft: 20,
                         paddingRight: 20,
                         paddingTop: 5,

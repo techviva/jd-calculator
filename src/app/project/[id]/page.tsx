@@ -46,12 +46,11 @@ import {
   NoteDialog,
 } from '@/components/ui'
 import ProjectDetailsSkeleton from '@/components/ui/project-details-skeleton'
-import { BlobProvider } from '@react-pdf/renderer'
+import { pdf } from '@react-pdf/renderer'
 import { ProjectPDFDocument } from '@/components/pdf'
 import { AddNoteIcon, DeleteIcon, EditIcon } from '@/components/icons'
 import { formatDate } from '@/utils/functions'
 import { toaster } from '@/components/ui/toaster'
-import Link from 'next/link'
 import { BsChevronDown } from 'react-icons/bs'
 
 export default function ProjectDetails() {
@@ -77,6 +76,8 @@ export default function ProjectDetails() {
   const [createdBy, setCreatedBy] = useState('')
   const [otherInfo, setOtherInfo] = useState('')
   const [includeFinancialInfo, setIncludeFinancialInfo] = useState(false)
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null)
+  const [isPdfGenerating, setIsPdfGenerating] = useState(false)
 
   const [detailsOpen, setDetailsOpen] = useState(true)
   const [notesOpen, setNotesOpen] = useState(true)
@@ -249,6 +250,68 @@ export default function ProjectDetails() {
 
     return () => clearTimeout(timer)
   }, [pdfDialogOpen])
+
+  useEffect(() => {
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl)
+      }
+    }
+  }, [pdfUrl])
+
+  const generatePdf = async () => {
+    if (!createdBy.trim()) return
+
+    try {
+      setIsPdfGenerating(true)
+
+      // Create the PDF document
+      const pdfDocument = (
+        <ProjectPDFDocument
+          project={project}
+          companyInfo={{
+            createdBy: createdBy,
+            otherInfo: otherInfo,
+          }}
+          includeFinancialInfo={includeFinancialInfo}
+        />
+      )
+
+      // Generate blob
+      const blob = await pdf(pdfDocument).toBlob()
+
+      // Create URL
+      const url = URL.createObjectURL(blob)
+      setPdfUrl(url)
+
+      // Trigger download
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${project?.title || 'project'}_${new Date()
+        .toISOString()
+        .replace('T', ' ')
+        .slice(0, 16)
+        .replace(':', '_')}.pdf`
+      link.click()
+
+      // Clean up URL after a delay to ensure download starts
+      setTimeout(() => {
+        URL.revokeObjectURL(url)
+        setPdfUrl(null)
+        setPdfDialogOpen(false)
+      }, 100)
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      toaster.create({
+        title: 'PDF Generation Failed',
+        description: 'There was a problem creating the PDF. Please try again.',
+        type: 'error',
+      })
+    } finally {
+      setIsPdfGenerating(false)
+    }
+  }
+
   // Update the toggleProjectStatus function to handle all three states
   const toggleProjectStatus = async () => {
     if (!project) return
@@ -613,9 +676,6 @@ export default function ProjectDetails() {
                     checked={includeFinancialInfo}
                     onCheckedChange={e => {
                       setIncludeFinancialInfo(e.checked)
-                      // Force re-render of BlobProvider by toggling PDF dialog
-                      setPdfDialogOpen(false)
-                      setTimeout(() => setPdfDialogOpen(true), 10)
                     }}
                   >
                     {includeFinancialInfo ? 'Yes' : 'No'}
@@ -635,51 +695,15 @@ export default function ProjectDetails() {
                 Cancel
               </Button>
 
-              {/* Use a key on BlobProvider to force re-render when settings change */}
-              <BlobProvider
-                key={`pdf-${includeFinancialInfo}-${createdBy}-${otherInfo}`}
-                document={
-                  <ProjectPDFDocument
-                    project={project}
-                    companyInfo={{
-                      createdBy: createdBy,
-                      otherInfo: otherInfo,
-                    }}
-                    includeFinancialInfo={includeFinancialInfo}
-                  />
-                }
+              <Button
+                colorPalette="green"
+                fontSize="small"
+                onClick={generatePdf}
+                // isLoading={isPdfGenerating}
+                disabled={!createdBy.trim() || isPdfGenerating}
               >
-                {({ url, loading, error }) => {
-                  if (error) {
-                    return (
-                      <Text color="red.500" fontSize="small">
-                        Error generating PDF. Please try again.
-                      </Text>
-                    )
-                  }
-
-                  return (
-                    <Link
-                      href={url || '#'}
-                      target="_blank"
-                      download={`${project?.title || 'project'}_${new Date()
-                        .toISOString()
-                        .replace('T', ' ')
-                        .slice(0, 16)
-                        .replace(':', '_')}.pdf`}
-                    >
-                      <Button
-                        colorPalette="green"
-                        fontSize="small"
-                        disabled={!createdBy.trim() || loading}
-                        onClick={() => setPdfDialogOpen(false)}
-                      >
-                        {loading ? 'Generating PDF...' : 'Download PDF'}
-                      </Button>
-                    </Link>
-                  )
-                }}
-              </BlobProvider>
+                {isPdfGenerating ? 'Generating PDF...' : 'Download PDF'}
+              </Button>
             </Dialog.Footer>
           </Dialog.Content>
         </Dialog.Positioner>
@@ -893,9 +917,14 @@ export default function ProjectDetails() {
                         <Table.Row
                           key={material.id}
                           p={4}
-                          bg={index % 2 === 0 ? 'spot' : 'bg.subtle'}
+                          bg={material.name.toLowerCase().includes('labor')
+                            ? 'yellow.emphasized'
+                            : index % 2 === 0
+                              ? 'spot'
+                              : 'bg.subtle'
+                          }
                         >
-                          <Table.Cell>{material.name}</Table.Cell>
+                          <Table.Cell fontWeight={material.name.toLowerCase().includes('labor') ? 'bold' : 'normal'}>{material.name}</Table.Cell>
                           <Table.Cell>{material.quantity}</Table.Cell>
                           <Table.Cell>{formatCurrency(material.price)}</Table.Cell>
                           <Table.Cell textAlign="end" pr={4}>
@@ -905,7 +934,12 @@ export default function ProjectDetails() {
                         material.note ? (
                           <Table.Row
                             key={`${material.id}-note`}
-                            bg={index % 2 === 0 ? 'spot' : 'bg.subtle'}
+                            bg={material.name.toLowerCase().includes('labor')
+                              ? 'yellow.emphasized'
+                              : index % 2 === 0
+                                ? 'spot'
+                                : 'bg.subtle'
+                            }
                           >
                             <Table.Cell colSpan={4} fontSize="small" pl={4} py={2}>
                               <Text as="span" fontStyle="italic" color="fg.muted">

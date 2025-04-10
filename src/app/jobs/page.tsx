@@ -51,6 +51,11 @@ export default function Jobs() {
     fetchProjects()
   }, [])
 
+  // Add this effect to reset to page 1 when search term changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm])
+
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedStatus(e.target.value)
     setCurrentPage(1) // Reset to first page when status changes

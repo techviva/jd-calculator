@@ -316,6 +316,7 @@ export default function ProjectDetails() {
     }
   }
 
+
   // Update the toggleProjectStatus function to handle all three states
   const toggleProjectStatus = async () => {
     if (!project) return

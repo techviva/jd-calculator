@@ -31,6 +31,7 @@ export interface Project {
   materials: Material[]
   notes: NoteType[]
   createdAt: Timestamp
+  clickupId?: string // Add this line for ClickUp integration
   // Add other project properties as needed
 }
 
@@ -40,6 +41,7 @@ export interface ProjectFormData {
   description: string
   startDate: string
   dueDate: string
+  clickupId?: string // Add this line for ClickUp integration
 }
 export interface Template {
   id: string

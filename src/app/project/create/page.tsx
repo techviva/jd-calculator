@@ -61,6 +61,7 @@ export default function CreateProject() {
     description: string
     startDate: string
     dueDate: string
+    clickupId?: string // Add clickupId to local ProjectFormData
   }
 
   const onSubmit = async (data: ProjectFormData) => {
@@ -72,6 +73,7 @@ export default function CreateProject() {
         ...data,
         createdAt: serverTimestamp(),
         status: 'in progress',
+        clickupId: data.clickupId || '', // Add clickupId to Firestore
       }
 
       // Add document to Firestore

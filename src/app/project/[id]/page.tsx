@@ -141,6 +141,7 @@ export default function ProjectDetails() {
         description: data.description,
         startDate: data.startDate,
         dueDate: data.dueDate,
+        clickupId: data.clickupId,
       }
       await setDoc(docRef, updatedData)
 
@@ -315,7 +316,6 @@ export default function ProjectDetails() {
       setIncludeFinancialInfo(false)
     }
   }
-
 
   // Update the toggleProjectStatus function to handle all three states
   const toggleProjectStatus = async () => {
@@ -758,6 +758,9 @@ export default function ProjectDetails() {
               <DataListRoot>
                 <DataListItem label="Job Description" value={project?.description} />
               </DataListRoot>
+              <DataListRoot>
+                <DataListItem label="ClickUp Task ID" value={project?.clickupId || 'N/A'} />
+              </DataListRoot>
             </HStack>
 
             <VStack
@@ -922,14 +925,21 @@ export default function ProjectDetails() {
                         <Table.Row
                           key={material.id}
                           p={4}
-                          bg={material.name.toLowerCase().includes('labor')
-                            ? 'yellow.emphasized'
-                            : index % 2 === 0
-                              ? 'spot'
-                              : 'bg.subtle'
+                          bg={
+                            material.name.toLowerCase().includes('labor')
+                              ? 'yellow.emphasized'
+                              : index % 2 === 0
+                                ? 'spot'
+                                : 'bg.subtle'
                           }
                         >
-                          <Table.Cell fontWeight={material.name.toLowerCase().includes('labor') ? 'bold' : 'normal'}>{material.name}</Table.Cell>
+                          <Table.Cell
+                            fontWeight={
+                              material.name.toLowerCase().includes('labor') ? 'bold' : 'normal'
+                            }
+                          >
+                            {material.name}
+                          </Table.Cell>
                           <Table.Cell>{material.quantity}</Table.Cell>
                           <Table.Cell>{formatCurrency(material.price)}</Table.Cell>
                           <Table.Cell textAlign="end" pr={4}>
@@ -939,11 +949,12 @@ export default function ProjectDetails() {
                         material.note ? (
                           <Table.Row
                             key={`${material.id}-note`}
-                            bg={material.name.toLowerCase().includes('labor')
-                              ? 'yellow.emphasized'
-                              : index % 2 === 0
-                                ? 'spot'
-                                : 'bg.subtle'
+                            bg={
+                              material.name.toLowerCase().includes('labor')
+                                ? 'yellow.emphasized'
+                                : index % 2 === 0
+                                  ? 'spot'
+                                  : 'bg.subtle'
                             }
                           >
                             <Table.Cell colSpan={4} fontSize="small" pl={4} py={2}>

@@ -62,7 +62,6 @@ The goal of this project is to develop a **Job Cost Calculator** that enables **
 
 ## 📅 Project Timeline
 
-The project will take **10 business days** from start to finish.
 
 | Milestone                 | Task                              |
 | ------------------------- | --------------------------------- |
